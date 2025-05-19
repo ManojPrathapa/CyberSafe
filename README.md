@@ -1,2 +1,2 @@
-# soft-engg-project-may-2025-se-May-Team_13
-The Repository for the Software Engineering Group Project (team-13) of Jan 2025 term at IITM BS.
+Get Set Grow is a fun, interactive mobile app designed to help school-aged children (8–14) develop essential life skills in a playful, engaging way. Whether it’s learning how to manage emotions, build good habits, communicate effectively, or develop basic money and time skills — Get Set Grow guides children through real-world skills that matter.
+
