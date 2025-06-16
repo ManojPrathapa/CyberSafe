@@ -45,3 +45,20 @@ npm install
 # 4. Start the development server
 npm run dev
 >>>>>>> 003c7cc (fornted readme)
+
+cyber-awareness-frontend/
+├── app/
+│   ├── layout.js             # Root layout (shared across all pages)
+│   ├── page.js               # Home page
+│   ├── child/                # Child user pages
+│   │   └── page.js
+│   ├── parent/               # Parent user pages
+│   │   └── page.js
+│   ├── mentor/               # Mentor user pages
+│   │   └── page.js
+│   ├── admin/                # Admin user pages
+│   │   └── page.js
+├── components/
+│   ├── Navbar.jsx
+│   └── Footer.jsx
+├── public/........
