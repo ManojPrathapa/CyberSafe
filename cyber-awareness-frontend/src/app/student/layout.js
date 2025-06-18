@@ -4,7 +4,7 @@ export default function StudentLayout({ children }) {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 font-sans">
       <StudentNavbar />
-      <main className="flex-grow container mx-auto px-4 py-6">
+      <main className="flex-grow w-full">
         {children}
       </main>
     </div>
