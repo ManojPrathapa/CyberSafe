@@ -2,6 +2,7 @@
 
 This web application is designed to educate children about cyber security in a fun, interactive, and age-appropriate way, while also empowering parents to monitor their child's progress and allowing mentors to contribute learning materials. It serves as a platform where digital safety is made accessible and trackable for families and educators.
 
+
 # Cyber Awareness Frontend
 
 A responsive and educational web application built with **Next.js** and **Tailwind CSS**, designed to promote cyber security awareness among children, with features for parents and mentors.
@@ -42,7 +43,6 @@ npm install recharts
 
 # 5. Start the development server
 npm run dev
->>>>>>> 003c7cc (fornted readme)
 
 cyber-awareness-frontend/
 ├── app/
