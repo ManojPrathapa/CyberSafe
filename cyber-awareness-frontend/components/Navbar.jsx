@@ -12,7 +12,7 @@ export default function Navbar() {
           <a href="/parent" className="text-gray-700 hover:text-blue-500">Parent</a>
           <a href="/mentor" className="text-gray-700 hover:text-blue-500">Mentor</a>
           <a href="/admin" className="text-gray-700 hover:text-blue-500">Admin</a>
-          <a href="/login" className="hover:text-blue-600">Login</a>
+          <a href="/login" className="text-gray-700 hover:text-blue-500">Login</a>
         </div>
       </div>
     </nav>
