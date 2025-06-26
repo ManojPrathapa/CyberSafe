@@ -8,6 +8,11 @@ export default {
   async redirects() {
     return [
       {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
         source: '/admin',
         destination: '/Admin/dashboard',
         permanent: true,
@@ -20,6 +25,11 @@ export default {
       {
         source: '/student',
         destination: '/student/home',
+        permanent: true,
+      },
+      {
+        source: '/parent',
+        destination: '/parent/home',
         permanent: true,
       },
     ];

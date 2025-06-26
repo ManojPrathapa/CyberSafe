@@ -8,7 +8,7 @@ export default function Navbar() {
 
         <div className="space-x-4">
           <a href="/" className="text-gray-700 hover:text-blue-500">Home</a>
-          <a href="/child" className="text-gray-700 hover:text-blue-500">Child</a>
+          <a href="/student" className="text-gray-700 hover:text-blue-500">Student</a>
           <a href="/parent" className="text-gray-700 hover:text-blue-500">Parent</a>
           <a href="/mentor" className="text-gray-700 hover:text-blue-500">Mentor</a>
           <a href="/admin" className="text-gray-700 hover:text-blue-500">Admin</a>
