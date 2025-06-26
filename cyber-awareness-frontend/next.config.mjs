@@ -32,6 +32,16 @@ export default {
         destination: '/parent/home',
         permanent: true,
       },
+      {
+        source: '/login',
+        destination: '/login_signup/login',
+        permanent: true,
+      },
+      {
+        source: '/signup',
+        destination: '/login_signup/signup',
+        permanent: true,
+      },
     ];
     }
   }

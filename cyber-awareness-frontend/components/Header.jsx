@@ -1,19 +1,20 @@
-export default function Header({ page }) {
+import Navbar from "./Navbar";
+
+export default function Header() {
   return (
-    <div className="...">
-      <h1>CYBERSAFE</h1>
-      <div className="...">
-        <Link href="/"><button>HOME</button></Link>
-        {page === "signup" && <Link href="/login"><button>LOGIN</button></Link>}
-        {page === "login" && <Link href="/signup"><button>SIGNUP</button></Link>}
-        {page !== "login" && page !== "signup" && (
-          <>
-            <Link href="/login"><button>LOGIN</button></Link>
-            <Link href="/signup"><button>SIGNUP</button></Link>
-          </>
-        )}
-      
+    <header className="bg-blue-700 w-full shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 py-5 flex justify-between items-center">
+        <h1 className="text-2xl font-extrabold text-white tracking-wide">CyberAware</h1>
+        <div className="flex items-center space-x-4">
+          <button className="bg-white text-blue-700 font-semibold px-5 py-2 rounded shadow hover:bg-blue-100 transition">Button 1</button>
+          <button className="bg-white text-blue-700 font-semibold px-5 py-2 rounded shadow hover:bg-blue-100 transition">Button 2</button>
+        </div>
       </div>
-    </div>
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <Navbar />
+        </div>
+      </div>
+    </header>
   );
 }
