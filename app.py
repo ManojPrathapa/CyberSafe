@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "CYBERSAFE API is up and running 🚀"
+    return "CYBERSAFE API is up and running "
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -41,7 +41,7 @@ def login():
         })
     return jsonify({'error': 'Invalid username or password'}), 401
 
-# app.py (append at the bottom)
+
 
 from models import (
     get_all_modules,

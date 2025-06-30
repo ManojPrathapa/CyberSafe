@@ -1,4 +1,3 @@
-# models.py
 from db import get_db_connection
 import json
 from datetime import datetime
@@ -21,7 +20,7 @@ def get_user_by_username(username):
     conn.close()
     return user
 
-# models.py (append)
+
 
 def get_all_modules():
     conn = get_db_connection()
