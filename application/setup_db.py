@@ -1,5 +1,6 @@
 import sqlite3
 
+
 conn = sqlite3.connect("cybersafe.db")
 cursor = conn.cursor()
 
