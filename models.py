@@ -1,5 +1,7 @@
 # models.py
 from db import get_db_connection
+import json
+from datetime import datetime
 
 def create_user(username, email, password, role):
     conn = get_db_connection()
@@ -88,3 +90,18 @@ def get_notifications(user_id):
     """, (user_id,)).fetchall()
     conn.close()
     return notifs
+
+def save_quiz_attempt(student_id, quiz_id, answers_dict, score):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    answers_json = json.dumps(answers_dict)
+    timestamp = datetime.now().isoformat()
+
+    cursor.execute("""
+        INSERT INTO student_quiz_attempts (student_id, quiz_id, answers, score, timestamp)
+        VALUES (?, ?, ?, ?, ?)
+    """, (student_id, quiz_id, answers_json, score, timestamp))
+
+    conn.commit()
+    conn.close()
