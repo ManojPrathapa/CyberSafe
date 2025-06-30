@@ -1,6 +1,7 @@
 # app.py
 from flask import Flask, request, jsonify
 from models import create_user, get_user_by_username
+from models import save_quiz_attempt
 
 app = Flask(__name__)
 
@@ -67,9 +68,12 @@ def view_quiz(quiz_id):
 def submit_quiz():
     data = request.get_json()
     quiz_id = data['quiz_id']
-    answers = data['answers']  # {question_id: selected_option_id}
+    student_id = data['student_id']  # Now include this in request
+    answers = data['answers']  # {question_id: option_id}
 
     result = evaluate_quiz(quiz_id, answers)
+    save_quiz_attempt(student_id, quiz_id, answers, result["score"])
+
     return jsonify(result)
 
 @app.route('/api/doubt', methods=['POST'])
@@ -92,6 +96,8 @@ def get_doubts(mentor_id):
 def notifications(user_id):
     notifs = get_notifications(user_id)
     return jsonify([dict(n) for n in notifs])
+
+
 
 
 if __name__ == '__main__':
