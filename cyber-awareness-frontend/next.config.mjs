@@ -9,7 +9,7 @@ export default {
     return [
       {
         source: '/home',
-        destination: '/',
+        destination: '/Home/main',
         permanent: true,
       },
       {

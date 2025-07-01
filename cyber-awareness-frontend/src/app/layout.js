@@ -1,7 +1,7 @@
 // Corrected layout.js for Next.js App Router
 
 import '../app/globals.css'; // Use relative path instead of "@/styles/..."
-import Footer from '../../components/Footer';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'Cyber Awareness App',

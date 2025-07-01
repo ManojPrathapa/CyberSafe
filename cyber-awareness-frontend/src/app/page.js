@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default function HomePage() {
   return (
     <>
-      <Header page="Home"/>
+      <Header page="home"/>
       <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50 px-6 py-12 flex flex-col items-center text-center">
         {/* Hero Section */}
