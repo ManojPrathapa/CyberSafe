@@ -43,11 +43,11 @@ export default function LoginPage() {
 
         <form className="space-y-4" onSubmit={handleLogin}>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-black">Email</label>
             <input
               type="email"
               required
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 text-black"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -60,7 +60,7 @@ export default function LoginPage() {
               <input
                 type={showPwd ? "text" : "password"}
                 required
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 text-black"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -68,7 +68,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPwd(!showPwd)}
-                className="absolute right-2 top-2 text-sm text-blue-600"
+                className="absolute right-2 top-2 text-sm text-blue-600 "
               >
                 {showPwd ? "Hide" : "Show"}
               </button>
@@ -86,7 +86,7 @@ export default function LoginPage() {
         <div className="mt-4">
           <button
             onClick={() => signIn("google")}
-            className="w-full border py-2 mt-2 rounded-md hover:bg-gray-100 transition"
+            className="w-full border py-2 mt-2 rounded-md hover:bg-gray-100 transition text-gray-700 flex items-center justify-center gap-2"
           >
             Sign in with Google
           </button>

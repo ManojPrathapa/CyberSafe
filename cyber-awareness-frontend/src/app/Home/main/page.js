@@ -42,21 +42,21 @@ export default function Home() {
               {/* Placeholder for video icon */}
               <span>🎥</span>
             </div>
-            <p className="font-semibold">Educational videos on cybersecurity</p>
+            <p className="font-semibold text-black">Educational videos on cybersecurity</p>
           </div>
           <div className="flex flex-col items-center text-center space-y-2">
             <div className="bg-green-300 w-20 h-20 rounded-full flex items-center justify-center">
               {/* Placeholder for safety icon */}
               <span>✅</span>
             </div>
-            <p className="font-semibold">Tips and Practices to protect your information</p>
+            <p className="font-semibold text-black">Tips and Practices to protect your information</p>
           </div>
           <div className="flex flex-col items-center text-center space-y-2">
             <div className="bg-blue-200 w-20 h-20 rounded-full flex items-center justify-center">
               {/* Placeholder for quiz icon */}
               <span>📝</span>
             </div>
-            <p className="font-semibold">Quizzes to reinforce learning</p>
+            <p className="font-semibold text-black">Quizzes to reinforce learning</p>
           </div>
         </div>
       </main>

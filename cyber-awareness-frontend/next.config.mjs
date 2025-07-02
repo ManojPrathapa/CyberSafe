@@ -14,6 +14,11 @@ export default {
       },
       {
         source: '/admin',
+        destination: '/Admin/home',
+        permanent: true,
+      },
+      {
+        source: '/adminDashboard',
         destination: '/Admin/dashboard',
         permanent: true,
       },
