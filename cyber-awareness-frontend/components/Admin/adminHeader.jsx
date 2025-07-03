@@ -10,44 +10,44 @@ export default function Header({ page }) {
     if (page === "home") {
       return (
         <>
-          <Link href="/login">
+          <Link href="/notifications">
             <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
-              Login
+              Notification
             </button>
           </Link>
-          <Link href="/signup">
+          <Link href="/logout">
             <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
-              Signup
-            </button>
-          </Link>
-        </>
-      );
-    } else if (page === "signup") {
-      return (
-        <>
-          <Link href="/home">
-            <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
-              Home
-            </button>
-          </Link>
-          <Link href="/login">
-            <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
-              Login
+              Logout
             </button>
           </Link>
         </>
       );
-    } else if (page === "login") {
+    } else if (page === "dashboard") {
       return (
         <>
-          <Link href="/home">
+          <Link href="/Admin">
             <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
               Home
             </button>
           </Link>
-          <Link href="/signup">
+          <Link href="/logout">
             <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
-              Signup
+              Logout
+            </button>
+          </Link>
+        </>
+      );
+    } else if (page === "notifications") {
+      return (
+        <>
+          <Link href="/Admin">
+            <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
+              Home
+            </button>
+          </Link>
+          <Link href="/logout">
+            <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
+              Logout
             </button>
           </Link>
         </>

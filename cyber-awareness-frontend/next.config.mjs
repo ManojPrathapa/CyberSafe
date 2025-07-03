@@ -9,11 +9,16 @@ export default {
     return [
       {
         source: '/home',
-        destination: '/',
+        destination: '/Home/main',
         permanent: true,
       },
       {
         source: '/admin',
+        destination: '/Admin/home',
+        permanent: true,
+      },
+      {
+        source: '/adminDashboard',
         destination: '/Admin/dashboard',
         permanent: true,
       },
