@@ -4,14 +4,13 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 
-import Alert from "@/components/Admin/Alert";
-import Chat from "@/components/Admin/chat";
-import Complaints from "@/components/Admin/complaints";
-import SupportNotifications from "@/components/Admin/supportNotification";
+import Alert from "@/components/Support/Alert";
+import Chat from "@/components/Support/chat";
+import Complaints from "@/components/Support/complaints";
+import SupportNotifications from "@/components/Support/supportNotification";
 
 const notifications = [
-  { type: "register", message: "Student 5 registered in the application.", time: "2 min ago" },
-  { type: "approval", message: "Trainer 3 approved in the application", time: "1 hr ago" },
+ 
   { type: "complaint", message: "Student 1 raised compliant against Trainer 2", time: "2 days ago" },
   { type: "complaint", message: "Student 2 raised compliant against Trainer 3", time: "4 days ago" },
   { type: "resolved", message: "Compliant by Student 3 was resolved", time: "4 days ago" },
@@ -19,7 +18,7 @@ const notifications = [
 
 export default function SupportHome() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState("home");
+  const [selectedSection, setSelectedSection] = useState("dashboard");
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-blue-100 to-indigo-100 text-gray-800">
@@ -34,9 +33,9 @@ export default function SupportHome() {
 
         <nav className={`${mobileMenuOpen ? "block" : "hidden"} lg:block`}>
           <div className="flex flex-col gap-4">
-            <button onClick={() => setSelectedSection("users")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">ALL USERS</button>
-            <button onClick={() => setSelectedSection("trainer")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">TRAINER APPROVAL</button>
-            <button onClick={() => setSelectedSection("content")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">CONTENT APPROVAL</button>
+            <button onClick={() => setSelectedSection("alert")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">ALERT</button>
+            <button onClick={() => setSelectedSection("chat")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">CHAT </button>
+            <button onClick={() => setSelectedSection("complaints")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">COMPLAINTS</button>
           </div>
         </nav>
       </aside>
@@ -44,9 +43,9 @@ export default function SupportHome() {
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold px-6 py-2 bg-white shadow rounded-full text-indigo-800">HI ADMIN</h2>
+          <h2 className="text-2xl font-bold px-6 py-2 bg-white shadow rounded-full text-indigo-800">HI SUPPORT TEAM</h2>
           <div className="flex items-center gap-4">
-            <Link href="/adminDashboard">
+            <Link href="/supportDashboard">
               <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">🖥</div>
             </Link>
             <button
@@ -59,9 +58,8 @@ export default function SupportHome() {
           </div>
         </div>
 
-       
           {selectedSection === "dashboard" && (
-             <div className="bg-white border border-gray-200 p-6 rounded-xl shadow max-w-5xl">
+            <div className="bg-white border border-gray-200 p-6 rounded-xl shadow max-w-5xl">
             <ul className="list-disc pl-6 space-y-4 text-base leading-relaxed">
               <li><strong>Record Keeping and Data Management:</strong> Organizing, maintaining, and updating records, files, and databases.</li>
               <li><strong>Communication and Coordination:</strong> Facilitating effective communication within the organization, coordinating meetings and events, and liaising with external stakeholders.</li>
@@ -70,8 +68,9 @@ export default function SupportHome() {
               <li><strong>Resource Management:</strong> Managing office supplies, equipment, and other resources to ensure they are readily available and maintained.</li>
               <li><strong>Scheduling and Planning:</strong> Managing schedules, booking appointments, and coordinating travel arrangements.</li>
             </ul>
-             </div>
+            </div>
           )}
+       
 
         {selectedSection === "alert" && <Alert />}
         {selectedSection === "chat" && <Chat />}

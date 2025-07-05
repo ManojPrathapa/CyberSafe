@@ -6,7 +6,6 @@ export default function HomePage() {
   return (
     <>
       <Header page="home"/>
-      <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50 px-6 py-12 flex flex-col items-center text-center">
         {/* Hero Section */}
         <div className="max-w-3xl">
@@ -19,6 +18,11 @@ export default function HomePage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-wrap justify-center gap-4">
+            <Link href="/home">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
+                Home
+              </button>
+            </Link>
             <Link href="/student/home">
               <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 I'm a Student
@@ -37,6 +41,11 @@ export default function HomePage() {
             <Link href="/admin">
               <button className="bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 Admin Login
+              </button>
+            </Link>
+            <Link href="/support">
+              <button className="bg-gray-700 hover:bg-gray-500 text-white px-6 py-3 rounded shadow transition hover:scale-105">
+                Suppoet Login
               </button>
             </Link>
           </div>

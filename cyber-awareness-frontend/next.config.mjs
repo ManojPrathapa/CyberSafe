@@ -23,6 +23,16 @@ export default {
         permanent: true,
       },
       {
+        source: '/support',
+        destination: '/support/home',
+        permanent: true,
+      },
+      {
+        source: '/supportDashboard',
+        destination: '/support/dashboard',
+        permanent: true,
+      },
+      {
         source: '/trainer',
         destination: '/trainer/dashboard',
         permanent: true,
