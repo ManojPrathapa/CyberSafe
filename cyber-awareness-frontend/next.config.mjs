@@ -39,7 +39,7 @@ export default {
       },
       {
         source: '/student',
-        destination: '/student/home',
+        destination: '/Students/home',
         permanent: true,
       },
       {

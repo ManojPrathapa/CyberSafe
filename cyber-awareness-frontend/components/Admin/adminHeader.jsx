@@ -61,7 +61,7 @@ export default function Header({ page }) {
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         {/* Title */}
         <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-wide">
-          CyberAware
+          CYBERSAFE
         </h1>
 
         {/* Desktop Buttons */}

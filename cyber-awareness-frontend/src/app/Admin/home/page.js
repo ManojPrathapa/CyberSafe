@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 
-import Alert from "@/components/Admin/Alert";
-import Chat from "@/components/Admin/chat";
-import Complaints from "@/components/Admin/complaints";
-import SupportNotifications from "@/components/Admin/supportNotification";
+import AllUsers from "@/components/Admin/Alluser";
+import TrainerApproval from "@/components/Admin/TrainerApproval";
+import ContentApproval from "@/components/Admin/ContentApproval";
+
 
 const notifications = [
   { type: "register", message: "Student 5 registered in the application.", time: "2 min ago" },
@@ -60,7 +60,7 @@ export default function SupportHome() {
         </div>
 
        
-          {selectedSection === "dashboard" && (
+          {selectedSection === "home" && (
              <div className="bg-white border border-gray-200 p-6 rounded-xl shadow max-w-5xl">
             <ul className="list-disc pl-6 space-y-4 text-base leading-relaxed">
               <li><strong>Record Keeping and Data Management:</strong> Organizing, maintaining, and updating records, files, and databases.</li>
@@ -73,10 +73,10 @@ export default function SupportHome() {
              </div>
           )}
 
-        {selectedSection === "alert" && <Alert />}
-        {selectedSection === "chat" && <Chat />}
-        {selectedSection === "complaints" && <Complaints />}
-        {selectedSection === "notification" && <SupportNotifications notifications={notifications} />}
+        {selectedSection === "users" && <AllUsers />}
+        {selectedSection === "trainer" && <TrainerApproval />}
+        {selectedSection === "content" && <ContentApproval />}
+        
       </main>
     </div>
   );
