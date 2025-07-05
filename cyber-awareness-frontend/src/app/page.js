@@ -10,7 +10,7 @@ export default function HomePage() {
         {/* Hero Section */}
         <div className="max-w-3xl">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-800 mb-6 animate-fadeIn">
-            Welcome to <span className="text-purple-700">Cyber Awareness</span>
+            Welcome to <span className="text-purple-700">Cybersafe</span>
           </h1>
           <p className="text-lg sm:text-xl text-gray-700 mb-8 animate-fadeIn delay-100">
             Empowering kids, parents, and mentors with knowledge to stay safe online.
