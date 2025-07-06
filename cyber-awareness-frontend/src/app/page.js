@@ -28,7 +28,7 @@ export default function HomePage() {
                 I'm a Student
               </button>
             </Link>
-            <Link href="/parents">
+            <Link href="/Parents">
               <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 I'm a Parent
               </button>
@@ -38,14 +38,14 @@ export default function HomePage() {
                 I'm a Mentor
               </button>
             </Link>
-            <Link href="/admin">
+            <Link href="/Admin/home">
               <button className="bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 Admin Login
               </button>
             </Link>
             <Link href="/support">
               <button className="bg-gray-700 hover:bg-gray-500 text-white px-6 py-3 rounded shadow transition hover:scale-105">
-                Suppoet Login
+                Support Login
               </button>
             </Link>
           </div>

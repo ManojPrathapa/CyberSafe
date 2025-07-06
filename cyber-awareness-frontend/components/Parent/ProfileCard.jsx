@@ -112,14 +112,7 @@ export default function ParentProfile() {
         </div>
       </div>
 
-      {/* Back Button */}
-      <div className="mt-6">
-        <Link href="/parent/home">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            ⬅ Back to Home
-          </button>
-        </Link>
-      </div>
+      
     </div>
   );
 }

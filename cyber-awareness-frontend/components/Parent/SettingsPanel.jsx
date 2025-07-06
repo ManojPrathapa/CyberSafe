@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-export default function ParentSettings() {
+export default function SettingsPanel() {
   const settings = [
     { icon: "🔒", label: "Change Password" },
     { icon: "📩", label: "Notification Preferences" },

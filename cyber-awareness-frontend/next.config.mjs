@@ -44,7 +44,7 @@ export default {
       },
       {
         source: '/parent',
-        destination: '/parent/home',
+        destination: '/Parents',
         permanent: true,
       },
       {

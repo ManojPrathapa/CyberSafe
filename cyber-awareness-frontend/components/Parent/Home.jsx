@@ -15,7 +15,7 @@ export default function ParentHome() {
 
   return (
     <div className="p-8 text-purple-900">
-      <h2 className="text-3xl font-bold text-purple-700 mb-6">Welcome, Parents!</h2>
+      <h2 className="text-3xl font-bold text-purple-700 mb-6">Welcome,</h2>
       <p className="mb-6 text-gray-700">
         Empower yourself with knowledge to support your child’s safe digital experience.
       </p>
@@ -31,7 +31,8 @@ export default function ParentHome() {
               Learn about: {topic}.
             </p>
             <Link
-              href={`/parent/topic/${index + 1}`}
+            //   href={`/parent/topic/${index + 1}`}
+              href ={`/parent`}
               className="text-purple-700 text-sm mt-3 inline-block hover:underline"
             >
               Explore →
