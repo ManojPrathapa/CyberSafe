@@ -1,10 +1,16 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 
 export default function Header({ page }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    router.push('/');
+  };
 
   const renderButtons = () => {
     if (page === "home") {
@@ -30,11 +36,12 @@ export default function Header({ page }) {
               Home
             </button>
           </Link>
-          <Link href="/logout">
-            <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
-              Logout
+          <button
+              onClick={handleLogout}
+              className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition"
+            >
+              LOGOUT
             </button>
-          </Link>
         </>
       );
     } else if (page === "notifications") {
@@ -45,11 +52,12 @@ export default function Header({ page }) {
               Home
             </button>
           </Link>
-          <Link href="/logout">
-            <button className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition">
-              Logout
+          <button
+              onClick={handleLogout}
+              className="bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-blue-100 transition"
+            >
+              LOGOUT
             </button>
-          </Link>
         </>
       );
     }

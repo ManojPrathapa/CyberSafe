@@ -7,6 +7,8 @@ import Link from "next/link";
 import AllUsers from "@/components/Admin/Alluser";
 import TrainerApproval from "@/components/Admin/TrainerApproval";
 import ContentApproval from "@/components/Admin/ContentApproval";
+import AdminNotifications from "@/components/Admin/adminNotification";
+
 
 
 const notifications = [
@@ -55,7 +57,11 @@ export default function SupportHome() {
             >
               🔔
             </button>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow">LOGOUT</button>
+            <Link href={"/"}>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow"
+            >LOGOUT</button>
+            </Link>
+
           </div>
         </div>
 
@@ -76,6 +82,9 @@ export default function SupportHome() {
         {selectedSection === "users" && <AllUsers />}
         {selectedSection === "trainer" && <TrainerApproval />}
         {selectedSection === "content" && <ContentApproval />}
+        {selectedSection === "notification" && (
+          <AdminNotifications notifications={notifications} />
+        )}
         
       </main>
     </div>
