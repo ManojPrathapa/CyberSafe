@@ -46,7 +46,7 @@ export default function SupportHome() {
           <h2 className="text-2xl font-bold px-6 py-2 bg-white shadow rounded-full text-indigo-800">HI SUPPORT TEAM</h2>
           <div className="flex items-center gap-4">
             <Link href="/supportDashboard">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">🖥</div>
+                 <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">📊</div>
             </Link>
             <button
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow"
