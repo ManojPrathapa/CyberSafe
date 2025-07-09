@@ -82,6 +82,21 @@ def get_doubts_for_mentor(mentor_id):
     conn.close()
     return doubts
 
+def get_attempts_for_student(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute("""
+        SELECT * FROM student_quiz_attempts WHERE student_id = ?
+    """, (student_id,)).fetchall()
+    conn.close()
+    return rows
+
+def get_all_quizzes():
+    conn = get_db_connection()
+    quizzes = conn.execute("SELECT * FROM quizzes").fetchall()
+    conn.close()
+    return quizzes
+
 def get_notifications(user_id):
     conn = get_db_connection()
     notifs = conn.execute("""

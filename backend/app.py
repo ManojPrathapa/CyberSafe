@@ -1,104 +1,34 @@
-# app.py
-from flask import Flask, request, jsonify
-from models import create_user, get_user_by_username
-from models import save_quiz_attempt
+from flask import Flask
+from flask_restful import Api
+from resources.auth import RegisterAPI, LoginAPI
+from resources.modules import ModuleListAPI
+from resources.quiz import QuizAPI, QuizSubmitAPI
+from resources.doubts import AskDoubtAPI, MentorDoubtAPI
+from resources.notifications import NotificationAPI
+from resources.attempts import StudentAttemptsAPI
 
 app = Flask(__name__)
+api = Api(app)
 
+# Routes
 @app.route('/')
-def home():
-    return "CYBERSAFE API is up and running "
-
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    username = data['username']
-    email = data['email']
-    password = data['password']
-    role = data['role']
-
-    if get_user_by_username(username):
-        return jsonify({'error': 'Username already exists'}), 400
-
-    create_user(username, email, password, role)
-    return jsonify({'message': 'User registered successfully'}), 201
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    username = data['username']
-    password = data['password']
-
-    user = get_user_by_username(username)
-    if user and user['password'] == password:
-        return jsonify({
-            'message': 'Login successful',
-            'user': {
-                'id': user['id'],
-                'username': user['username'],
-                'role': user['role']
-            }
-        })
-    return jsonify({'error': 'Invalid username or password'}), 401
+def index():
+    return {'message': 'CYBERSAFE API is running! Visit /api/* routes.'}
+@app.route('/api')
+def api_index():
+    return {'message': 'CYBERSAFE API is running! Visit /api/* routes.'}
 
 
 
-from models import (
-    get_all_modules,
-    get_quiz_with_questions,
-    evaluate_quiz,
-    ask_doubt,
-    get_doubts_for_mentor,
-    get_notifications
-)
-
-@app.route('/api/modules', methods=['GET'])
-def modules():
-    modules = get_all_modules()
-    return jsonify([dict(m) for m in modules])
-
-@app.route('/api/quiz/<int:quiz_id>', methods=['GET'])
-def view_quiz(quiz_id):
-    quiz = get_quiz_with_questions(quiz_id)
-    if not quiz:
-        return jsonify({"error": "Quiz not found"}), 404
-    return jsonify(quiz)
-
-@app.route('/api/quiz/submit', methods=['POST'])
-def submit_quiz():
-    data = request.get_json()
-    quiz_id = data['quiz_id']
-    student_id = data['student_id']  # Now include this in request
-    answers = data['answers']  # {question_id: option_id}
-
-    result = evaluate_quiz(quiz_id, answers)
-    save_quiz_attempt(student_id, quiz_id, answers, result["score"])
-
-    return jsonify(result)
-
-@app.route('/api/doubt', methods=['POST'])
-def post_doubt():
-    data = request.get_json()
-    ask_doubt(
-        student_id=data['student_id'],
-        mentor_id=data['mentor_id'],
-        module_id=data['module_id'],
-        question=data['question']
-    )
-    return jsonify({"message": "Doubt submitted successfully."})
-
-@app.route('/api/doubts/<int:mentor_id>', methods=['GET'])
-def get_doubts(mentor_id):
-    doubts = get_doubts_for_mentor(mentor_id)
-    return jsonify([dict(d) for d in doubts])
-
-@app.route('/api/notifications/<int:user_id>', methods=['GET'])
-def notifications(user_id):
-    notifs = get_notifications(user_id)
-    return jsonify([dict(n) for n in notifs])
-
-
-
+api.add_resource(RegisterAPI, '/api/register')
+api.add_resource(LoginAPI, '/api/login')
+api.add_resource(ModuleListAPI, '/api/modules')
+api.add_resource(QuizAPI, '/api/quiz/<int:quiz_id>')
+api.add_resource(QuizSubmitAPI, '/api/quiz/submit')
+api.add_resource(AskDoubtAPI, '/api/doubt')
+api.add_resource(MentorDoubtAPI, '/api/doubts/<int:mentor_id>')
+api.add_resource(NotificationAPI, '/api/notifications/<int:user_id>')
+api.add_resource(StudentAttemptsAPI, '/api/student/<int:student_id>/attempts')
 
 if __name__ == '__main__':
     app.run(debug=True)
