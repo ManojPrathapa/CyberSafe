@@ -6,6 +6,9 @@ from resources.quiz import QuizAPI, QuizSubmitAPI
 from resources.doubts import AskDoubtAPI, MentorDoubtAPI
 from resources.notifications import NotificationAPI
 from resources.attempts import StudentAttemptsAPI
+from resources.reports import StudentReportAPI
+from resources.tips import TipListAPI, ParentViewedTipsAPI, MarkTipViewedAPI
+from resources.complaints import FileComplaintAPI, ComplaintListAPI, ResolveComplaintAPI
 
 app = Flask(__name__)
 api = Api(app)
@@ -29,6 +32,13 @@ api.add_resource(AskDoubtAPI, '/api/doubt')
 api.add_resource(MentorDoubtAPI, '/api/doubts/<int:mentor_id>')
 api.add_resource(NotificationAPI, '/api/notifications/<int:user_id>')
 api.add_resource(StudentAttemptsAPI, '/api/student/<int:student_id>/attempts')
+api.add_resource(StudentReportAPI, '/api/reports/<int:student_id>')
+api.add_resource(TipListAPI, '/api/tips')
+api.add_resource(ParentViewedTipsAPI, '/api/tips/viewed/<int:parent_id>')
+api.add_resource(MarkTipViewedAPI, '/api/tips/viewed')
+api.add_resource(FileComplaintAPI, '/api/complaints/file')
+api.add_resource(ComplaintListAPI, '/api/complaints')
+api.add_resource(ResolveComplaintAPI, '/api/complaints/resolve')
 
 if __name__ == '__main__':
     app.run(debug=True)

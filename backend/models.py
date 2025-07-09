@@ -105,6 +105,87 @@ def get_notifications(user_id):
     conn.close()
     return notifs
 
+def get_reports_for_student(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute("""
+        SELECT * FROM reports WHERE student_id = ?
+    """, (student_id,)).fetchall()
+    conn.close()
+    return rows
+
+def get_reports_for_mentor(mentor_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute("""
+        SELECT * FROM reports WHERE mentor_id = ?
+    """, (mentor_id,)).fetchall()
+    conn.close()
+    return rows
+
+# 🔹 Get all cyber safety tips
+def get_all_tips():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute("SELECT * FROM tips").fetchall()
+    conn.close()
+    return rows
+
+# 🔹 Get viewed tips by a parent
+def get_viewed_tips_by_parent(parent_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute("""
+        SELECT t.* FROM tips t
+        JOIN tip_views v ON t.tip_id = v.tip_id
+        WHERE v.parent_id = ?
+    """, (parent_id,)).fetchall()
+    conn.close()
+    return rows
+
+# 🔹 Mark a tip as viewed
+def mark_tip_viewed(parent_id, tip_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO tip_views (parent_id, tip_id, viewed_at)
+        VALUES (?, ?, datetime('now'))
+    """, (parent_id, tip_id))
+    conn.commit()
+    conn.close()
+
+# 🔹 File a new complaint
+def file_complaint(filed_by, against, description):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO complaints (filed_by, against, description, status)
+        VALUES (?, ?, ?, 'open')
+    """, (filed_by, against, description))
+    conn.commit()
+    conn.close()
+
+# 🔹 Get all complaints
+def get_complaints():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute("SELECT * FROM complaints").fetchall()
+    conn.close()
+    return rows
+
+# 🔹 Resolve a complaint
+def resolve_complaint(complaint_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE complaints
+        SET status = 'resolved'
+        WHERE complaint_id = ?
+    """, (complaint_id,))
+    conn.commit()
+    conn.close()
+
+
 def save_quiz_attempt(student_id, quiz_id, answers_dict, score):
     conn = get_db_connection()
     cursor = conn.cursor()
