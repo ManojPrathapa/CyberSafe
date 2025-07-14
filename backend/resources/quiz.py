@@ -1,6 +1,6 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
 from flask import request
-from models import get_quiz_with_questions, evaluate_quiz, save_quiz_attempt
+from models import get_quiz_with_questions, evaluate_quiz, save_quiz_attempt, create_quiz_with_questions
 
 class QuizAPI(Resource):
     def get(self, quiz_id):
@@ -27,3 +27,9 @@ class QuizSubmitAPI(Resource):
             "score": result["score"],
             "total": result["total"]
         }
+
+class QuizCreateAPI(Resource):
+    def post(self):
+        data = request.get_json()
+        create_quiz_with_questions(data)
+        return {"message": "Quiz created and uploaded successfully"}

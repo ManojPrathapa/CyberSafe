@@ -186,6 +186,151 @@ def resolve_complaint(complaint_id):
     conn.close()
 
 
+
+# ------------------------------
+# 🔹 Create and Upload Quiz
+# ------------------------------
+def create_quiz_with_questions(data):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    quiz_title = data.get('title')
+    module_id = data.get('module_id')
+    questions = data.get('questions', [])
+
+    cursor.execute("INSERT INTO quizzes (module_id) VALUES (?)", (module_id,))
+    quiz_id = cursor.lastrowid
+
+    for q in questions:
+        cursor.execute("INSERT INTO questions (text, explanation) VALUES (?, ?)", (q['text'], q.get('explanation', '')))
+        question_id = cursor.lastrowid
+        for opt in q['options']:
+            cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", (question_id, opt['text'], opt['is_correct']))
+
+    conn.commit()
+    conn.close()
+
+# ------------------------------
+# 🔹 Upload Module Files
+# ------------------------------
+def upload_module_content(mentor_id, title, description):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO modules (title, description) VALUES (?, ?)", (title, description))
+    conn.commit()
+    conn.close()
+
+# ------------------------------
+# 🔹 Get Student Activity
+# ------------------------------
+def get_student_activity(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    quizzes = cursor.execute("SELECT * FROM student_quiz_attempts WHERE student_id = ?", (student_id,)).fetchall()
+    modules = cursor.execute("SELECT * FROM modules WHERE module_id IN (SELECT module_id FROM student_progress WHERE student_id = ?)", (student_id,)).fetchall()
+    conn.close()
+    return {
+        "quiz_attempts": [dict(q) for q in quizzes],
+        "modules_viewed": [dict(m) for m in modules]
+    }
+
+# ------------------------------
+# 🔹 Get / Edit Profile
+# ------------------------------
+def get_profile_details(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    row = cursor.execute("SELECT id, username, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else {}
+
+def update_profile_details(args):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    fields = []
+    values = []
+    for field in ['username', 'email', 'password']:
+        if args.get(field):
+            fields.append(f"{field} = ?")
+            values.append(args.get(field))
+    values.append(args['user_id'])
+    if fields:
+        cursor.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
+        conn.commit()
+    conn.close()
+
+# ------------------------------
+# 🔹 Post Reply to Doubts
+# ------------------------------
+def reply_to_doubt(doubt_id, answer):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE doubts SET answer = ? WHERE doubt_id = ?", (answer, doubt_id))
+    conn.commit()
+    conn.close()
+
+# ------------------------------
+# 🔹 Admin: All Users / Approvals / Reports
+# ------------------------------
+def get_all_users():
+    conn = get_db_connection()
+    users = conn.execute("SELECT id, username, email, role, isActive FROM users").fetchall()
+    conn.close()
+    return users
+
+def get_pending_trainers():
+    conn = get_db_connection()
+    trainers = conn.execute("SELECT * FROM users WHERE role = 'Mentor' AND isApproved = 0").fetchall()
+    conn.close()
+    return trainers
+
+def get_pending_contents():
+    conn = get_db_connection()
+    contents = conn.execute("SELECT * FROM modules WHERE approved = 0").fetchall()
+    conn.close()
+    return contents
+
+def download_user_report():
+    # dummy implementation
+    return {"report": "Monthly user report data (PDF/CSV placeholder)"}
+
+def download_summary():
+    # dummy implementation
+    return {"summary": "Monthly app usage summary (PDF/CSV placeholder)"}
+
+def block_user(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET isActive = 0 WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+def unblock_user(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET isActive = 1 WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+# ------------------------------
+# 🔹 Support Team: Post Alert
+# ------------------------------
+def post_alert(message):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO alerts (message, timestamp) VALUES (?, datetime('now'))", (message,))
+    conn.commit()
+    conn.close()
+
+
+
+
+
+
+
+
+
+
 def save_quiz_attempt(student_id, quiz_id, answers_dict, score):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -200,3 +345,4 @@ def save_quiz_attempt(student_id, quiz_id, answers_dict, score):
 
     conn.commit()
     conn.close()
+
