@@ -10,7 +10,7 @@ class AskDoubtAPI(Resource):
         module_id = data.get("module_id")
         question = data.get("question")
         ask_doubt(student_id, mentor_id, module_id, question)
-        return {"message": "Doubt submitted successfully"}
+        return {"message": "Doubt submitted successfully"}, 201
 
 class MentorDoubtAPI(Resource):
     def get(self, mentor_id):

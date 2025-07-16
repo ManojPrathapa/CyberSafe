@@ -9,7 +9,7 @@ class FileComplaintAPI(Resource):
         parser.add_argument('description', required=True)
         args = parser.parse_args()
         file_complaint(args['filed_by'], args['against'], args['description'])
-        return {'message': 'Complaint filed'}
+        return {'message': 'Complaint filed'}, 201
 
 class ComplaintListAPI(Resource):
     def get(self):

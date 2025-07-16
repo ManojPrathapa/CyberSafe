@@ -16,4 +16,4 @@ class MarkTipViewedAPI(Resource):
         parser.add_argument('tip_id', required=True, type=int)
         args = parser.parse_args()
         mark_tip_viewed(args['parent_id'], args['tip_id'])
-        return {'message': 'Tip marked as viewed'}
+        return {'message': 'Tip marked as viewed'}, 201
