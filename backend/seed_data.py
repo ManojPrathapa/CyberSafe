@@ -32,7 +32,7 @@ if cursor.fetchone()[0] == 0:
     # STUDENT / PARENT / MENTOR
     cursor.execute("INSERT INTO students (user_id, age) VALUES (?, ?)", (student_id, 15))
     cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (parent_id,))
-    cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years, is_approved) VALUES (?, ?, ?, 1)", (mentor_id, "Cybersecurity", 5))
+    cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years, isapproved) VALUES (?, ?, ?, 1)", (mentor_id, "Cybersecurity", 5))
 
     # Parent-Student Link
     cursor.execute("INSERT INTO parent_student (parent_id, student_id) VALUES (?, ?)", (parent_id, student_id))

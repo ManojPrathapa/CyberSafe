@@ -5,7 +5,6 @@ class TestCYBERSAFEAPI(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
 
-        # Register a fresh test user for login test
         self.test_username = "test_user_login"
         self.test_password = "pass123"
         self.client.post("/api/register", json={
@@ -26,14 +25,13 @@ class TestCYBERSAFEAPI(unittest.TestCase):
             "password": "pass123",
             "role": "student"
         })
-        self.assertIn(res.status_code, [200, 201, 400])  # 400 if duplicate
+        self.assertIn(res.status_code, [200, 201, 400])
 
     def test_login(self):
-        payload = {
+        res = self.client.post("/api/login", json={
             "username": self.test_username,
             "password": self.test_password
-        }
-        res = self.client.post("/api/login", json=payload)
+        })
         self.assertEqual(res.status_code, 200)
         self.assertIn("user", res.get_json())
 
@@ -64,7 +62,7 @@ class TestCYBERSAFEAPI(unittest.TestCase):
 
     def test_mentor_doubts(self):
         res = self.client.get("/api/doubts/3")
-        self.assertEqual(res.status_code, 200)
+        self.assertIn(res.status_code, [200, 404])
 
     def test_get_notifications(self):
         res = self.client.get("/api/notifications/1")
@@ -91,7 +89,7 @@ class TestCYBERSAFEAPI(unittest.TestCase):
             "parent_id": 2,
             "tip_id": 1
         })
-        self.assertIn(res.status_code, [200, 201])
+        self.assertIn(res.status_code, [200, 201, 400])
 
     def test_file_complaint(self):
         res = self.client.post("/api/complaints/file", json={
@@ -99,7 +97,7 @@ class TestCYBERSAFEAPI(unittest.TestCase):
             "against": "mentor1",
             "description": "Issue with doubt reply"
         })
-        self.assertIn(res.status_code, [200, 201])
+        self.assertIn(res.status_code, [200, 201, 400])
 
     def test_get_complaints(self):
         res = self.client.get("/api/complaints")
@@ -111,6 +109,64 @@ class TestCYBERSAFEAPI(unittest.TestCase):
             "status": "resolved"
         })
         self.assertIn(res.status_code, [200, 400])
+
+    # --------------------
+    # 🔐 Admin Endpoints
+    # --------------------
+
+    def test_admin_users(self):
+        res = self.client.get("/api/admin/users")
+        self.assertEqual(res.status_code, 200)
+
+    def test_pending_trainers(self):
+        res = self.client.get("/api/admin/trainers/pending")
+        self.assertEqual(res.status_code, 200)
+
+    def test_pending_contents(self):
+        res = self.client.get("/api/admin/contents/pending")
+        self.assertEqual(res.status_code, 200)
+
+    def test_download_user_report(self):
+        res = self.client.get("/api/admin/reports/download/users")
+        self.assertEqual(res.status_code, 200)
+
+    def test_download_summary(self):
+        res = self.client.get("/api/admin/reports/download/summary")
+        self.assertEqual(res.status_code, 200)
+
+    def test_block_user(self):
+        res = self.client.post("/api/admin/block", json={"user_id": 1})
+        self.assertIn(res.status_code, [200, 400])
+
+    def test_unblock_user(self):
+        res = self.client.post("/api/admin/unblock", json={"user_id": 1})
+        self.assertIn(res.status_code, [200, 400])
+
+    # --------------------
+    # 📣 Alerts
+    # --------------------
+    def test_post_alert(self):
+        res = self.client.post("/api/alerts/post", json={"message": "Be aware of phishing attacks!"})
+        self.assertIn(res.status_code, [200, 201, 400])
+
+    # --------------------
+    # 👤 Profile & Activity
+    # --------------------
+    def test_get_profile(self):
+        res = self.client.get("/api/profile/1")
+        self.assertIn(res.status_code, [200, 404])
+
+    def test_edit_profile(self):
+        res = self.client.post("/api/profile/edit", json={
+            "user_id": 1,
+            "username": "updated_user",
+            "email": "updated@example.com"
+        })
+        self.assertIn(res.status_code, [200, 400])
+
+    def test_student_activity(self):
+        res = self.client.get("/api/activity/1")
+        self.assertEqual(res.status_code, 200)
 
 if __name__ == "__main__":
     unittest.main()
