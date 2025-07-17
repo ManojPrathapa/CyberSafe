@@ -298,3 +298,96 @@ def post_alert(message):
     conn.execute("INSERT INTO alerts (message, timestamp) VALUES (?, datetime('now'))", (message,))
     conn.commit()
     conn.close()
+
+def soft_delete_module(module_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE modules SET isDeleted = 1 WHERE module_id = ?", (module_id,))
+    conn.commit()
+    conn.close()
+
+def get_all_modules():
+    conn = get_db_connection()
+    modules = conn.execute("SELECT * FROM modules WHERE isDeleted = 0").fetchall()
+    conn.close()
+    return modules
+
+def soft_delete_quiz(quiz_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE quizzes SET isDeleted = 1 WHERE quiz_id = ?", (quiz_id,))
+    conn.commit()
+    conn.close()
+
+def get_all_quizzes():
+    conn = get_db_connection()
+    quizzes = conn.execute("SELECT * FROM quizzes WHERE isDeleted = 0").fetchall()
+    conn.close()
+    return quizzes
+
+def soft_delete_doubt(doubt_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE doubts SET isDeleted = 1 WHERE doubt_id = ?", (doubt_id,))
+    conn.commit()
+    conn.close()
+
+def get_all_doubts():
+    conn = get_db_connection()
+    doubts = conn.execute("SELECT * FROM doubts WHERE isDeleted = 0").fetchall()
+    conn.close()
+    return doubts
+
+def soft_delete_complaint(complaint_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE complaints SET isDeleted = 1 WHERE complaint_id = ?", (complaint_id,))
+    conn.commit()
+    conn.close()
+
+def get_all_complaints():
+    conn = get_db_connection()
+    complaints = conn.execute("SELECT * FROM complaints WHERE isDeleted = 0").fetchall()
+    conn.close()
+    return complaints
+
+
+def soft_delete_tip(tip_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE tips SET isDeleted = 1 WHERE tip_id = ?", (tip_id,))
+    conn.commit()
+    conn.close()
+
+def get_all_tips():
+    conn = get_db_connection()
+    tips = conn.execute("SELECT * FROM tips WHERE isDeleted = 0").fetchall()
+    conn.close()
+    return tips
+
+
+def soft_delete_report(report_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE reports SET isDeleted = 1 WHERE report_id = ?", (report_id,))
+    conn.commit()
+    conn.close()
+
+def get_reports_for_student(student_id):
+    conn = get_db_connection()
+    reports = conn.execute(
+        "SELECT * FROM reports WHERE student_id = ? AND isDeleted = 0",
+        (student_id,)
+    ).fetchall()
+    conn.close()
+    return reports
+
+
+def soft_delete_alert(alert_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE alerts SET isDeleted = 1 WHERE alert_id = ?", (alert_id,))
+    conn.commit()
+    conn.close()
+
+def get_all_alerts():
+    conn = get_db_connection()
+    alerts = conn.execute("SELECT * FROM alerts WHERE isDeleted = 0").fetchall()
+    conn.close()
+    return alerts
+
+
+

@@ -17,6 +17,15 @@ from resources.admin import (
 from resources.alerts import AlertPostAPI
 from resources.profile import ProfileAPI, EditProfileAPI
 from resources.activity import StudentActivityAPI
+from resources.modules import DeleteModuleAPI
+from resources.quiz import DeleteQuizAPI
+from resources.doubts import DeleteDoubtAPI
+from resources.complaints import DeleteComplaintAPI
+from resources.tips import DeleteTipAPI
+from resources.reports import DeleteReportAPI
+from resources.alerts import DeleteAlertAPI
+
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -85,6 +94,15 @@ api.add_resource(EditProfileAPI, '/api/profile/edit')
 
 # Activity
 api.add_resource(StudentActivityAPI, '/api/activity/<int:student_id>')
+
+api.add_resource(DeleteModuleAPI, '/api/modules/delete/<int:module_id>')
+api.add_resource(DeleteQuizAPI, '/api/quiz/delete/<int:quiz_id>')
+api.add_resource(DeleteDoubtAPI, '/api/doubt/delete/<int:doubt_id>')
+api.add_resource(DeleteComplaintAPI, '/api/complaints/delete/<int:complaint_id>')
+api.add_resource(DeleteTipAPI, '/api/tips/delete/<int:tip_id>')
+api.add_resource(DeleteReportAPI, '/api/reports/delete/<int:report_id>')
+api.add_resource(DeleteAlertAPI, '/api/alerts/delete/<int:alert_id>')
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)

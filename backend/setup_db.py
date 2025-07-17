@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     role TEXT CHECK(role IN ('student', 'parent', 'mentor', 'admin', 'support')),
-    isActive BOOLEAN DEFAULT 1
+    isActive BOOLEAN DEFAULT 1,
+    isDeleted BOOLEAN DEFAULT 0
 );
 
 -- STUDENTS
@@ -50,7 +51,8 @@ CREATE TABLE IF NOT EXISTS modules (
     module_id INTEGER PRIMARY KEY,
     title TEXT,
     description TEXT,
-    approved BOOLEAN DEFAULT 0
+    approved BOOLEAN DEFAULT 0,
+    isDeleted BOOLEAN DEFAULT 0
 );
 
 -- VIDEOS
@@ -62,6 +64,7 @@ CREATE TABLE IF NOT EXISTS videos (
     views INTEGER DEFAULT 0,
     likes INTEGER DEFAULT 0,
     module_id INTEGER,
+    isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(uploaded_by) REFERENCES mentors(user_id),
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
 );
@@ -71,6 +74,7 @@ CREATE TABLE IF NOT EXISTS quizzes (
     quiz_id INTEGER PRIMARY KEY,
     module_id INTEGER,
     title TEXT,
+    isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
 );
 
@@ -80,6 +84,7 @@ CREATE TABLE IF NOT EXISTS questions (
     quiz_id INTEGER,
     text TEXT,
     explanation TEXT,
+    isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(quiz_id) REFERENCES quizzes(quiz_id)
 );
 
@@ -89,6 +94,7 @@ CREATE TABLE IF NOT EXISTS options (
     question_id INTEGER,
     text TEXT,
     is_correct BOOLEAN,
+    isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(question_id) REFERENCES questions(question_id)
 );
 
@@ -123,6 +129,7 @@ CREATE TABLE IF NOT EXISTS doubts (
     question TEXT,
     answer TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(student_id) REFERENCES students(user_id),
     FOREIGN KEY(mentor_id) REFERENCES mentors(user_id),
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
@@ -134,6 +141,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     user_id INTEGER,
     message TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
@@ -143,7 +151,8 @@ CREATE TABLE IF NOT EXISTS complaints (
     filed_by TEXT,
     against TEXT,
     description TEXT,
-    status TEXT
+    status TEXT,
+    isDeleted BOOLEAN DEFAULT 0
 );
 
 -- REPORTS
@@ -153,6 +162,7 @@ CREATE TABLE IF NOT EXISTS reports (
     quiz_id INTEGER,
     score REAL,
     duration TEXT,
+    isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(student_id) REFERENCES students(user_id),
     FOREIGN KEY(quiz_id) REFERENCES quizzes(quiz_id)
 );
@@ -164,7 +174,8 @@ CREATE TABLE IF NOT EXISTS tips (
     content TEXT,
     category TEXT,
     source_url TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    isDeleted BOOLEAN DEFAULT 0
 );
 
 -- TIP VIEWS
@@ -181,10 +192,11 @@ CREATE TABLE IF NOT EXISTS tip_views (
 CREATE TABLE IF NOT EXISTS alerts (
     alert_id INTEGER PRIMARY KEY,
     message TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    isDeleted BOOLEAN DEFAULT 0
 );
 """)
 
 conn.commit()
 conn.close()
-print("CYBERSAFE database schema created successfully.")
+print("CYBERSAFE database schema with soft delete support created successfully.")

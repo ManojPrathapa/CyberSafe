@@ -1,4 +1,4 @@
-import unittest
+import unittest 
 from app import app
 
 class TestCYBERSAFEAPI(unittest.TestCase):
@@ -167,6 +167,37 @@ class TestCYBERSAFEAPI(unittest.TestCase):
     def test_student_activity(self):
         res = self.client.get("/api/activity/1")
         self.assertEqual(res.status_code, 200)
+
+    # --------------------
+    # ❌ DELETE (Soft Deletes)
+    # --------------------
+    def test_delete_module(self):
+        res = self.client.delete("/api/modules/delete/1")
+        self.assertIn(res.status_code, [200, 404])
+
+    def test_delete_quiz(self):
+        res = self.client.delete("/api/quiz/delete/1")
+        self.assertIn(res.status_code, [200, 404])
+
+    def test_delete_doubt(self):
+        res = self.client.delete("/api/doubt/delete/1")
+        self.assertIn(res.status_code, [200, 404])
+
+    def test_delete_complaint(self):
+        res = self.client.delete("/api/complaints/delete/1")
+        self.assertIn(res.status_code, [200, 404])
+
+    def test_delete_tip(self):
+        res = self.client.delete("/api/tips/delete/1")
+        self.assertIn(res.status_code, [200, 404])
+
+    def test_delete_report(self):
+        res = self.client.delete("/api/reports/delete/1")
+        self.assertIn(res.status_code, [200, 404])
+
+    def test_delete_alert(self):
+        res = self.client.delete("/api/alerts/delete/1")
+        self.assertIn(res.status_code, [200, 404])
 
 if __name__ == "__main__":
     unittest.main()
