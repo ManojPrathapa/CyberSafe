@@ -1,6 +1,16 @@
 from flask_restful import Resource, reqparse
 from flask import request
 from models import ask_doubt, get_doubts_for_mentor, reply_to_doubt
+from flask_restful import Resource
+from models import soft_delete_doubt  # Make sure this is defined in models.py
+
+class DeleteDoubtAPI(Resource):
+    def delete(self, doubt_id):
+        result = soft_delete_doubt(doubt_id)
+        if result:
+            return {'message': f'Doubt {doubt_id} deleted successfully'}, 200
+        return {'message': f'Doubt {doubt_id} not found or already deleted'}, 404
+
 
 class AskDoubtAPI(Resource):
     def post(self):
@@ -10,7 +20,7 @@ class AskDoubtAPI(Resource):
         module_id = data.get("module_id")
         question = data.get("question")
         ask_doubt(student_id, mentor_id, module_id, question)
-        return {"message": "Doubt submitted successfully"}
+        return {"message": "Doubt submitted successfully"}, 201
 
 class MentorDoubtAPI(Resource):
     def get(self, mentor_id):

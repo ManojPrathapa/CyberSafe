@@ -1,5 +1,15 @@
 from flask_restful import Resource, reqparse
 from models import file_complaint, get_complaints, resolve_complaint
+from flask_restful import Resource
+from models import soft_delete_complaint  # Ensure this is defined in models.py
+
+class DeleteComplaintAPI(Resource):
+    def delete(self, complaint_id):
+        result = soft_delete_complaint(complaint_id)
+        if result:
+            return {'message': f'Complaint {complaint_id} deleted successfully'}, 200
+        return {'message': f'Complaint {complaint_id} not found or already deleted'}, 404
+
 
 class FileComplaintAPI(Resource):
     def post(self):
@@ -9,7 +19,7 @@ class FileComplaintAPI(Resource):
         parser.add_argument('description', required=True)
         args = parser.parse_args()
         file_complaint(args['filed_by'], args['against'], args['description'])
-        return {'message': 'Complaint filed'}
+        return {'message': 'Complaint filed'}, 201
 
 class ComplaintListAPI(Resource):
     def get(self):
@@ -22,3 +32,5 @@ class ResolveComplaintAPI(Resource):
         args = parser.parse_args()
         resolve_complaint(args['complaint_id'])
         return {'message': 'Complaint resolved'}
+    
+    

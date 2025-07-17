@@ -1,6 +1,15 @@
 from flask_restful import Resource
 from flask import request
 from models import get_quiz_with_questions, evaluate_quiz, save_quiz_attempt, create_quiz_with_questions
+from flask_restful import Resource
+from models import soft_delete_quiz  # Ensure this is defined in models.py
+
+class DeleteQuizAPI(Resource):
+    def delete(self, quiz_id):
+        result = soft_delete_quiz(quiz_id)
+        if result:
+            return {'message': f'Quiz {quiz_id} deleted successfully'}, 200
+        return {'message': f'Quiz {quiz_id} not found or already deleted'}, 404
 
 class QuizAPI(Resource):
     def get(self, quiz_id):

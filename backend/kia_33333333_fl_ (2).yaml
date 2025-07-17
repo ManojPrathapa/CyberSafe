@@ -1,0 +1,842 @@
+openapi: 3.0.0
+info:
+  title: CYBERSAFE API
+  description: "Full specification for authentication, modules, quizzes, doubts, tips, complaints, reports, alerts, admin, profile and notifications."
+  version: 1.0.0
+servers:
+- url: http://localhost:5000
+  description: Local development server
+tags:
+- name: Authentication
+  description: Registration and login
+- name: Modules
+  description: Module listing and deletion
+- name: Quiz
+  description: "Quiz retrieval, submission, creation, deletion"
+- name: Doubts
+  description: Post/view/reply/delete doubts
+- name: Tips
+  description: Safety tips and viewed status
+- name: Complaints
+  description: "File, view, resolve, delete complaints"
+- name: Reports
+  description: Student and admin reports
+- name: Alerts
+  description: Post/delete alerts
+- name: Admin
+  description: Administrative actions
+- name: Profile
+  description: User profile view/edit
+- name: Notifications
+  description: User notifications
+paths:
+  /api/register:
+    post:
+      tags:
+      - Authentication
+      summary: Register a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_register_body"
+        required: true
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "400":
+          description: Username/email already exists
+  /api/login:
+    post:
+      tags:
+      - Authentication
+      summary: User login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_login_body"
+        required: true
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200"
+        "401":
+          description: Invalid credentials
+  /api/modules:
+    get:
+      tags:
+      - Modules
+      summary: Get all modules
+      responses:
+        "200":
+          description: List of modules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /api/modules/upload:
+    post:
+      tags:
+      - Modules
+      summary: Upload a new module
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/modules_upload_body"
+        required: true
+      responses:
+        "201":
+          description: Module uploaded successfully
+        "400":
+          description: Invalid request payload
+  /api/modules/{module_id}:
+    delete:
+      tags:
+      - Modules
+      summary: Soft delete a module
+      parameters:
+      - name: module_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Module deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "404":
+          description: Not found or already deleted
+  /api/quiz/{quiz_id}:
+    get:
+      tags:
+      - Quiz
+      summary: Get quiz with questions
+      parameters:
+      - name: quiz_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Quiz data
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: Quiz not found
+    delete:
+      tags:
+      - Quiz
+      summary: Soft delete a quiz
+      parameters:
+      - name: quiz_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Quiz deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "404":
+          description: Not found or already deleted
+  /api/quiz/submit:
+    post:
+      tags:
+      - Quiz
+      summary: Submit quiz answers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/quiz_submit_body"
+        required: true
+      responses:
+        "200":
+          description: Quiz submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_1"
+        "400":
+          description: Missing required fields
+  /api/quiz/create:
+    post:
+      tags:
+      - Quiz
+      summary: Create a new quiz
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Quiz object with questions and options
+        required: true
+      responses:
+        "200":
+          description: Quiz created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+  /api/doubt:
+    post:
+      tags:
+      - Doubts
+      summary: Ask a doubt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_doubt_body"
+        required: true
+      responses:
+        "201":
+          description: Doubt submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "400":
+          description: Invalid request
+  /api/doubts/{mentor_id}:
+    get:
+      tags:
+      - Doubts
+      summary: Get doubts for a mentor
+      parameters:
+      - name: mentor_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: List of doubts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /api/doubt/reply:
+    post:
+      tags:
+      - Doubts
+      summary: Reply to a doubt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/doubt_reply_body"
+        required: true
+      responses:
+        "200":
+          description: Reply submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+  /api/doubts/delete/{doubt_id}:
+    delete:
+      tags:
+      - Doubts
+      summary: Soft delete a doubt
+      parameters:
+      - name: doubt_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Doubt deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "404":
+          description: Not found or already deleted
+  /api/tips:
+    get:
+      tags:
+      - Tips
+      summary: List all safety tips
+      responses:
+        "200":
+          description: Array of tips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /api/tips/viewed/{parent_id}:
+    get:
+      tags:
+      - Tips
+      summary: Tips viewed by a parent
+      parameters:
+      - name: parent_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Viewed tips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        "404":
+          description: Parent not found
+  /api/tips/view:
+    post:
+      tags:
+      - Tips
+      summary: Mark a tip as viewed
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/tips_view_body"
+        required: true
+      responses:
+        "201":
+          description: Tip marked viewed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "400":
+          description: Invalid request
+  /api/tips/{tip_id}:
+    delete:
+      tags:
+      - Tips
+      summary: Soft delete a tip
+      parameters:
+      - name: tip_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Tip deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "404":
+          description: Not found or already deleted
+  /api/complaints:
+    get:
+      tags:
+      - Complaints
+      summary: List complaints
+      responses:
+        "200":
+          description: Array of complaints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      tags:
+      - Complaints
+      summary: File a new complaint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_complaints_body"
+        required: true
+      responses:
+        "201":
+          description: Complaint filed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+  /api/complaints/resolve:
+    post:
+      tags:
+      - Complaints
+      summary: Resolve a complaint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/complaints_resolve_body"
+        required: true
+      responses:
+        "200":
+          description: Complaint resolved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+  /api/complaints/{complaint_id}:
+    delete:
+      tags:
+      - Complaints
+      summary: Soft delete a complaint
+      parameters:
+      - name: complaint_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Complaint deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "404":
+          description: Not found or already deleted
+  /api/reports/{student_id}:
+    get:
+      tags:
+      - Reports
+      summary: Student reports
+      parameters:
+      - name: student_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Array of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        "404":
+          description: Not found or none available
+  /api/reports/{report_id}:
+    delete:
+      tags:
+      - Reports
+      summary: Soft delete a report
+      parameters:
+      - name: report_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Report deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "404":
+          description: Not found or already deleted
+  /api/alerts:
+    post:
+      tags:
+      - Alerts
+      summary: Post an alert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_alerts_body"
+        required: true
+      responses:
+        "200":
+          description: Alert posted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+  /api/alerts/{alert_id}:
+    delete:
+      tags:
+      - Alerts
+      summary: Soft delete an alert
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Alert deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "404":
+          description: Not found or already deleted
+  /api/admin/users:
+    get:
+      tags:
+      - Admin
+      summary: List all users
+      responses:
+        "200":
+          description: Array of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /api/admin/trainers/pending:
+    get:
+      tags:
+      - Admin
+      summary: Pending trainers
+      responses:
+        "200":
+          description: Array of mentors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /api/admin/contents/pending:
+    get:
+      tags:
+      - Admin
+      summary: Pending content approvals
+      responses:
+        "200":
+          description: Array of modules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /api/admin/reports/download/users:
+    get:
+      tags:
+      - Admin
+      summary: Download user report
+      responses:
+        "200":
+          description: File download
+          content:
+            application/octet-stream: {}
+  /api/admin/reports/download/summary:
+    get:
+      tags:
+      - Admin
+      summary: Download summary report
+      responses:
+        "200":
+          description: File download
+          content:
+            application/octet-stream: {}
+  /api/admin/block:
+    post:
+      tags:
+      - Admin
+      summary: Block a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/admin_block_body"
+        required: true
+      responses:
+        "200":
+          description: User blocked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+  /api/admin/unblock:
+    post:
+      tags:
+      - Admin
+      summary: Unblock a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/admin_unblock_body"
+        required: true
+      responses:
+        "200":
+          description: User unblocked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+  /api/profile/{user_id}:
+    get:
+      tags:
+      - Profile
+      summary: Get user profile
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: User profile details
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: User not found
+  /api/profile/edit:
+    post:
+      tags:
+      - Profile
+      summary: Edit user profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/profile_edit_body"
+        required: true
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+  /api/notifications/{user_id}:
+    get:
+      tags:
+      - Notifications
+      summary: Get notifications for a user
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Notifications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        "404":
+          description: Not found or no notifications
+components:
+  schemas:
+    api_register_body:
+      required:
+      - email
+      - password
+      - role
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        role:
+          type: string
+          enum:
+          - student
+          - parent
+          - mentor
+          - admin
+          - support
+    inline_response_201:
+      type: object
+      properties:
+        message:
+          type: string
+    api_login_body:
+      required:
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    inline_response_200:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+            username:
+              type: string
+            role:
+              type: string
+    modules_upload_body:
+      required:
+      - content
+      - title
+      - uploaded_by
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        uploaded_by:
+          type: integer
+    quiz_submit_body:
+      required:
+      - answers
+      - quiz_id
+      - student_id
+      type: object
+      properties:
+        quiz_id:
+          type: integer
+        student_id:
+          type: integer
+        answers:
+          type: object
+          additionalProperties:
+            type: integer
+    inline_response_200_1:
+      type: object
+      properties:
+        message:
+          type: string
+        score:
+          type: number
+        total:
+          type: number
+    api_doubt_body:
+      required:
+      - mentor_id
+      - module_id
+      - question
+      - student_id
+      type: object
+      properties:
+        student_id:
+          type: integer
+        mentor_id:
+          type: integer
+        module_id:
+          type: integer
+        question:
+          type: string
+    doubt_reply_body:
+      required:
+      - answer
+      - doubt_id
+      type: object
+      properties:
+        doubt_id:
+          type: integer
+        answer:
+          type: string
+    tips_view_body:
+      required:
+      - parent_id
+      - tip_id
+      type: object
+      properties:
+        parent_id:
+          type: integer
+        tip_id:
+          type: integer
+    api_complaints_body:
+      required:
+      - against
+      - description
+      - filed_by
+      type: object
+      properties:
+        filed_by:
+          type: string
+        against:
+          type: string
+        description:
+          type: string
+    complaints_resolve_body:
+      required:
+      - complaint_id
+      type: object
+      properties:
+        complaint_id:
+          type: integer
+    api_alerts_body:
+      required:
+      - message
+      type: object
+      properties:
+        message:
+          type: string
+    admin_block_body:
+      required:
+      - user_id
+      type: object
+      properties:
+        user_id:
+          type: integer
+    admin_unblock_body:
+      required:
+      - user_id
+      type: object
+      properties:
+        user_id:
+          type: integer
+    profile_edit_body:
+      required:
+      - user_id
+      type: object
+      properties:
+        user_id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string

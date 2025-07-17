@@ -1,0 +1,922 @@
+swagger: "2.0"
+info:
+  title: CYBERSAFE Complaint API
+  version: "1.0.0"
+  description: |
+    Endpoints to file complaints, view complaints, and resolve them.
+
+host: localhost:5000
+basePath: /api
+schemes:
+  - http
+consumes:
+  - application/x-www-form-urlencoded
+produces:
+  - application/json
+
+paths:
+  /complaints:
+    post:
+      summary: File a new complaint
+      tags:
+        - Complaints
+      parameters:
+        - name: filed_by
+          in: formData
+          required: true
+          type: string
+          description: ID or username of the person filing the complaint
+        - name: against
+          in: formData
+          required: true
+          type: string
+          description: ID or username of the person the complaint is against
+        - name: description
+          in: formData
+          required: true
+          type: string
+          description: Description of the complaint
+      responses:
+        201:
+          description: Complaint filed successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Complaint filed
+
+    get:
+      summary: Get list of all complaints
+      tags:
+        - Complaints
+      responses:
+        200:
+          description: List of complaints
+          schema:
+            type: array
+            items:
+              type: object
+
+  /complaints/resolve:
+    post:
+      summary: Resolve a complaint
+      tags:
+        - Complaints
+      parameters:
+        - name: complaint_id
+          in: formData
+          required: true
+          type: integer
+          description: ID of the complaint to resolve
+      responses:
+        200:
+          description: Complaint resolved
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Complaint resolved
+                
+  /complaints/{complaint_id}:
+    delete:
+      summary: Soft delete a complaint
+      tags:
+        - Complaints
+      parameters:
+        - name: complaint_id
+          in: path
+          required: true
+          type: integer
+          description: ID of the complaint to delete
+      responses:
+        200:
+          description: Complaint deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Complaint 5 deleted successfully
+        404:
+          description: Complaint not found or already deleted
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Complaint 5 not found or already deleted
+
+  /activity/{student_id}:
+    get:
+      summary: Get activity of a student
+      description: Returns student activity information by their ID.
+      tags:
+        - Student
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          type: string
+          description: The unique ID of the student
+      responses:
+        200:
+          description: Student activity data retrieved successfully
+          schema:
+            type: object
+        404:
+          description: Student not found
+  /attempts/{student_id}:
+    get:
+      summary: Get attempts for a student
+      tags: [Student]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          type: string
+          description: The unique ID of the student
+      responses:
+        200:
+          description: A list of attempt records for the student
+          schema:
+            type: array
+            items:
+              type: object
+        404:
+          description: Student not found
+
+  /reports/{student_id}:
+    get:
+      summary: Get reports for a student
+      tags: [Student]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Student report list
+          schema:
+            type: array
+            items:
+              type: object
+
+
+
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - Admin
+      responses:
+        200:
+          description: List of all users
+          schema:
+            type: array
+            items:
+              type: object
+
+  /trainers/pending:
+    get:
+      summary: Get pending trainer approvals
+      tags:
+        - Admin
+      responses:
+        200:
+          description: List of pending trainers
+          schema:
+            type: array
+            items:
+              type: object
+
+  /contents/pending:
+    get:
+      summary: Get pending content approvals
+      tags:
+        - Admin
+      responses:
+        200:
+          description: List of pending contents
+          schema:
+            type: array
+            items:
+              type: object
+
+  /reports/user:
+    get:
+      summary: Download user report
+      tags:
+        - Admin
+      responses:
+        200:
+          description: Downloadable user report
+          schema:
+            type: file
+
+  /reports/summary:
+    get:
+      summary: Download summary report
+      tags:
+        - Admin
+      responses:
+        200:
+          description: Downloadable summary report
+          schema:
+            type: file
+
+  /users/block:
+    post:
+      summary: Block a user
+      tags:
+        - Admin
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: user_id
+          in: formData
+          required: true
+          type: string
+      responses:
+        200:
+          description: User successfully blocked
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: User blocked
+
+  /users/unblock:
+    post:
+      summary: Unblock a user
+      tags:
+        - Admin
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: user_id
+          in: formData
+          required: true
+          type: string
+      responses:
+        200:
+          description: User successfully unblocked
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: User unblocked
+
+  /api/alerts:
+    post:
+      summary: Post an alert
+      description: Send an alert message to the system.
+      tags:
+        - Alerts
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: message
+          in: formData
+          required: true
+          type: string
+          description: The alert message to be sent
+      responses:
+        200:
+          description: Alert sent successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Alert sent successfully
+
+  /api/alerts/{alert_id}:
+    delete:
+      summary: Delete an alert (soft delete)
+      description: Marks an alert as inactive based on alert ID.
+      tags:
+        - Alerts
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          type: integer
+          description: ID of the alert to delete
+      responses:
+        200:
+          description: Alert deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Alert 1 deleted successfully
+        404:
+          description: Alert not found or already deleted
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Alert 1 not found or already deleted
+
+
+  /register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: username
+          in: formData
+          required: true
+          type: string
+        - name: email
+          in: formData
+          required: true
+          type: string
+        - name: password
+          in: formData
+          required: true
+          type: string
+        - name: role
+          in: formData
+          required: true
+          type: string
+      responses:
+        201:
+          description: User registered successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: User registered successfully
+        400:
+          description: Username already exists
+
+  /login:
+    post:
+      summary: User login
+      tags:
+        - Authentication
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: username
+          in: formData
+          required: true
+          type: string
+        - name: password
+          in: formData
+          required: true
+          type: string
+      responses:
+        200:
+          description: Login successful
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Login successful
+              user:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  role:
+                    type: string
+        401:
+          description: Invalid credentials
+  /doubts:
+    post:
+      summary: Ask a doubt
+      tags:
+        - Doubts
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              student_id:
+                type: string
+              mentor_id:
+                type: string
+              module_id:
+                type: string
+              question:
+                type: string
+      responses:
+        201:
+          description: Doubt submitted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Doubt submitted successfully
+
+  /doubts/{mentor_id}:
+    get:
+      summary: Get doubts for a mentor
+      tags:
+        - Doubts
+      parameters:
+        - name: mentor_id
+          in: path
+          required: true
+          type: string
+          description: The ID of the mentor
+      responses:
+        200:
+          description: List of doubts for the mentor
+          schema:
+            type: array
+            items:
+              type: object
+
+  /doubts/reply:
+    post:
+      summary: Reply to a doubt
+      tags:
+        - Doubts
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              doubt_id:
+                type: string
+              answer:
+                type: string
+      responses:
+        200:
+          description: Reply submitted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Reply submitted successfully
+
+  /doubts/delete/{doubt_id}:
+    delete:
+      summary: Delete a doubt (soft delete)
+      tags:
+        - Doubts
+      parameters:
+        - name: doubt_id
+          in: path
+          required: true
+          type: string
+          description: The ID of the doubt to delete
+      responses:
+        200:
+          description: Doubt deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Doubt 123 deleted successfully
+        404:
+          description: Doubt not found or already deleted
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Doubt 123 not found or already deleted
+
+
+  /modules:
+    get:
+      summary: Get all modules
+      tags:
+        - Module
+      responses:
+        200:
+          description: List of all modules
+          schema:
+            type: array
+            items:
+              type: object
+
+  /modules/upload:
+    post:
+      summary: Upload a new module
+      tags:
+        - Module
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              mentor_id:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+      responses:
+        200:
+          description: Module uploaded successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Module uploaded successfully
+                
+  /modules/{module_id}:
+    delete:
+      summary: Soft delete a module by ID
+      tags:
+        - Module
+      parameters:
+        - in: path
+          name: module_id
+          required: true
+          type: integer
+          description: ID of the module to be deleted
+      responses:
+        200:
+          description: Module deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Module 1 deleted successfully
+        404:
+          description: Module not found or already deleted
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Module 1 not found or already deleted
+
+                
+  /notifications/{user_id}:
+    get:
+      summary: Get notifications for a user
+      tags:
+        - Notifications
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          type: string
+          description: ID of the user
+      responses:
+        200:
+          description: List of notifications for the user
+          schema:
+            type: array
+            items:
+              type: object
+        404:
+          description: User not found or no notifications
+  /profile/{user_id}:
+    get:
+      summary: Get profile details
+      tags:
+        - Profile
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          type: string
+          description: The ID of the user
+      responses:
+        200:
+          description: Profile details retrieved
+          schema:
+            type: object
+        404:
+          description: User not found
+
+  /profile/edit:
+    post:
+      summary: Edit user profile
+      tags:
+        - Profile
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: user_id
+          in: formData
+          required: true
+          type: string
+        - name: email
+          in: formData
+          required: false
+          type: string
+        - name: username
+          in: formData
+          required: false
+          type: string
+        - name: password
+          in: formData
+          required: false
+          type: string
+      responses:
+        200:
+          description: Profile updated successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Profile updated successfully
+                
+                
+                
+  /quiz/{quiz_id}:
+    get:
+      summary: Get quiz with questions
+      tags:
+        - Quiz
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          type: string
+          description: The ID of the quiz to retrieve
+      responses:
+        200:
+          description: Quiz data with questions
+          schema:
+            type: object
+        404:
+          description: Quiz not found
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Quiz not found
+
+    delete:
+      summary: Soft delete a quiz by ID
+      tags:
+        - Quiz
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          type: string
+          description: ID of the quiz to delete
+      responses:
+        200:
+          description: Quiz deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Quiz 123 deleted successfully
+        404:
+          description: Quiz not found or already deleted
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Quiz 123 not found or already deleted
+
+  /quiz/submit:
+    post:
+      summary: Submit quiz answers
+      tags:
+        - Quiz
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: submission
+          required: true
+          schema:
+            type: object
+            properties:
+              quiz_id:
+                type: string
+              student_id:
+                type: string
+              answers:
+                type: object
+            required:
+              - quiz_id
+              - student_id
+              - answers
+      responses:
+        200:
+          description: Quiz submitted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              score:
+                type: number
+              total:
+                type: number
+        400:
+          description: Missing quiz_id, student_id, or answers
+
+  /quiz/create:
+    post:
+      summary: Create and upload a new quiz with questions
+      tags:
+        - Quiz
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: quiz
+          required: true
+          schema:
+            type: object
+      responses:
+        200:
+          description: Quiz created successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Quiz created and uploaded successfully
+                
+                
+  /tips:
+    get:
+      summary: Get all safety tips
+      tags:
+        - Tips
+      responses:
+        200:
+          description: List of all safety tips
+          schema:
+            type: array
+            items:
+              type: object
+
+  /tips/viewed/{parent_id}:
+    get:
+      summary: Get tips viewed by a parent
+      tags:
+        - Tips
+      parameters:
+        - name: parent_id
+          in: path
+          required: true
+          type: integer
+          description: ID of the parent user
+      responses:
+        200:
+          description: List of tips viewed by the parent
+          schema:
+            type: array
+            items:
+              type: object
+        404:
+          description: Parent not found
+
+  /tips/view:
+    post:
+      summary: Mark a tip as viewed by a parent
+      tags:
+        - Tips
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: parent_id
+          in: formData
+          required: true
+          type: integer
+        - name: tip_id
+          in: formData
+          required: true
+          type: integer
+      responses:
+        201:
+          description: Tip marked as viewed
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Tip marked as viewed
+
+
+  /tips/delete/{tip_id}:
+    delete:
+      summary: Soft delete a safety tip
+      tags:
+        - Tips
+      parameters:
+        - name: tip_id
+          in: path
+          required: true
+          type: integer
+          description: ID of the tip to delete
+      responses:
+        200:
+          description: Tip deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Tip 3 deleted successfully
+        404:
+          description: Tip not found or already deleted
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Tip 3 not found or already deleted
+  /api/reports/{student_id}:
+    get:
+      tags:
+        - Reports
+      summary: Get all reports for a student
+      description: Retrieve all reports associated with a specific student.
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          type: integer
+          description: ID of the student
+      responses:
+        200:
+          description: List of reports for the student
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                studentId:
+                  type: integer
+                reportContent:
+                  type: string
+                timestamp:
+                  type: string
+                isActive:
+                  type: boolean
+        404:
+          description: Student not found or no reports available
+
+  /api/reports/delete/{report_id}:
+    delete:
+      tags:
+        - Reports
+      summary: Soft delete a report
+      description: Mark a report as inactive (soft delete) using its report ID.
+      parameters:
+        - name: report_id
+          in: path
+          required: true
+          type: integer
+          description: ID of the report to be deleted
+      responses:
+        200:
+          description: Report deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        404:
+          description: Report not found or already deleted
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
