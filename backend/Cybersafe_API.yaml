@@ -51,6 +51,10 @@ tags:
   description: User profile view/edit
 - name: Notifications
   description: User notifications
+- name: Attempts
+  description: Student Quiz Attempts
+- name: Activity
+  description: Student Activity
 paths:
   /api/register:
     post:
@@ -65,13 +69,26 @@ paths:
         required: true
       responses:
         "201":
-          description: User registered
+          description: User registered successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: User registered successfully
+          
         "400":
           description: Username/email already exists
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Username/email already exists
   /api/login:
     post:
       tags:
@@ -88,10 +105,22 @@ paths:
           description: Login successful
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_200"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Login successful
         "401":
           description: Invalid credentials
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Invalid credentials
   /api/modules:
     get:
       tags:
@@ -103,9 +132,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  module_id:
+                    type: integer
+                    example: 1
+                  title:
+                    type: string
+                    example: Cyber Hygiene
+                  description:
+                    type: string
+                    example: Learn basic cyber safety habits.
+
   /api/modules/upload:
     post:
       tags:
@@ -120,9 +158,25 @@ paths:
       responses:
         "201":
           description: Module uploaded successfully
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Module upload successfully
         "400":
           description: Invalid request payload
-  /api/modules/{module_id}:
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Invalid request payload
+  /api/modules/delete/{module_id}:
     delete:
       tags:
       - Modules
@@ -135,13 +189,25 @@ paths:
           type: integer
       responses:
         "200":
-          description: Module deleted
+          description: Module deleted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Module deleted successfully
         "404":
-          description: Not found or already deleted
+          description: Module not found or already deleted
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Module not found or already deleted
   /api/quiz/{quiz_id}:
     get:
       tags:
@@ -162,6 +228,7 @@ paths:
                 type: object
         "404":
           description: Quiz not found
+  /api/quiz/delete/{quiz_id}:
     delete:
       tags:
       - Quiz
@@ -174,13 +241,25 @@ paths:
           type: integer
       responses:
         "200":
-          description: Quiz deleted
+          description: Quiz deleted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Quiz deleted successfully
         "404":
-          description: Not found or already deleted
+          description: Quiz not found or already deleted
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Quiz not found or already deleted
   /api/quiz/submit:
     post:
       tags:
@@ -194,13 +273,25 @@ paths:
         required: true
       responses:
         "200":
-          description: Quiz submitted
+          description: Quiz submitted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_200_1"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Quiz submitted successfully
         "400":
-          description: Missing required fields
+          description: Missing quiz_id, student_id, or answers
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Missing quiz_id, student_id or answers
   /api/quiz/create:
     post:
       tags:
@@ -215,11 +306,15 @@ paths:
         required: true
       responses:
         "200":
-          description: Quiz created
+          description: Quiz created and uploaded successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Quiz created and uploaded successfully
   /api/doubt:
     post:
       tags:
@@ -233,13 +328,25 @@ paths:
         required: true
       responses:
         "201":
-          description: Doubt submitted
+          description: Doubt submitted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Doubt submitted successfully
         "400":
           description: Invalid request
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Invalid request
   /api/doubts/{mentor_id}:
     get:
       tags:
@@ -257,9 +364,21 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  doubt_id:
+                    type: integer
+                    example: 1
+                  student_id:
+                    type: integer
+                    example: 5
+                  module_id:
+                    type: integer
+                    example: 2
+                  question:
+                    type: string
+                    example: How can to make a strong password?
+
   /api/doubt/reply:
     post:
       tags:
@@ -273,11 +392,15 @@ paths:
         required: true
       responses:
         "200":
-          description: Reply submitted
+          description: Reply submitted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Reply submitted successfully
   /api/doubts/delete/{doubt_id}:
     delete:
       tags:
@@ -291,13 +414,25 @@ paths:
           type: integer
       responses:
         "200":
-          description: Doubt deleted
+          description: Doubt deleted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Doubt deleted successfully
         "404":
-          description: Not found or already deleted
+          description: Doubt not found or already deleted
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Doubt not found or already deleted
   /api/tips:
     get:
       tags:
@@ -309,9 +444,24 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  tip_id:
+                    type: integer
+                    example: 1
+                  title:
+                    type: string
+                    example: Phishing alert
+                  content:
+                    type: string
+                    example: Dont' click unknown links
+                  category:
+                    type: string
+                    example: email
+                  source_url:
+                    type: string
+                    example: https://example.com/phishing
+
   /api/tips/viewed/{parent_id}:
     get:
       tags:
@@ -347,14 +497,26 @@ paths:
         required: true
       responses:
         "201":
-          description: Tip marked viewed
+          description: Tip marked as viewed
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Tip marked as viewed
         "400":
           description: Invalid request
-  /api/tips/{tip_id}:
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Invalid request
+  /api/tips/delete/{tip_id}:
     delete:
       tags:
       - Tips
@@ -367,27 +529,93 @@ paths:
           type: integer
       responses:
         "200":
-          description: Tip deleted
+          description: Tip deleted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Tip deleted successfully
         "404":
-          description: Not found or already deleted
-  /api/complaints:
+          description: Tip not found or already deleted
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Tip not found or already deleted
+
+  /api/student/{student_id}/attempts:
     get:
       tags:
-      - Complaints
-      summary: List complaints
+      - Attempts
+      summary: Gets the list of all attempts for a quiz given by student
+      parameters:
+      - name: student_id
+        in: path
+        required: true
+        schema:
+          type: integer
       responses:
         "200":
-          description: Array of complaints
+          description: Dictionary of Attempts
           content:
             application/json:
               schema:
                 type: array
                 items:
                   type: object
+  /api/activity/{student_id}:
+    get:
+      tags:
+      - Activity
+      summary: Gets the activity of the student
+      parameters:
+      - name: student_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Gets the Activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /api/complaints:
+    get:
+      tags:
+      - Complaints
+      summary: List of complaints for support team
+      responses:
+        "200":
+          description: Complaints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  complaint_id:
+                    type: integer
+                    example: 1
+                  filed_by:
+                    type: string
+                    example: student1
+                  against:
+                    type: string
+                    example: mentor1
+                  description:
+                    type: string
+                    example: Issue with doubt reply
+
+  /api/complaints/file:
     post:
       tags:
       - Complaints
@@ -403,8 +631,12 @@ paths:
           description: Complaint filed
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Complaint filed
   /api/complaints/resolve:
     post:
       tags:
@@ -421,9 +653,13 @@ paths:
           description: Complaint resolved
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
-  /api/complaints/{complaint_id}:
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Complaint resolved
+  /api/complaints/delete/{complaint_id}:
     delete:
       tags:
       - Complaints
@@ -436,13 +672,26 @@ paths:
           type: integer
       responses:
         "200":
-          description: Complaint deleted
+          description: Complaint deleted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Complaint deleted successfully
         "404":
-          description: Not found or already deleted
+          description: Complaint not found or already deleted
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Complaint not found or already deleted
+
   /api/reports/{student_id}:
     get:
       tags:
@@ -460,12 +709,23 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  report_id:
+                    type: integer
+                    example: 1
+                  quiz_id:
+                    type: integer
+                    example: 1
+                  score:
+                    type: integer
+                    example: 80
+                  duration:
+                    type: string
+                    example: 5 min
         "404":
           description: Not found or none available
-  /api/reports/{report_id}:
+  /api/reports/delete/{report_id}:
     delete:
       tags:
       - Reports
@@ -478,13 +738,25 @@ paths:
           type: integer
       responses:
         "200":
-          description: Report deleted
+          description: Report deleted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Report deleted successfully
         "404":
-          description: Not found or already deleted
+          description: Report not found or already deleted
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Report not found or already deleted
   /api/alerts:
     post:
       tags:
@@ -501,9 +773,13 @@ paths:
           description: Alert posted
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
-  /api/alerts/{alert_id}:
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Alert posted
+  /api/alerts/delete/{alert_id}:
     delete:
       tags:
       - Alerts
@@ -516,13 +792,25 @@ paths:
           type: integer
       responses:
         "200":
-          description: Alert deleted
+          description: Alert deleted successfully
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Alert deleted successfully
         "404":
-          description: Not found or already deleted
+          description: Alert not found or already deleted
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Alert not found or already deleted
   /api/admin/users:
     get:
       tags:
@@ -534,9 +822,24 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  module_id:
+                    type: integer
+                    example: 1
+                  username:
+                    type: string
+                    example: user_1
+                  email:
+                    type: string
+                    example: user_1@gmail.com
+                  role:
+                    type: string
+                    example: student
+                  isActive:
+                    type: boolean
+                    example: true
+
   /api/admin/trainers/pending:
     get:
       tags:
@@ -546,11 +849,20 @@ paths:
         "200":
           description: Array of mentors
           content:
-            application/json:
+           application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 3
+                  expertise:
+                    type: string
+                    example: Cybersecurity
+                  experience_years:
+                    type: integer
+                    example: 5
+         
   /api/admin/contents/pending:
     get:
       tags:
@@ -562,9 +874,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  module_id:
+                    type: integer
+                    example: 3
+                  title:
+                    type: string
+                    example: Cyber Hygiene
+                  description:
+                    type: string
+                    example: Learn basic cyber safety habits.
+
   /api/admin/reports/download/users:
     get:
       tags:
@@ -601,8 +922,12 @@ paths:
           description: User blocked
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: User blocked
   /api/admin/unblock:
     post:
       tags:
@@ -619,8 +944,12 @@ paths:
           description: User unblocked
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: User unblocked
   /api/profile/{user_id}:
     get:
       tags:
@@ -639,6 +968,19 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 3
+                  username:
+                    type: string
+                    example: user_3
+                  email:
+                    type: string
+                    example: user_3@gmail.com
+                  role:
+                    type: string
+                    example: mentor
         "404":
           description: User not found
   /api/profile/edit:
@@ -657,8 +999,12 @@ paths:
           description: Profile updated
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
+              schema: 
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Profile updated
   /api/notifications/{user_id}:
     get:
       tags:
@@ -676,9 +1022,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  message: 
+                    type: string
+                    example: New quiz available in Cyber Hygiene module
         "404":
           description: Not found or no notifications
 components:
@@ -693,11 +1044,14 @@ components:
       properties:
         username:
           type: string
+          example: user_1
         email:
           type: string
           format: email
+          example: user_1@gmail.com
         password:
           type: string
+          example: Feb@#412748
         role:
           type: string
           enum:
@@ -706,11 +1060,6 @@ components:
           - mentor
           - admin
           - support
-    inline_response_201:
-      type: object
-      properties:
-        message:
-          type: string
     api_login_body:
       required:
       - password
@@ -719,22 +1068,11 @@ components:
       properties:
         username:
           type: string
+          example: user_1
         password:
           type: string
-    inline_response_200:
-      type: object
-      properties:
-        message:
-          type: string
-        user:
-          type: object
-          properties:
-            id:
-              type: integer
-            username:
-              type: string
-            role:
-              type: string
+          example: Feb@#412748
+
     modules_upload_body:
       required:
       - content
@@ -744,10 +1082,13 @@ components:
       properties:
         title:
           type: string
+          example: Introduction to cybersecurity
         content:
           type: string
+          example: video
         uploaded_by:
           type: integer
+          example: 2
     quiz_submit_body:
       required:
       - answers
@@ -757,21 +1098,16 @@ components:
       properties:
         quiz_id:
           type: integer
+          example: 1
         student_id:
           type: integer
+          example: 2
         answers:
           type: object
-          additionalProperties:
-            type: integer
-    inline_response_200_1:
-      type: object
-      properties:
-        message:
-          type: string
-        score:
-          type: number
-        total:
-          type: number
+          example: 
+           '1': 'a'
+           '2': 'b'
+           '3': 'c'
     api_doubt_body:
       required:
       - mentor_id
@@ -782,12 +1118,16 @@ components:
       properties:
         student_id:
           type: integer
+          example: 1
         mentor_id:
           type: integer
+          example: 2
         module_id:
           type: integer
+          example: 2
         question:
           type: string
+          example: What kind of phishing methods are used by scammers?
     doubt_reply_body:
       required:
       - answer
@@ -796,8 +1136,10 @@ components:
       properties:
         doubt_id:
           type: integer
+          example: 1
         answer:
           type: string
+          example: Some of phishing methods used by scammers are 1) Email Phishing 2) Spear Phishing 3) Website based phishing 4) Voice Phishing 5) SMS Phishing
     tips_view_body:
       required:
       - parent_id
@@ -806,8 +1148,10 @@ components:
       properties:
         parent_id:
           type: integer
+          example: 2
         tip_id:
           type: integer
+          example: 3
     api_complaints_body:
       required:
       - against
@@ -817,10 +1161,13 @@ components:
       properties:
         filed_by:
           type: string
+          example: Student_1
         against:
           type: string
+          example: Mentor_1
         description:
           type: string
+          example: Giving incorrect responses and incorrect suggestions
     complaints_resolve_body:
       required:
       - complaint_id
@@ -828,6 +1175,7 @@ components:
       properties:
         complaint_id:
           type: integer
+          example: 7
     api_alerts_body:
       required:
       - message
@@ -835,6 +1183,7 @@ components:
       properties:
         message:
           type: string
+          example: You may experience a slow down in application tommorow (8:00 am to 10:00 pm) due to server maintainence.
     admin_block_body:
       required:
       - user_id
@@ -842,6 +1191,7 @@ components:
       properties:
         user_id:
           type: integer
+          example: 3
     admin_unblock_body:
       required:
       - user_id
@@ -849,6 +1199,7 @@ components:
       properties:
         user_id:
           type: integer
+          example: 4
     profile_edit_body:
       required:
       - user_id
@@ -856,9 +1207,13 @@ components:
       properties:
         user_id:
           type: integer
+          example: 2
         username:
           type: string
+          example: user_2
         email:
           type: string
+          example: user_2@gmail.com
         password:
           type: string
+          example: Fejdl@649#1
