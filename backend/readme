@@ -1,0 +1,36 @@
+---
+
+## How to Run the Application
+1. Create a virtual environment and install dependencies:
+   bash
+   python -m venv myenv
+   myenv\Scripts\activate  # Windows
+   pip install -r requirements.txt
+2.install the requirements
+  bash
+  python -r requirements.txt
+   
+3. go to the backend folder:
+   bash
+   cd backend
+   
+3. setup the database:
+   bash
+   python setup_db.py
+
+3. run the database:
+   bash
+   python app.py
+   
+   
+3. enter the seed data into the database:
+   bash
+   python seed_data.py
+   
+3. run the test cases:
+   bash
+   python test_app.py
+   ```
+
+   ```
+4. Access the app at http://127.0.0.1:5000.
