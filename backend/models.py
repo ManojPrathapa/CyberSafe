@@ -305,6 +305,8 @@ def soft_delete_module(module_id):
     conn.commit()
     conn.close()
 
+
+
 def get_all_modules():
     conn = get_db_connection()
     modules = conn.execute("SELECT * FROM modules WHERE isDeleted = 0").fetchall()

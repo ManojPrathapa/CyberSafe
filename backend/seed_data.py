@@ -1,5 +1,7 @@
 import sqlite3
 from hashlib import sha256
+import requests
+import time
 
 # Connect to DB
 conn = sqlite3.connect("cybersafe.db")
@@ -36,14 +38,40 @@ if cursor.fetchone()[0] == 0:
 
     # Parent-Student Link
     cursor.execute("INSERT INTO parent_student (parent_id, student_id) VALUES (?, ?)", (parent_id, student_id))
+    
+    conn.commit()  # Commit so mentor_id is usable in API request
 
-    # Module & Video
-    cursor.execute("INSERT INTO modules (title, description, approved) VALUES (?, ?, 1)", ("Cyber Hygiene", "Learn basic cyber safety habits."))
-    module_id = cursor.lastrowid
-    cursor.execute("INSERT INTO videos (title, description, uploaded_by, module_id) VALUES (?, ?, ?, ?)", ("Password Safety", "Why strong passwords matter.", mentor_id, module_id))
+    # === MODULE (via API) ===
+    print("📡 Uploading module via /api/modules/upload ...")
+    module_payload = {
+        "mentor_id": mentor_id,
+        "title": "Cyber Hygiene",
+        "description": "Learn basic cyber safety habits."
+    }
+    try:
+        res = requests.post("http://localhost:5050/api/modules/upload", json=module_payload)
+        if res.status_code == 200:
+            print("✅ Module uploaded via API")
+        else:
+            print("❌ Module upload failed:", res.status_code, res.text)
+            exit(1)
+    except Exception as e:
+        print("❌ Could not connect to Flask server:", e)
+        exit(1)
+
+    time.sleep(1)  # Give DB time to update before querying
+
+    # Get module ID
+    cursor.execute("SELECT module_id FROM modules WHERE title = 'Cyber Hygiene'")
+    module_id = cursor.fetchone()[0]
+
+    # Video
+    cursor.execute("INSERT INTO videos (title, description, uploaded_by, module_id) VALUES (?, ?, ?, ?)", 
+                   ("Password Safety", "Why strong passwords matter.", mentor_id, module_id))
 
     # Tip
-    cursor.execute("INSERT INTO tips (title, content, category, source_url) VALUES (?, ?, ?, ?)", ("Phishing Alert", "Don’t click unknown links.", "email", "https://example.com/phishing"))
+    cursor.execute("INSERT INTO tips (title, content, category, source_url) VALUES (?, ?, ?, ?)", 
+                   ("Phishing Alert", "Don’t click unknown links.", "email", "https://example.com/phishing"))
     tip_id = cursor.lastrowid
 
     # Quiz
@@ -51,37 +79,48 @@ if cursor.fetchone()[0] == 0:
     quiz_id = cursor.lastrowid
 
     # Question + Options
-    cursor.execute("INSERT INTO questions (quiz_id, text, explanation) VALUES (?, ?, ?)", (quiz_id, "What is phishing?", "Phishing is a scam technique."))
+    cursor.execute("INSERT INTO questions (quiz_id, text, explanation) VALUES (?, ?, ?)", 
+                   (quiz_id, "What is phishing?", "Phishing is a scam technique."))
     question_id = cursor.lastrowid
-    cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", (question_id, "A scam email", 1))
-    cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", (question_id, "A game", 0))
+    cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", 
+                   (question_id, "A scam email", 1))
+    cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", 
+                   (question_id, "A game", 0))
 
     # Quiz Attempt
     answers_json = f'{{"{question_id}": 1}}'
-    cursor.execute("INSERT INTO student_quiz_attempts (student_id, quiz_id, answers, score, timestamp) VALUES (?, ?, ?, ?, datetime('now'))", (student_id, quiz_id, answers_json, 1.0))
+    cursor.execute("INSERT INTO student_quiz_attempts (student_id, quiz_id, answers, score, timestamp) VALUES (?, ?, ?, ?, datetime('now'))", 
+                   (student_id, quiz_id, answers_json, 1.0))
 
     # Progress
-    cursor.execute("INSERT INTO student_progress (student_id, module_id, progress) VALUES (?, ?, ?)", (student_id, module_id, 0.8))
+    cursor.execute("INSERT INTO student_progress (student_id, module_id, progress) VALUES (?, ?, ?)", 
+                   (student_id, module_id, 0.8))
 
     # Doubts
-    cursor.execute("INSERT INTO doubts (student_id, mentor_id, module_id, question, answer) VALUES (?, ?, ?, ?, ?)", (student_id, mentor_id, module_id, "What is phishing?", "Phishing is a cyber attack tricking users."))
+    cursor.execute("INSERT INTO doubts (student_id, mentor_id, module_id, question, answer) VALUES (?, ?, ?, ?, ?)", 
+                   (student_id, mentor_id, module_id, "What is phishing?", "Phishing is a cyber attack tricking users."))
 
     # Notifications
-    cursor.execute("INSERT INTO notifications (user_id, message, timestamp) VALUES (?, ?, datetime('now'))", (student_id, "New quiz available in Cyber Hygiene module"))
+    cursor.execute("INSERT INTO notifications (user_id, message, timestamp) VALUES (?, ?, datetime('now'))", 
+                   (student_id, "New quiz available in Cyber Hygiene module"))
 
     # Complaints
-    cursor.execute("INSERT INTO complaints (filed_by, against, description, status) VALUES (?, ?, ?, ?)", ("student1", "mentor1", "Inappropriate reply", "open"))
+    cursor.execute("INSERT INTO complaints (filed_by, against, description, status) VALUES (?, ?, ?, ?)", 
+                   ("student1", "mentor1", "Inappropriate reply", "open"))
 
     # Reports
-    cursor.execute("INSERT INTO reports (student_id, quiz_id, score, duration) VALUES (?, ?, ?, ?)", (student_id, quiz_id, 1.0, "5 min"))
+    cursor.execute("INSERT INTO reports (student_id, quiz_id, score, duration) VALUES (?, ?, ?, ?)", 
+                   (student_id, quiz_id, 1.0, "5 min"))
 
     # Tip Views
-    cursor.execute("INSERT INTO tip_views (parent_id, tip_id, viewed_at) VALUES (?, ?, datetime('now'))", (parent_id, tip_id))
+    cursor.execute("INSERT INTO tip_views (parent_id, tip_id, viewed_at) VALUES (?, ?, datetime('now'))", 
+                   (parent_id, tip_id))
 
     # Alerts
-    cursor.execute("INSERT INTO alerts (message, timestamp) VALUES (?, datetime('now'))", ("Reminder: Complete your pending quiz by Friday",))
+    cursor.execute("INSERT INTO alerts (message, timestamp) VALUES (?, datetime('now'))", 
+                   ("Reminder: Complete your pending quiz by Friday",))
 
-    print("✅ Initial seed data inserted.")
+    print("✅ Seed data successfully inserted.")
 else:
     print("⚠️ Seed data already exists. Skipping insertion.")
 
