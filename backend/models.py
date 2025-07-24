@@ -55,7 +55,7 @@ def get_all_modules():
     return modules
 
 # ------------------- QUIZZES -------------------
-def get_quiz_with_questions(quiz_id):
+'''def get_quiz_with_questions(quiz_id):
     conn = get_db_connection()
     quiz = conn.execute("SELECT * FROM quizzes WHERE quiz_id = ?", (quiz_id,)).fetchone()
     if not quiz:
@@ -74,7 +74,56 @@ def get_quiz_with_questions(quiz_id):
         })
 
     conn.close()
-    return {"quiz_id": quiz_id, "questions": result}
+    return {"quiz_id": quiz_id, "questions": result}'''
+
+def get_quiz_with_questions(quiz_id):
+    conn = get_db_connection()
+
+    # Get quiz info
+    quiz = conn.execute("""
+        SELECT * FROM quizzes WHERE quiz_id = ? AND isDeleted = 0
+    """, (quiz_id,)).fetchone()
+
+    if not quiz:
+        conn.close()
+        return None
+
+    # Get module info
+    module = conn.execute("""
+        SELECT * FROM modules WHERE module_id = ? AND isDeleted = 0
+    """, (quiz["module_id"],)).fetchone()
+
+    # Get questions (excluding deleted)
+    questions = conn.execute("""
+        SELECT * FROM questions WHERE quiz_id = ? AND isDeleted = 0
+    """, (quiz_id,)).fetchall()
+
+    result = []
+    for q in questions:
+        options = conn.execute("""
+            SELECT * FROM options WHERE question_id = ? AND isDeleted = 0
+        """, (q['question_id'],)).fetchall()
+
+        result.append({
+            "question_id": q["question_id"],
+            "text": q["text"],
+            "explanation": q["explanation"],
+            "options": [{"option_id": o["option_id"], "text": o["text"]} for o in options]
+        })
+
+    conn.close()
+
+    return {
+        "quiz_id": quiz["quiz_id"],
+        "title": quiz["title"],
+        "module": {
+            "module_id": module["module_id"] if module else None,
+            "title": module["title"] if module else "Unknown"
+        },
+        "questions": result
+    }
+
+
 
 def evaluate_quiz(quiz_id, answers_dict):
     conn = get_db_connection()
