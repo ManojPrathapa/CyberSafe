@@ -196,11 +196,21 @@ def resolve_complaint(complaint_id):
     conn.close()
 
 # ------------------- MODULE UPLOAD -------------------
-def upload_module_content(mentor_id, title, description):
+'''def upload_module_content(mentor_id, title, description):
     conn = get_db_connection()
     conn.execute("INSERT INTO modules (title, description) VALUES (?, ?)", (title, description))
     conn.commit()
+    conn.close()'''
+
+def upload_module_content(mentor_id, title, description):
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO modules (title, description, isDeleted) VALUES (?, ?, 0)",
+        (title, description)
+    )
+    conn.commit()
     conn.close()
+
 
 # ------------------- QUIZ CREATION -------------------
 def create_quiz_with_questions(data):
@@ -299,11 +309,25 @@ def post_alert(message):
     conn.commit()
     conn.close()
 
-def soft_delete_module(module_id):
+'''def soft_delete_module(module_id):
     conn = get_db_connection()
     conn.execute("UPDATE modules SET isDeleted = 1 WHERE module_id = ?", (module_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_module(module_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE modules SET isDeleted = 1 WHERE module_id = ? AND isDeleted = 0",
+        (module_id,)
+    )
+    conn.commit()
+    result = cursor.rowcount > 0
     conn.close()
+    return result
+
+
 
 
 
@@ -313,11 +337,20 @@ def get_all_modules():
     conn.close()
     return modules
 
-def soft_delete_quiz(quiz_id):
+'''def soft_delete_quiz(quiz_id):
     conn = get_db_connection()
     conn.execute("UPDATE quizzes SET isDeleted = 1 WHERE quiz_id = ?", (quiz_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_quiz(quiz_id):
+    conn = get_db_connection()
+    cursor = conn.execute("UPDATE quizzes SET isDeleted = 1 WHERE quiz_id = ? AND isDeleted = 0", (quiz_id,))
+    conn.commit()
+    rowcount = cursor.rowcount
     conn.close()
+    return rowcount > 0
+
 
 def get_all_quizzes():
     conn = get_db_connection()
@@ -325,11 +358,20 @@ def get_all_quizzes():
     conn.close()
     return quizzes
 
-def soft_delete_doubt(doubt_id):
+'''def soft_delete_doubt(doubt_id):
     conn = get_db_connection()
     conn.execute("UPDATE doubts SET isDeleted = 1 WHERE doubt_id = ?", (doubt_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_doubt(doubt_id):
+    conn = get_db_connection()
+    cursor = conn.execute("UPDATE doubts SET isDeleted = 1 WHERE doubt_id = ? AND isDeleted = 0", (doubt_id,))
+    conn.commit()
+    updated = cursor.rowcount
     conn.close()
+    return updated > 0
+
 
 def get_all_doubts():
     conn = get_db_connection()
@@ -337,11 +379,20 @@ def get_all_doubts():
     conn.close()
     return doubts
 
-def soft_delete_complaint(complaint_id):
+'''def soft_delete_complaint(complaint_id):
     conn = get_db_connection()
     conn.execute("UPDATE complaints SET isDeleted = 1 WHERE complaint_id = ?", (complaint_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_complaint(complaint_id):
+    conn = get_db_connection()
+    cursor = conn.execute("UPDATE complaints SET isDeleted = 1 WHERE complaint_id = ? AND isDeleted = 0", (complaint_id,))
+    conn.commit()
+    updated_rows = cursor.rowcount
     conn.close()
+    return updated_rows > 0
+
 
 def get_all_complaints():
     conn = get_db_connection()
