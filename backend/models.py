@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 
 # ------------------- AUTH -------------------
-def create_user(username, email, password, role):
+'''def create_user(username, email, password, role):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -11,7 +11,33 @@ def create_user(username, email, password, role):
         VALUES (?, ?, ?, ?, 1)
     """, (username, email, password, role))
     conn.commit()
+    conn.close()'''
+
+def create_user(username, email, password, role):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Insert into users table
+    cursor.execute("""
+        INSERT INTO users (username, email, password, role, isActive)
+        VALUES (?, ?, ?, ?, 1)
+    """, (username, email, password, role))
+
+    # Get the ID of the newly inserted user
+    user_id = cursor.lastrowid
+
+    # Insert into the respective role table
+    if role == 'student':
+        cursor.execute("INSERT INTO students (user_id, age) VALUES (?, ?)", (user_id, None))
+    elif role == 'parent':
+        cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (user_id,))
+    elif role == 'mentor':
+        cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years) VALUES (?, ?, ?)", (user_id, '', 0))
+    # Optional: handle 'admin', 'support' roles if you plan to extend them later
+
+    conn.commit()
     conn.close()
+
 
 def get_user_by_username(username):
     conn = get_db_connection()
@@ -401,11 +427,23 @@ def get_all_complaints():
     return complaints
 
 
-def soft_delete_tip(tip_id):
+'''def soft_delete_tip(tip_id):
     conn = get_db_connection()
     conn.execute("UPDATE tips SET isDeleted = 1 WHERE tip_id = ?", (tip_id,))
     conn.commit()
     conn.close()
+'''
+def soft_delete_tip(tip_id):
+    conn = get_db_connection()
+    cursor = conn.execute(
+        "UPDATE tips SET isDeleted = 1 WHERE tip_id = ? AND isDeleted = 0",
+        (tip_id,)
+    )
+    conn.commit()
+    updated_rows = cursor.rowcount
+    conn.close()
+    return updated_rows > 0
+
 
 def get_all_tips():
     conn = get_db_connection()
@@ -414,11 +452,23 @@ def get_all_tips():
     return tips
 
 
-def soft_delete_report(report_id):
+'''def soft_delete_report(report_id):
     conn = get_db_connection()
     conn.execute("UPDATE reports SET isDeleted = 1 WHERE report_id = ?", (report_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_report(report_id):
+    conn = get_db_connection()
+    cursor = conn.execute(
+        "UPDATE reports SET isDeleted = 1 WHERE report_id = ? AND isDeleted = 0",
+        (report_id,)
+    )
+    conn.commit()
+    updated_rows = cursor.rowcount
     conn.close()
+    return updated_rows > 0
+
 
 def get_reports_for_student(student_id):
     conn = get_db_connection()
@@ -430,11 +480,23 @@ def get_reports_for_student(student_id):
     return reports
 
 
-def soft_delete_alert(alert_id):
+'''def soft_delete_alert(alert_id):
     conn = get_db_connection()
     conn.execute("UPDATE alerts SET isDeleted = 1 WHERE alert_id = ?", (alert_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_alert(alert_id):
+    conn = get_db_connection()
+    cursor = conn.execute(
+        "UPDATE alerts SET isDeleted = 1 WHERE alert_id = ? AND isDeleted = 0",
+        (alert_id,)
+    )
+    conn.commit()
+    updated_rows = cursor.rowcount
     conn.close()
+    return updated_rows > 0
+
 
 def get_all_alerts():
     conn = get_db_connection()
