@@ -1,7 +1,29 @@
 openapi: 3.0.0
 info:
-  title: CYBERSAFE API
-  description: "Full specification for authentication, modules, quizzes, doubts, tips, complaints, reports, alerts, admin, profile and notifications."
+  title: Cybersafe API
+  description: >
+    API for a web application used to help children learn to stay safe on the internet.
+
+    Here is the list of user stories and the APIs meant to fulfill them.
+
+
+    The **Modules** set of APIs help the student/child learn about cybersecurity through videos and engaging content instead of reading a book or an article, so that they can learn to be vigilant and cautious while interacting on social media and other online platforms. They also help the cybersecurity mentors upload appropriate content to the platform.
+
+
+    The **Quiz and Doubts** APIs help and feature as additional content in addition to the modules of videos to help the child get a better understanding of each topic in the modules.
+
+
+    The **Reports** set of APIs helps the student understand their progress and performance and identify areas of improvement. It also helps the cybersecurity mentor identify scope for improvement.
+
+
+    The **Tips** set of APIs helps parents which can enable them encourage safe online practices at home.
+
+
+    The **Admin** set of APIs help the user verify the content made by the mentors and provide appropriate user roles and access permissions.
+
+
+    Beyond these, there are other APIs which provide added functionality to the application whose use is mentioned alongside their description.
+
   version: 1.0.0
 servers:
 - url: http://localhost:5000

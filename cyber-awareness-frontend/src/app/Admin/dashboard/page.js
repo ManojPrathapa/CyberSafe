@@ -1,61 +1,174 @@
 "use client";
 
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import Header from "@/components/Admin/adminHeader";
+import { useState } from "react";
+import {
+  LineChart, Line, PieChart, Pie, BarChart, Bar,
+  XAxis, YAxis, Tooltip, Cell, ResponsiveContainer
+} from "recharts";
 
+const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f7f"];
 
-import AllUsers from '@/components/Admin/Alluser';
-import TrainerApproval from '@/components/Admin/TrainerApproval';
-import ContentApproval from '@/components/Admin/ContentApproval';
+const studentLineData = [
+  { name: "Week 1", students: 200 },
+  { name: "Week 2", students: 400 },
+  { name: "Week 3", students: 700 },
+  { name: "Week 4", students: 500 },
+];
 
+const rolePieData = [
+  { name: "18-24", value: 18 },
+  { name: "25-34", value: 32 },
+  { name: "35-44", value: 19 },
+  { name: "45-54", value: 14 },
+  { name: "55-64", value: 10 },
+];
+
+const videoBarData = [
+  { name: "Week 1", videos: 20 },
+  { name: "Week 2", videos: 35 },
+  { name: "Week 3", videos: 40 },
+  { name: "Week 4", videos: 28 },
+];
+
+const quizBarData = [
+  { name: "Red", attempted: 30 },
+  { name: "Blue", attempted: 40 },
+  { name: "Green", attempted: 50 },
+  { name: "Yellow", attempted: 60 },
+  { name: "Black", attempted: 35 },
+];
+
+const months = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 export default function AdminDashboard() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState('dashboard');
+  const [reportMonth, setReportMonth] = useState("January");
+  const [summaryMonth, setSummaryMonth] = useState("January");
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-blue-100 to-indigo-100 text-gray-800">
-      {/* Sidebar */}
-      <aside className="bg-white w-full lg:w-1/4 xl:w-1/5 p-6 shadow-xl flex flex-col gap-6 border-r border-gray-300">
-        <div className="flex items-center justify-between lg:justify-center mb-4">
-          <h1 className="text-3xl font-extrabold text-indigo-700">CYBERSAFE</h1>
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden">
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-        <nav className={`flex flex-col gap-4 ${mobileMenuOpen ? 'flex' : 'hidden'} lg:flex`}>
-          <button className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('users')}>ALL USERS</button>
-          <button className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('trainer')}>TRAINER APPROVAL</button>
-          <button className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('content')}>CONTENT APPROVAL</button>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-6 overflow-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold px-6 py-2 bg-white shadow rounded-full text-indigo-800">HI ADMIN</h2>
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">🔔</div>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow">LOGOUT</button>
+    <>
+      <Header page="dashboard" />
+      <div className="p-6 bg-[#f3f2e8] min-h-screen">
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white p-4 rounded shadow text-center">
+            <p className="font-bold text-black">TOTAL STUDENTS: <span className="text-blue-700">800</span></p>
+            <p className="font-bold text-black">NEW STUDENTS THIS MONTH: <span className="text-blue-700">20</span></p>
+          </div>
+          <div className="bg-white p-4 rounded shadow text-center">
+            <p className="font-bold text-black">TOTAL MENTORS: <span className="text-blue-700">200</span></p>
+            <p className="font-bold text-black">NEW MENTORS THIS MONTH: <span className="text-blue-700">24</span></p>
+          </div>
+          <div className="bg-white p-4 rounded shadow text-center">
+            <p className="font-bold text-black">TOTAL MENTORS: <span className="text-blue-700">10</span></p>
+            <p className="font-bold text-black">NEW MENTORS THIS MONTH: <span className="text-blue-700">2</span></p>
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow max-w-5xl">
-          {selectedSection === 'dashboard' && (
-            <ul className="list-disc pl-6 space-y-4 text-base leading-relaxed">
-              <li><strong>Record Keeping and Data Management:</strong> Organizing, maintaining, and updating records, files, and databases.</li>
-              <li><strong>Communication and Coordination:</strong> Facilitating effective communication within the organization, coordinating meetings and events, and liaising with external stakeholders.</li>
-              <li><strong>Support for Other Departments:</strong> Providing assistance to other teams, such as HR, finance, and IT, with tasks like recruitment, invoicing, and budget management.</li>
-              <li><strong>Ensuring Compliance:</strong> Adhering to company policies, procedures, and regulatory requirements.</li>
-              <li><strong>Resource Management:</strong> Managing office supplies, equipment, and other resources to ensure they are readily available and maintained.</li>
-              <li><strong>Scheduling and Planning:</strong> Managing schedules, booking appointments, and coordinating travel arrangements.</li>
-            </ul>
-          )}
-          {selectedSection === 'users' && <AllUsers />}
-          {selectedSection === 'trainer' && <TrainerApproval />}
-          {selectedSection === 'content' && <ContentApproval />}
+        {/* Charts Row 1 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {/* Line Chart */}
+          <div className="bg-white p-4 rounded shadow">
+            <h3 className="text-center font-semibold mb-2 text-black">NUMBER OF STUDENTS IN APP</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={studentLineData}>
+                <XAxis dataKey="name" />
+                <Tooltip />
+                <Line type="monotone" dataKey="students" stroke="#8884d8" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Pie Chart */}
+          <div className="bg-white p-4 rounded shadow">
+            <h3 className="text-center font-semibold mb-2 text-black">USER DISTRIBUTION (ROLE WISE)</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={rolePieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={70}
+                  label
+                >
+                  {rolePieData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Download Report */}
+          <div className="bg-pink-100 border p-4 rounded shadow flex flex-col justify-between">
+            <h3 className="font-bold text-center mb-2 text-black">DOWNLOAD USER MONTHLY REPORT</h3>
+            <label className="text-sm text-center text-black">SELECT MONTH: 
+            <select
+              className="border rounded px-2 py-1 mb-3 border-blue-500 text-black"
+              value={reportMonth}
+              onChange={(e) => setReportMonth(e.target.value)}
+            >
+              {months.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            </label>
+            <button className="bg-black text-white py-2 rounded hover:bg-gray-800">
+              ⬇ DOWNLOAD
+            </button>
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Charts Row 2 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Bar Chart - Videos */}
+          <div className="bg-white p-4 rounded shadow">
+            <h3 className="text-center font-semibold mb-2 text-black">TOTAL VIDEOS WATCHED</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={videoBarData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="videos" fill="#ff7f7f" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Bar Chart - Quizzes */}
+          <div className="bg-white p-4 rounded shadow">
+            <h3 className="text-center font-semibold mb-2 text-black">TOTAL QUIZZED ATTEMPTED</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={quizBarData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="attempted" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Download Summary */}
+          <div className="bg-pink-100 border p-4 rounded shadow flex flex-col justify-between">
+            <h3 className="font-bold text-center mb-2 text-black">DOWNLOAD MONTHLY CONTENT SUMMARY</h3>
+            <label className="text-sm text-center text-black">SELECT MONTH:
+            <select
+              className="border rounded px-2 py-1 mb-3 border-blue-500 text-black"
+              value={summaryMonth}
+              onChange={(e) => setSummaryMonth(e.target.value)}
+            >
+              {months.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            </label>
+            <button className="bg-black text-white py-2 rounded hover:bg-gray-800">
+              ⬇ DOWNLOAD
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

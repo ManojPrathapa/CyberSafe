@@ -19,7 +19,7 @@ export default function SignupPage() {
  
   return (
     <>
-      <Header /> 
+      <Header page="signup" /> 
     <div className="min-h-screen flex flex-col items-center justify-start p-4 bg-gray-50">
 
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 mt-10">
