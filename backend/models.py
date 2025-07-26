@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 
 # ------------------- AUTH -------------------
-def create_user(username, email, password, role):
+'''def create_user(username, email, password, role):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -11,7 +11,33 @@ def create_user(username, email, password, role):
         VALUES (?, ?, ?, ?, 1)
     """, (username, email, password, role))
     conn.commit()
+    conn.close()'''
+
+def create_user(username, email, password, role):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Insert into users table
+    cursor.execute("""
+        INSERT INTO users (username, email, password, role, isActive)
+        VALUES (?, ?, ?, ?, 1)
+    """, (username, email, password, role))
+
+    # Get the ID of the newly inserted user
+    user_id = cursor.lastrowid
+
+    # Insert into the respective role table
+    if role == 'student':
+        cursor.execute("INSERT INTO students (user_id, age) VALUES (?, ?)", (user_id, None))
+    elif role == 'parent':
+        cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (user_id,))
+    elif role == 'mentor':
+        cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years) VALUES (?, ?, ?)", (user_id, '', 0))
+    # Optional: handle 'admin', 'support' roles if you plan to extend them later
+
+    conn.commit()
     conn.close()
+
 
 def get_user_by_username(username):
     conn = get_db_connection()
@@ -29,7 +55,7 @@ def get_all_modules():
     return modules
 
 # ------------------- QUIZZES -------------------
-def get_quiz_with_questions(quiz_id):
+'''def get_quiz_with_questions(quiz_id):
     conn = get_db_connection()
     quiz = conn.execute("SELECT * FROM quizzes WHERE quiz_id = ?", (quiz_id,)).fetchone()
     if not quiz:
@@ -48,7 +74,56 @@ def get_quiz_with_questions(quiz_id):
         })
 
     conn.close()
-    return {"quiz_id": quiz_id, "questions": result}
+    return {"quiz_id": quiz_id, "questions": result}'''
+
+def get_quiz_with_questions(quiz_id):
+    conn = get_db_connection()
+
+    # Get quiz info
+    quiz = conn.execute("""
+        SELECT * FROM quizzes WHERE quiz_id = ? AND isDeleted = 0
+    """, (quiz_id,)).fetchone()
+
+    if not quiz:
+        conn.close()
+        return None
+
+    # Get module info
+    module = conn.execute("""
+        SELECT * FROM modules WHERE module_id = ? AND isDeleted = 0
+    """, (quiz["module_id"],)).fetchone()
+
+    # Get questions (excluding deleted)
+    questions = conn.execute("""
+        SELECT * FROM questions WHERE quiz_id = ? AND isDeleted = 0
+    """, (quiz_id,)).fetchall()
+
+    result = []
+    for q in questions:
+        options = conn.execute("""
+            SELECT * FROM options WHERE question_id = ? AND isDeleted = 0
+        """, (q['question_id'],)).fetchall()
+
+        result.append({
+            "question_id": q["question_id"],
+            "text": q["text"],
+            "explanation": q["explanation"],
+            "options": [{"option_id": o["option_id"], "text": o["text"]} for o in options]
+        })
+
+    conn.close()
+
+    return {
+        "quiz_id": quiz["quiz_id"],
+        "title": quiz["title"],
+        "module": {
+            "module_id": module["module_id"] if module else None,
+            "title": module["title"] if module else "Unknown"
+        },
+        "questions": result
+    }
+
+
 
 def evaluate_quiz(quiz_id, answers_dict):
     conn = get_db_connection()
@@ -196,11 +271,21 @@ def resolve_complaint(complaint_id):
     conn.close()
 
 # ------------------- MODULE UPLOAD -------------------
-def upload_module_content(mentor_id, title, description):
+'''def upload_module_content(mentor_id, title, description):
     conn = get_db_connection()
     conn.execute("INSERT INTO modules (title, description) VALUES (?, ?)", (title, description))
     conn.commit()
+    conn.close()'''
+
+def upload_module_content(mentor_id, title, description):
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO modules (title, description, isDeleted) VALUES (?, ?, 0)",
+        (title, description)
+    )
+    conn.commit()
     conn.close()
+
 
 # ------------------- QUIZ CREATION -------------------
 def create_quiz_with_questions(data):
@@ -299,11 +384,27 @@ def post_alert(message):
     conn.commit()
     conn.close()
 
-def soft_delete_module(module_id):
+'''def soft_delete_module(module_id):
     conn = get_db_connection()
     conn.execute("UPDATE modules SET isDeleted = 1 WHERE module_id = ?", (module_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_module(module_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE modules SET isDeleted = 1 WHERE module_id = ? AND isDeleted = 0",
+        (module_id,)
+    )
+    conn.commit()
+    result = cursor.rowcount > 0
     conn.close()
+    return result
+
+
+
+
 
 def get_all_modules():
     conn = get_db_connection()
@@ -311,11 +412,20 @@ def get_all_modules():
     conn.close()
     return modules
 
-def soft_delete_quiz(quiz_id):
+'''def soft_delete_quiz(quiz_id):
     conn = get_db_connection()
     conn.execute("UPDATE quizzes SET isDeleted = 1 WHERE quiz_id = ?", (quiz_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_quiz(quiz_id):
+    conn = get_db_connection()
+    cursor = conn.execute("UPDATE quizzes SET isDeleted = 1 WHERE quiz_id = ? AND isDeleted = 0", (quiz_id,))
+    conn.commit()
+    rowcount = cursor.rowcount
     conn.close()
+    return rowcount > 0
+
 
 def get_all_quizzes():
     conn = get_db_connection()
@@ -323,11 +433,20 @@ def get_all_quizzes():
     conn.close()
     return quizzes
 
-def soft_delete_doubt(doubt_id):
+'''def soft_delete_doubt(doubt_id):
     conn = get_db_connection()
     conn.execute("UPDATE doubts SET isDeleted = 1 WHERE doubt_id = ?", (doubt_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_doubt(doubt_id):
+    conn = get_db_connection()
+    cursor = conn.execute("UPDATE doubts SET isDeleted = 1 WHERE doubt_id = ? AND isDeleted = 0", (doubt_id,))
+    conn.commit()
+    updated = cursor.rowcount
     conn.close()
+    return updated > 0
+
 
 def get_all_doubts():
     conn = get_db_connection()
@@ -335,11 +454,20 @@ def get_all_doubts():
     conn.close()
     return doubts
 
-def soft_delete_complaint(complaint_id):
+'''def soft_delete_complaint(complaint_id):
     conn = get_db_connection()
     conn.execute("UPDATE complaints SET isDeleted = 1 WHERE complaint_id = ?", (complaint_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_complaint(complaint_id):
+    conn = get_db_connection()
+    cursor = conn.execute("UPDATE complaints SET isDeleted = 1 WHERE complaint_id = ? AND isDeleted = 0", (complaint_id,))
+    conn.commit()
+    updated_rows = cursor.rowcount
     conn.close()
+    return updated_rows > 0
+
 
 def get_all_complaints():
     conn = get_db_connection()
@@ -348,11 +476,23 @@ def get_all_complaints():
     return complaints
 
 
-def soft_delete_tip(tip_id):
+'''def soft_delete_tip(tip_id):
     conn = get_db_connection()
     conn.execute("UPDATE tips SET isDeleted = 1 WHERE tip_id = ?", (tip_id,))
     conn.commit()
     conn.close()
+'''
+def soft_delete_tip(tip_id):
+    conn = get_db_connection()
+    cursor = conn.execute(
+        "UPDATE tips SET isDeleted = 1 WHERE tip_id = ? AND isDeleted = 0",
+        (tip_id,)
+    )
+    conn.commit()
+    updated_rows = cursor.rowcount
+    conn.close()
+    return updated_rows > 0
+
 
 def get_all_tips():
     conn = get_db_connection()
@@ -361,11 +501,23 @@ def get_all_tips():
     return tips
 
 
-def soft_delete_report(report_id):
+'''def soft_delete_report(report_id):
     conn = get_db_connection()
     conn.execute("UPDATE reports SET isDeleted = 1 WHERE report_id = ?", (report_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_report(report_id):
+    conn = get_db_connection()
+    cursor = conn.execute(
+        "UPDATE reports SET isDeleted = 1 WHERE report_id = ? AND isDeleted = 0",
+        (report_id,)
+    )
+    conn.commit()
+    updated_rows = cursor.rowcount
     conn.close()
+    return updated_rows > 0
+
 
 def get_reports_for_student(student_id):
     conn = get_db_connection()
@@ -377,11 +529,23 @@ def get_reports_for_student(student_id):
     return reports
 
 
-def soft_delete_alert(alert_id):
+'''def soft_delete_alert(alert_id):
     conn = get_db_connection()
     conn.execute("UPDATE alerts SET isDeleted = 1 WHERE alert_id = ?", (alert_id,))
     conn.commit()
+    conn.close()'''
+
+def soft_delete_alert(alert_id):
+    conn = get_db_connection()
+    cursor = conn.execute(
+        "UPDATE alerts SET isDeleted = 1 WHERE alert_id = ? AND isDeleted = 0",
+        (alert_id,)
+    )
+    conn.commit()
+    updated_rows = cursor.rowcount
     conn.close()
+    return updated_rows > 0
+
 
 def get_all_alerts():
     conn = get_db_connection()

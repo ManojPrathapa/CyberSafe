@@ -2,7 +2,7 @@ from flask_restful import Resource, reqparse
 from flask import request
 from models import upload_module_content
 from flask_restful import Resource
-from models import soft_delete_module  # Make sure this is defined in models.py
+from models import soft_delete_module  
 
 class DeleteModuleAPI(Resource):
     def delete(self, module_id):

@@ -4,12 +4,18 @@ from models import get_quiz_with_questions, evaluate_quiz, save_quiz_attempt, cr
 from flask_restful import Resource
 from models import soft_delete_quiz  # Ensure this is defined in models.py
 
+from flask_restful import Resource
+from models import soft_delete_quiz
+
 class DeleteQuizAPI(Resource):
     def delete(self, quiz_id):
+        print(f"Attempting to delete quiz with ID: {quiz_id}")
         result = soft_delete_quiz(quiz_id)
         if result:
-            return {'message': f'Quiz {quiz_id} deleted successfully'}, 200
-        return {'message': f'Quiz {quiz_id} not found or already deleted'}, 404
+            return {'message': 'Quiz deleted successfully'}, 200
+        else:
+            return {'message': 'Quiz not found'}, 404
+
 
 class QuizAPI(Resource):
     def get(self, quiz_id):
@@ -39,6 +45,16 @@ class QuizSubmitAPI(Resource):
 
 class QuizCreateAPI(Resource):
     def post(self):
-        data = request.get_json()
-        create_quiz_with_questions(data)
-        return {"message": "Quiz created and uploaded successfully"}
+        try:
+            data = request.get_json()
+            print("📥 Received data for quiz creation:", data)  # Log incoming data
+
+            if not data or 'title' not in data or 'module_id' not in data or 'questions' not in data:
+                return {"error": "Missing required fields (title, module_id, questions)"}, 400
+
+            create_quiz_with_questions(data)
+            return {"message": "✅ Quiz created and uploaded successfully"}, 201
+
+        except Exception as e:
+            print("❌ Exception while creating quiz:", str(e))
+            return {"error": "Failed to create quiz", "details": str(e)}, 500
