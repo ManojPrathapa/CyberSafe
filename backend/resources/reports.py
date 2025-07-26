@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from models import get_reports_for_student
 from flask_restful import Resource
-from models import soft_delete_report  # Ensure this is defined in models.py
+from models import soft_delete_report 
 
 class DeleteReportAPI(Resource):
     def delete(self, report_id):

@@ -2,7 +2,7 @@ from flask_restful import Resource
 from flask import request
 from models import get_quiz_with_questions, evaluate_quiz, save_quiz_attempt, create_quiz_with_questions
 from flask_restful import Resource
-from models import soft_delete_quiz  # Ensure this is defined in models.py
+from models import soft_delete_quiz  
 
 from flask_restful import Resource
 from models import soft_delete_quiz

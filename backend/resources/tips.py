@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from models import get_all_tips, get_viewed_tips_by_parent, mark_tip_viewed
 from flask_restful import Resource
-from models import soft_delete_tip  # Ensure this is defined in models.py
+from models import soft_delete_tip  
 
 class DeleteTipAPI(Resource):
     def delete(self, tip_id):

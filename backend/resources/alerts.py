@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from models import post_alert
 from flask_restful import Resource
-from models import soft_delete_alert  # Ensure this is defined in models.py
+from models import soft_delete_alert  
 
 class DeleteAlertAPI(Resource):
     def delete(self, alert_id):

@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from models import file_complaint, get_complaints, resolve_complaint
 from flask_restful import Resource
-from models import soft_delete_complaint  # Ensure this is defined in models.py
+from models import soft_delete_complaint  
 
 class DeleteComplaintAPI(Resource):
     def delete(self, complaint_id):
