@@ -47,14 +47,14 @@ class QuizCreateAPI(Resource):
     def post(self):
         try:
             data = request.get_json()
-            print("📥 Received data for quiz creation:", data)  # Log incoming data
+            print(" Received data for quiz creation:", data)  # Log incoming data
 
             if not data or 'title' not in data or 'module_id' not in data or 'questions' not in data:
                 return {"error": "Missing required fields (title, module_id, questions)"}, 400
 
             create_quiz_with_questions(data)
-            return {"message": "✅ Quiz created and uploaded successfully"}, 201
+            return {"message": " Quiz created and uploaded successfully"}, 201
 
         except Exception as e:
-            print("❌ Exception while creating quiz:", str(e))
+            print(" Exception while creating quiz:", str(e))
             return {"error": "Failed to create quiz", "details": str(e)}, 500

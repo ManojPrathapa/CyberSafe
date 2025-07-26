@@ -39,7 +39,7 @@ def create_user(username, email, password, role):
         cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (user_id,))
     elif role == 'mentor':
         cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years) VALUES (?, ?, ?)", (user_id, '', 0))
-    # Optional: handle 'admin', 'support' roles if you plan to extend them later
+    
 
     conn.commit()
     conn.close()

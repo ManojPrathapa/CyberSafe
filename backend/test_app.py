@@ -111,7 +111,7 @@ class TestCYBERSAFEAPI(unittest.TestCase):
         self.assertIn(res.status_code, [200, 400])
 
     # --------------------
-    # 🔐 Admin Endpoints
+    #  Admin Endpoints
     # --------------------
 
     def test_admin_users(self):
@@ -143,14 +143,14 @@ class TestCYBERSAFEAPI(unittest.TestCase):
         self.assertIn(res.status_code, [200, 400])
 
     # --------------------
-    # 📣 Alerts
+    #  Alerts
     # --------------------
     def test_post_alert(self):
         res = self.client.post("/api/alerts/post", json={"message": "Be aware of phishing attacks!"})
         self.assertIn(res.status_code, [200, 201, 400])
 
     # --------------------
-    # 👤 Profile & Activity
+    #  Profile & Activity
     # --------------------
     def test_get_profile(self):
         res = self.client.get("/api/profile/1")
@@ -169,7 +169,7 @@ class TestCYBERSAFEAPI(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
     # --------------------
-    # ❌ DELETE (Soft Deletes)
+    #  DELETE (Soft Deletes)
     # --------------------
     def test_delete_module(self):
         res = self.client.delete("/api/modules/delete/1")

@@ -42,7 +42,7 @@ if cursor.fetchone()[0] == 0:
     conn.commit()  # Commit before API call
 
     # === MODULE (via API) ===
-    print("📡 Uploading module via /api/modules/upload ...")
+    print(" Uploading module via /api/modules/upload ...")
     module_payload = {
         "mentor_id": mentor_id,
         "title": "Cyber Hygiene",
@@ -53,12 +53,12 @@ if cursor.fetchone()[0] == 0:
     try:
         res = requests.post("http://localhost:5050/api/modules/upload", json=module_payload)
         if res.status_code == 200:
-            print("✅ Module uploaded via API")
+            print(" Module uploaded via API")
         else:
-            print("❌ Module upload failed:", res.status_code, res.text)
+            print(" Module upload failed:", res.status_code, res.text)
             exit(1)
     except Exception as e:
-        print("❌ Could not connect to Flask server:", e)
+        print(" Could not connect to Flask server:", e)
         exit(1)
 
     time.sleep(1)  # Let DB settle
@@ -122,9 +122,9 @@ if cursor.fetchone()[0] == 0:
     cursor.execute("INSERT INTO alerts (message, timestamp) VALUES (?, datetime('now'))", 
                    ("Reminder: Complete your pending quiz by Friday",))
 
-    print("✅ Seed data successfully inserted.")
+    print(" Seed data successfully inserted.")
 else:
-    print("⚠️ Seed data already exists. Skipping insertion.")
+    print(" Seed data already exists. Skipping insertion.")
 
 conn.commit()
 conn.close()
