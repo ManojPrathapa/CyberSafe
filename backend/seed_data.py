@@ -39,14 +39,16 @@ if cursor.fetchone()[0] == 0:
     # Parent-Student Link
     cursor.execute("INSERT INTO parent_student (parent_id, student_id) VALUES (?, ?)", (parent_id, student_id))
     
-    conn.commit()  # Commit so mentor_id is usable in API request
+    conn.commit()  # Commit before API call
 
     # === MODULE (via API) ===
     print("📡 Uploading module via /api/modules/upload ...")
     module_payload = {
         "mentor_id": mentor_id,
         "title": "Cyber Hygiene",
-        "description": "Learn basic cyber safety habits."
+        "description": "Learn basic cyber safety habits.",
+        "video_url": "https://youtu.be/strong-passwords",
+        "resource_link": "https://example.com/resources/cyber-hygiene"
     }
     try:
         res = requests.post("http://localhost:5050/api/modules/upload", json=module_payload)
@@ -59,7 +61,7 @@ if cursor.fetchone()[0] == 0:
         print("❌ Could not connect to Flask server:", e)
         exit(1)
 
-    time.sleep(1)  # Give DB time to update before querying
+    time.sleep(1)  # Let DB settle
 
     # Get module ID
     cursor.execute("SELECT module_id FROM modules WHERE title = 'Cyber Hygiene'")
