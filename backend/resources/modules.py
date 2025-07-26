@@ -18,11 +18,23 @@ class ModuleListAPI(Resource):
         modules = get_all_modules()
         return [dict(m) for m in modules]
 
-class UploadModuleAPI(Resource):
+'''class UploadModuleAPI(Resource):
     def post(self):
         data = request.get_json()
         mentor_id = data.get('mentor_id')
         title = data.get('title')
         description = data.get('description')
         upload_module_content(mentor_id, title, description)
+        return {'message': 'Module uploaded successfully'}'''
+
+class UploadModuleAPI(Resource):
+    def post(self):
+        data = request.get_json()
+        mentor_id = data.get('mentor_id')
+        title = data.get('title')
+        description = data.get('description')
+        video_url = data.get('video_url')
+        resource_link = data.get('resource_link')
+
+        upload_module_content(mentor_id, title, description, video_url, resource_link)
         return {'message': 'Module uploaded successfully'}

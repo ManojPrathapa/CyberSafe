@@ -283,14 +283,27 @@ def resolve_complaint(complaint_id):
     conn.commit()
     conn.close()'''
 
-def upload_module_content(mentor_id, title, description):
+'''def upload_module_content(mentor_id, title, description):
     conn = get_db_connection()
     conn.execute(
         "INSERT INTO modules (title, description, isDeleted) VALUES (?, ?, 0)",
         (title, description)
     )
     conn.commit()
+    conn.close()'''
+
+def upload_module_content(mentor_id, title, description, video_url=None, resource_link=None):
+    conn = get_db_connection()
+    conn.execute(
+        """
+        INSERT INTO modules (mentor_id, title, description, video_url, resource_link, isDeleted)
+        VALUES (?, ?, ?, ?, ?, 0)
+        """,
+        (mentor_id, title, description, video_url, resource_link)
+    )
+    conn.commit()
     conn.close()
+
 
 
 # ------------------- QUIZ CREATION -------------------

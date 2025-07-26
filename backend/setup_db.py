@@ -49,11 +49,15 @@ CREATE TABLE IF NOT EXISTS parent_student (
 -- MODULES
 CREATE TABLE IF NOT EXISTS modules (
     module_id INTEGER PRIMARY KEY,
+    mentor_id INTEGER,
     title TEXT,
     description TEXT,
+    video_url TEXT,
+    resource_link TEXT,
     approved BOOLEAN DEFAULT 0,
     isDeleted BOOLEAN DEFAULT 0
 );
+
 
 -- VIDEOS
 CREATE TABLE IF NOT EXISTS videos (
