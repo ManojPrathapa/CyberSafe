@@ -1,6 +1,12 @@
 from db import get_db_connection
 import json
 from datetime import datetime
+from flask import send_file
+from db import get_db_connection
+import csv
+import io
+from flask import make_response
+
 
 # ------------------- AUTH -------------------
 '''def create_user(username, email, password, role):
@@ -359,11 +365,62 @@ def get_pending_contents():
     conn.close()
     return contents
 
-def download_user_report():
-    return {"report": "Monthly user report (PDF/CSV placeholder)"}
+
+
+'''def download_user_report():
+    return send_file("path/to/user_report.csv", as_attachment=True)
 
 def download_summary():
-    return {"summary": "Monthly summary (PDF/CSV placeholder)"}
+    return send_file("path/to/summary.pdf", as_attachment=True)'''
+
+def download_user_report():
+    conn = get_db_connection()
+    users = conn.execute(
+        "SELECT id AS user_id, username, email, role, isActive FROM users"
+    ).fetchall()
+    conn.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["User ID", "Username", "Email", "Role", "Active"])
+    for user in users:
+        writer.writerow([
+            user["user_id"],
+            user["username"],
+            user["email"],
+            user["role"],
+            user["isActive"]
+        ])
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=users_report.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
+def download_summary():
+    conn = get_db_connection()
+
+    total_users = conn.execute("SELECT COUNT(*) AS count FROM users").fetchone()["count"]
+    total_trainers = conn.execute("SELECT COUNT(*) AS count FROM users WHERE role = 'trainer'").fetchone()["count"]
+    total_students = conn.execute("SELECT COUNT(*) AS count FROM users WHERE role = 'student'").fetchone()["count"]
+    total_quizzes = conn.execute("SELECT COUNT(*) AS count FROM quizzes").fetchone()["count"]
+
+    conn.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Metric", "Count"])
+    writer.writerow(["Total Users", total_users])
+    writer.writerow(["Total Trainers", total_trainers])
+    writer.writerow(["Total Students", total_students])
+    writer.writerow(["Total Quizzes", total_quizzes])
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=summary_report.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
+
+
+
 
 def block_user(user_id):
     conn = get_db_connection()
