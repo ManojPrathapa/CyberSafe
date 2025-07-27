@@ -9,7 +9,7 @@ from models import soft_delete_quiz
 
 class DeleteQuizAPI(Resource):
     def delete(self, quiz_id):
-        print(f"Attempting to delete quiz with ID: {quiz_id}")
+        
         result = soft_delete_quiz(quiz_id)
         if result:
             return {'message': 'Quiz deleted successfully'}, 200

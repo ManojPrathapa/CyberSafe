@@ -1,5 +1,6 @@
 import unittest 
 from app import app
+from unittest.mock import patch
 
 class TestCYBERSAFEAPI(unittest.TestCase):
     def setUp(self):
@@ -13,6 +14,38 @@ class TestCYBERSAFEAPI(unittest.TestCase):
             "password": self.test_password,
             "role": "student"
         })
+
+
+
+    @patch("resources.activity.get_student_activity")
+    def test_student_activity_valid(self, mock_activity):
+        mock_activity.return_value = {
+            "student_id": 1,
+            "activities": [
+                {"module": "Cyber Hygiene", "last_accessed": "2025-07-25"},
+                {"module": "Cyber Ethics", "last_accessed": "2025-07-26"}
+            ]
+        }
+        res = self.client.get("/api/activity/1")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("activities", res.get_json())
+        self.assertEqual(len(res.get_json()["activities"]), 2)
+
+    @patch("resources.activity.get_student_activity")
+    def test_student_activity_empty(self, mock_activity):
+        mock_activity.return_value = {"student_id": 1, "activities": []}
+        res = self.client.get("/api/activity/1")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.get_json()["activities"], [])
+
+    @patch("resources.activity.get_student_activity")
+    def test_student_activity_error(self, mock_activity):
+        mock_activity.side_effect = Exception("Student not found")
+        res = self.client.get("/api/activity/999")
+        self.assertEqual(res.status_code, 500)
+        self.assertIn("error", res.get_json())
+
+
 
     def test_index(self):
         res = self.client.get("/")
