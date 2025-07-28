@@ -18,6 +18,8 @@ class RegisterAPI(Resource):
             return {'error': 'Username already exists'}, 400
         create_user(args['username'], args['email'], args['password'], args['role'])
         return {'message': 'User registered successfully'}, 201
+    
+    
 
 class LoginAPI(Resource):
     def post(self):
