@@ -4,6 +4,8 @@ from models import upload_module_content
 from flask_restful import Resource
 from models import soft_delete_module  
 from models import upload_module_content, soft_delete_module, get_all_modules 
+from utils.auth_utils import role_required, roles_required
+
 
 class DeleteModuleAPI(Resource):
     def delete(self, module_id):
@@ -30,6 +32,7 @@ class ModuleListAPI(Resource):
 
 
 class UploadModuleAPI(Resource):
+    
     def post(self):
         data = request.get_json()
         mentor_id = data.get('mentor_id')

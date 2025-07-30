@@ -1,5 +1,7 @@
 from flask_restful import Resource, reqparse
 from models import download_user_report, download_summary
+from utils.auth_utils import role_required, roles_required
+
 
 from models import (
     get_all_users, get_pending_trainers, get_pending_contents,

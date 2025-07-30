@@ -2,22 +2,13 @@ from db import get_db_connection
 import json
 from datetime import datetime
 from flask import send_file
-from db import get_db_connection
 import csv
 import io
 from flask import make_response
+import sqlite3
 
 
-# ------------------- AUTH -------------------
-'''def create_user(username, email, password, role):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO users (username, email, password, role, isActive)
-        VALUES (?, ?, ?, ?, 1)
-    """, (username, email, password, role))
-    conn.commit()
-    conn.close()'''
+
 
 def create_user(username, email, password, role):
     conn = get_db_connection()
@@ -44,14 +35,32 @@ def create_user(username, email, password, role):
     conn.commit()
     conn.close()
 
-
 def get_user_by_username(username):
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row  # Add this line!
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if row:
+        return {
+            'id': row['id'],
+            'username': row['username'],
+            'email': row['email'],
+            'password': row['password'],
+            'role': row['role']
+        }
+    return None
+
+
+'''def get_user_by_username(username):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
     user = cursor.fetchone()
     conn.close()
-    return user
+    return user'''
 
 # ------------------- MODULES -------------------
 def get_all_modules():
@@ -61,26 +70,6 @@ def get_all_modules():
     return modules
 
 # ------------------- QUIZZES -------------------
-'''def get_quiz_with_questions(quiz_id):
-    conn = get_db_connection()
-    quiz = conn.execute("SELECT * FROM quizzes WHERE quiz_id = ?", (quiz_id,)).fetchone()
-    if not quiz:
-        conn.close()
-        return None
-
-    questions = conn.execute("SELECT * FROM questions WHERE quiz_id = ?", (quiz_id,)).fetchall()
-    result = []
-
-    for q in questions:
-        options = conn.execute("SELECT * FROM options WHERE question_id = ?", (q['question_id'],)).fetchall()
-        result.append({
-            "question_id": q["question_id"],
-            "text": q["text"],
-            "options": [{"option_id": o["option_id"], "text": o["text"]} for o in options]
-        })
-
-    conn.close()
-    return {"quiz_id": quiz_id, "questions": result}'''
 
 def get_quiz_with_questions(quiz_id):
     conn = get_db_connection()
@@ -277,20 +266,7 @@ def resolve_complaint(complaint_id):
     conn.close()
 
 # ------------------- MODULE UPLOAD -------------------
-'''def upload_module_content(mentor_id, title, description):
-    conn = get_db_connection()
-    conn.execute("INSERT INTO modules (title, description) VALUES (?, ?)", (title, description))
-    conn.commit()
-    conn.close()'''
 
-'''def upload_module_content(mentor_id, title, description):
-    conn = get_db_connection()
-    conn.execute(
-        "INSERT INTO modules (title, description, isDeleted) VALUES (?, ?, 0)",
-        (title, description)
-    )
-    conn.commit()
-    conn.close()'''
 
 def upload_module_content(mentor_id, title, description, video_url=None, resource_link=None):
     conn = get_db_connection()
@@ -380,11 +356,6 @@ def get_pending_contents():
 
 
 
-'''def download_user_report():
-    return send_file("path/to/user_report.csv", as_attachment=True)
-
-def download_summary():
-    return send_file("path/to/summary.pdf", as_attachment=True)'''
 
 def download_user_report():
     conn = get_db_connection()
@@ -503,11 +474,7 @@ def get_all_quizzes():
     conn.close()
     return quizzes
 
-'''def soft_delete_doubt(doubt_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE doubts SET isDeleted = 1 WHERE doubt_id = ?", (doubt_id,))
-    conn.commit()
-    conn.close()'''
+
 
 def soft_delete_doubt(doubt_id):
     conn = get_db_connection()
@@ -524,11 +491,6 @@ def get_all_doubts():
     conn.close()
     return doubts
 
-'''def soft_delete_complaint(complaint_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE complaints SET isDeleted = 1 WHERE complaint_id = ?", (complaint_id,))
-    conn.commit()
-    conn.close()'''
 
 def soft_delete_complaint(complaint_id):
     conn = get_db_connection()
@@ -546,12 +508,7 @@ def get_all_complaints():
     return complaints
 
 
-'''def soft_delete_tip(tip_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE tips SET isDeleted = 1 WHERE tip_id = ?", (tip_id,))
-    conn.commit()
-    conn.close()
-'''
+
 def soft_delete_tip(tip_id):
     conn = get_db_connection()
     cursor = conn.execute(
@@ -571,11 +528,7 @@ def get_all_tips():
     return tips
 
 
-'''def soft_delete_report(report_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE reports SET isDeleted = 1 WHERE report_id = ?", (report_id,))
-    conn.commit()
-    conn.close()'''
+
 
 def soft_delete_report(report_id):
     conn = get_db_connection()
@@ -599,11 +552,7 @@ def get_reports_for_student(student_id):
     return reports
 
 
-'''def soft_delete_alert(alert_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE alerts SET isDeleted = 1 WHERE alert_id = ?", (alert_id,))
-    conn.commit()
-    conn.close()'''
+
 
 def soft_delete_alert(alert_id):
     conn = get_db_connection()
