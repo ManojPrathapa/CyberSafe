@@ -1,6 +1,7 @@
 import unittest 
 from app import app
 from unittest.mock import patch
+from werkzeug.security import generate_password_hash
 
 class TestCYBERSAFEAPI(unittest.TestCase):
     def setUp(self):
@@ -86,12 +87,16 @@ class TestCYBERSAFEAPI(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn("message", res.get_json())
 
+    #from unittest.mock import patch
+    #from werkzeug.security import generate_password_hash  
+
     @patch("resources.auth.get_user_by_username")
     def test_login_successful(self, mock_get_user):
         mock_get_user.return_value = {
             "id": 1,
             "username": "valid_user",
-            "password": "correct_password",
+            "email": "valid@example.com", 
+            "password": generate_password_hash("correct_password"),
             "role": "student"
         }
 
@@ -99,10 +104,12 @@ class TestCYBERSAFEAPI(unittest.TestCase):
             "username": "valid_user",
             "password": "correct_password"
         })
+
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertIn("user", data)
         self.assertEqual(data["user"]["username"], "valid_user")
+
 
     @patch("resources.auth.get_user_by_username")
     def test_login_wrong_password(self, mock_get_user):

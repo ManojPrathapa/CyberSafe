@@ -1,5 +1,5 @@
 import sqlite3
-from hashlib import sha256
+from werkzeug.security import generate_password_hash
 import requests
 import time
 
@@ -7,18 +7,15 @@ import time
 conn = sqlite3.connect("cybersafe.db")
 cursor = conn.cursor()
 
-def hash_password(pwd):
-    return sha256(pwd.encode()).hexdigest()
-
 # Seed only if empty
 cursor.execute("SELECT COUNT(*) FROM users")
 if cursor.fetchone()[0] == 0:
     # USERS
     users = [
-        ("student1", "student1@example.com", hash_password("pass123"), "student"),
-        ("parent1", "parent1@example.com", hash_password("pass123"), "parent"),
-        ("mentor1", "mentor1@example.com", hash_password("pass123"), "mentor"),
-        ("admin1", "admin1@example.com", hash_password("adminpass"), "admin"),
+        ("student1", "student1@example.com", generate_password_hash("pass123"), "student"),
+        ("parent1", "parent1@example.com", generate_password_hash("pass123"), "parent"),
+        ("mentor1", "mentor1@example.com", generate_password_hash("pass123"), "mentor"),
+        ("admin1", "admin1@example.com", generate_password_hash("adminpass"), "admin"),
     ]
     for u in users:
         cursor.execute("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)", u)
@@ -40,6 +37,7 @@ if cursor.fetchone()[0] == 0:
     cursor.execute("INSERT INTO parent_student (parent_id, student_id) VALUES (?, ?)", (parent_id, student_id))
     
     conn.commit()  # Commit before API call
+
 
     # === MODULE (via API) ===
     print(" Uploading module via /api/modules/upload ...")
