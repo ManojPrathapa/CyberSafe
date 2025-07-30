@@ -14,23 +14,11 @@ class DeleteModuleAPI(Resource):
             return {'message': f'Module {module_id} deleted successfully'}, 200
         return {'message': f'Module {module_id} not found or already deleted'}, 404
 
-
-'''class ModuleListAPI(Resource):
-    def get(self):
-        from models import get_all_modules
-        modules = get_all_modules()
-        return [dict(m) for m in modules]'''
-    
-
-
 class ModuleListAPI(Resource):
     def get(self):
         modules = get_all_modules()
         return [dict(m) for m in modules]
     
-
-
-
 class UploadModuleAPI(Resource):
     
     def post(self):
@@ -43,12 +31,4 @@ class UploadModuleAPI(Resource):
 
         upload_module_content(mentor_id, title, description, video_url, resource_link)
         return {'message': 'Module uploaded successfully'}
-    
-'''class UploadModuleAPI(Resource):
-    def post(self):
-        data = request.get_json()
-        mentor_id = data.get('mentor_id')
-        title = data.get('title')
-        description = data.get('description')
-        upload_module_content(mentor_id, title, description)
-        return {'message': 'Module uploaded successfully'}'''    
+       
