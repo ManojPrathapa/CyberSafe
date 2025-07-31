@@ -3,7 +3,7 @@ from flask_restful import Api
 from flask_jwt_extended import (
     JWTManager, jwt_required, get_jwt_identity, get_jwt
 )
-
+from flask_cors import CORS
 
 from dotenv import load_dotenv
 import os
@@ -34,6 +34,9 @@ from resources.activity import StudentActivityAPI
 
 app = Flask(__name__)
 api = Api(app)
+
+#CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 # JWT Setup
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')

@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash
 import requests
 import time
 
+BASE_URL = "http://127.0.0.1:5050/api"
+
 # Connect to DB
 conn = sqlite3.connect("cybersafe.db")
 cursor = conn.cursor()
@@ -12,7 +14,7 @@ cursor.execute("SELECT COUNT(*) FROM users")
 if cursor.fetchone()[0] == 0:
     # USERS
     users = [
-        ("student1", "student1@example.com", generate_password_hash("pass123"), "student"),
+        ("student1", "student1@example.com", generate_password_hash("pass1234"), "student"),
         ("parent1", "parent1@example.com", generate_password_hash("pass123"), "parent"),
         ("mentor1", "mentor1@example.com", generate_password_hash("pass123"), "mentor"),
         ("admin1", "admin1@example.com", generate_password_hash("adminpass"), "admin"),
@@ -31,13 +33,28 @@ if cursor.fetchone()[0] == 0:
     # STUDENT / PARENT / MENTOR
     cursor.execute("INSERT INTO students (user_id, age) VALUES (?, ?)", (student_id, 15))
     cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (parent_id,))
-    cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years, isapproved) VALUES (?, ?, ?, 1)", (mentor_id, "Cybersecurity", 5))
+    cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years, isapproved) VALUES (?, ?, ?, 1)", 
+                   (mentor_id, "Cybersecurity", 5))
 
     # Parent-Student Link
     cursor.execute("INSERT INTO parent_student (parent_id, student_id) VALUES (?, ?)", (parent_id, student_id))
     
     conn.commit()  # Commit before API call
 
+    # === LOGIN AS MENTOR FOR JWT ===
+    print(" Logging in as mentor1 for JWT...")
+    login_payload = {
+        "username": "mentor1",
+        "password": "pass123"
+    }
+    res = requests.post(f"{BASE_URL}/login", json=login_payload)
+    if res.status_code == 200:
+        token = res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+        print(" Login successful, token obtained.")
+    else:
+        print(" Mentor login failed:", res.status_code, res.text)
+        exit(1)
 
     # === MODULE (via API) ===
     print(" Uploading module via /api/modules/upload ...")
@@ -48,15 +65,11 @@ if cursor.fetchone()[0] == 0:
         "video_url": "https://youtu.be/strong-passwords",
         "resource_link": "https://example.com/resources/cyber-hygiene"
     }
-    try:
-        res = requests.post("http://localhost:5050/api/modules/upload", json=module_payload)
-        if res.status_code == 200:
-            print(" Module uploaded via API")
-        else:
-            print(" Module upload failed:", res.status_code, res.text)
-            exit(1)
-    except Exception as e:
-        print(" Could not connect to Flask server:", e)
+    res = requests.post(f"{BASE_URL}/modules/upload", json=module_payload, headers=headers)
+    if res.status_code in (200, 201):
+        print(" Module uploaded via API")
+    else:
+        print(" Module upload failed:", res.status_code, res.text)
         exit(1)
 
     time.sleep(1)  # Let DB settle

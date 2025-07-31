@@ -283,7 +283,7 @@ def upload_module_content(mentor_id, title, description, video_url=None, resourc
 
 
 # ------------------- QUIZ CREATION -------------------
-def create_quiz_with_questions(data):
+'''def create_quiz_with_questions(data):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -301,7 +301,51 @@ def create_quiz_with_questions(data):
             cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", (question_id, opt['text'], opt['is_correct']))
 
     conn.commit()
+    conn.close()'''
+
+def create_quiz_with_questions(data):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    quiz_title = data.get('title')
+    module_id = data.get('module_id')
+    questions = data.get('questions', [])
+
+    # Validate structure
+    if not isinstance(questions, list):
+        raise ValueError(f"'questions' must be a list, got {type(questions).__name__}")
+
+    # Insert quiz
+    cursor.execute("INSERT INTO quizzes (module_id, title) VALUES (?, ?)", (module_id, quiz_title))
+    quiz_id = cursor.lastrowid
+
+    for q in questions:
+        if not isinstance(q, dict):
+            raise ValueError(f"Each question must be a dict, got {type(q).__name__}")
+
+        cursor.execute(
+            "INSERT INTO questions (quiz_id, text, explanation) VALUES (?, ?, ?)",
+            (quiz_id, q['text'], q.get('explanation', ''))
+        )
+        question_id = cursor.lastrowid
+
+        options = q.get('options', [])
+        if not isinstance(options, list):
+            raise ValueError(f"'options' must be a list, got {type(options).__name__}")
+
+        for opt in options:
+            if not isinstance(opt, dict):
+                raise ValueError(f"Each option must be a dict, got {type(opt).__name__}")
+
+            cursor.execute(
+                "INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)",
+                (question_id, opt['text'], opt['is_correct'])
+            )
+
+    conn.commit()
     conn.close()
+    return quiz_id
+
 
 # ------------------- PROFILE -------------------
 def get_profile_details(user_id):
