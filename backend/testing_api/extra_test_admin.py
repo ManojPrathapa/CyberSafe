@@ -1,54 +1,65 @@
 import requests
 
 BASE_URL = "http://127.0.0.1:5050/api"
-USERNAME = "admin12"
-PASSWORD = "adminpass2"
-EMAIL = "admin12@example.com"
+ADMIN_USERNAME = "admintest"
+ADMIN_PASSWORD = "adminpass"
+ADMIN_EMAIL = "admintest@example.com"
 
-# Step 1: Register Admin User
-print("Registering admin...")
+def print_response(desc, res):
+    try:
+        print(f"{desc} -> Status: {res.status_code}, Response:", res.json())
+    except:
+        print(f"{desc} -> Status: {res.status_code}, Response:", res.text)
+
+print("=== Admin API Tests ===\n")
+
+# 1️⃣ Register Admin User
 res = requests.post(f"{BASE_URL}/register", json={
-    "username": USERNAME,
-    "email": EMAIL,
-    "password": PASSWORD,
+    "username": ADMIN_USERNAME,
+    "email": ADMIN_EMAIL,
+    "password": ADMIN_PASSWORD,
     "role": "admin"
 })
-print("Register status:", res.status_code, res.json())
+print_response("Register Admin", res)
 
-# Step 2: Login as Admin to get JWT Token
-print("\nLogging in as admin...")
+# 2️⃣ Login to get JWT
 res = requests.post(f"{BASE_URL}/login", json={
-    "username": USERNAME,
-    "password": PASSWORD
+    "username": ADMIN_USERNAME,
+    "password": ADMIN_PASSWORD
 })
+print_response("Login Admin", res)
+
 if res.status_code != 200:
-    print("Login failed:", res.status_code, res.text)
+    print("Admin login failed, exiting tests.")
     exit()
 
-data = res.json()
-token = data["access_token"]
-print("JWT Token:", token)
-
-# Step 3: Test Admin Endpoints
+token = res.json().get("access_token")
 headers = {"Authorization": f"Bearer {token}"}
 
-endpoints = [
-    "/admin/users",
-    "/admin/trainers/pending",
-    "/admin/contents/pending",
-    "/admin/reports/download/users",
-    "/admin/reports/download/summary"
-]
+# 3️⃣ Test Admin GET Endpoints
+print("\n=== GET Admin Endpoints ===")
+res = requests.get(f"{BASE_URL}/admin/users", headers=headers)
+print_response("Get All Users", res)
 
-print("\nTesting Admin Endpoints:")
-for ep in endpoints:
-    url = f"{BASE_URL}{ep}"
-    res = requests.get(url, headers=headers)
-    print(f"\n{ep} -> {res.status_code}")
-    
-    # Try to parse JSON if possible
-    try:
-        print(res.json())
-    except Exception:
-        print("Non-JSON response (possibly file download):", res.text[:200])
+res = requests.get(f"{BASE_URL}/admin/trainers/pending", headers=headers)
+print_response("Get Pending Trainers", res)
 
+res = requests.get(f"{BASE_URL}/admin/contents/pending", headers=headers)
+print_response("Get Pending Contents", res)
+
+res = requests.get(f"{BASE_URL}/admin/reports/download/users", headers=headers)
+print_response("Download User Report", res)
+
+res = requests.get(f"{BASE_URL}/admin/reports/download/summary", headers=headers)
+print_response("Download Summary Report", res)
+
+# 4️⃣ Test Block/Unblock User
+print("\n=== POST Block/Unblock User ===")
+# Assuming user_id=1 exists in DB
+res = requests.post(f"{BASE_URL}/admin/block", json={"user_id": 1}, headers=headers)
+print_response("Block User 1", res)
+
+res = requests.post(f"{BASE_URL}/admin/unblock", json={"user_id": 1}, headers=headers)
+print_response("Unblock User 1", res)
+
+print("\n=== Admin Tests Completed ===")
