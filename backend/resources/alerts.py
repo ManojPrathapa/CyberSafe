@@ -38,9 +38,11 @@ from flask_restful import Resource
 from models import soft_delete_alert  
 from flask_restful import Resource, reqparse
 from models import post_alert
-from werkzeug.exceptions import BadRequest  
+from werkzeug.exceptions import BadRequest
+from flask_jwt_extended import jwt_required  
 
 class AlertPostAPI(Resource):
+    @jwt_required()
     def post(self):
         try:
             parser = reqparse.RequestParser()
@@ -56,6 +58,7 @@ class AlertPostAPI(Resource):
 
 
 class DeleteAlertAPI(Resource):
+    @jwt_required()
     def delete(self, alert_id):
         try:
             result = soft_delete_alert(alert_id)
