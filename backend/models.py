@@ -1,17 +1,14 @@
 from db import get_db_connection
 import json
 from datetime import datetime
+from flask import send_file
+import csv
+import io
+from flask import make_response
+import sqlite3
 
-# ------------------- AUTH -------------------
-'''def create_user(username, email, password, role):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO users (username, email, password, role, isActive)
-        VALUES (?, ?, ?, ?, 1)
-    """, (username, email, password, role))
-    conn.commit()
-    conn.close()'''
+
+
 
 def create_user(username, email, password, role):
     conn = get_db_connection()
@@ -33,19 +30,37 @@ def create_user(username, email, password, role):
         cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (user_id,))
     elif role == 'mentor':
         cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years) VALUES (?, ?, ?)", (user_id, '', 0))
-    # Optional: handle 'admin', 'support' roles if you plan to extend them later
+    
 
     conn.commit()
     conn.close()
 
-
 def get_user_by_username(username):
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row  # Add this line!
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if row:
+        return {
+            'id': row['id'],
+            'username': row['username'],
+            'email': row['email'],
+            'password': row['password'],
+            'role': row['role']
+        }
+    return None
+
+
+'''def get_user_by_username(username):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
     user = cursor.fetchone()
     conn.close()
-    return user
+    return user'''
 
 # ------------------- MODULES -------------------
 def get_all_modules():
@@ -55,26 +70,6 @@ def get_all_modules():
     return modules
 
 # ------------------- QUIZZES -------------------
-'''def get_quiz_with_questions(quiz_id):
-    conn = get_db_connection()
-    quiz = conn.execute("SELECT * FROM quizzes WHERE quiz_id = ?", (quiz_id,)).fetchone()
-    if not quiz:
-        conn.close()
-        return None
-
-    questions = conn.execute("SELECT * FROM questions WHERE quiz_id = ?", (quiz_id,)).fetchall()
-    result = []
-
-    for q in questions:
-        options = conn.execute("SELECT * FROM options WHERE question_id = ?", (q['question_id'],)).fetchall()
-        result.append({
-            "question_id": q["question_id"],
-            "text": q["text"],
-            "options": [{"option_id": o["option_id"], "text": o["text"]} for o in options]
-        })
-
-    conn.close()
-    return {"quiz_id": quiz_id, "questions": result}'''
 
 def get_quiz_with_questions(quiz_id):
     conn = get_db_connection()
@@ -230,12 +225,18 @@ def get_all_tips():
 def get_viewed_tips_by_parent(parent_id):
     conn = get_db_connection()
     rows = conn.execute("""
-        SELECT t.* FROM tips t
+        SELECT DISTINCT t.* 
+        FROM tips t
         JOIN tip_views v ON t.tip_id = v.tip_id
         WHERE v.parent_id = ?
     """, (parent_id,)).fetchall()
     conn.close()
+    
+    if not rows:
+        raise ValueError(f"No viewed tips found for parent_id {parent_id}. It may not exist.")
+    
     return rows
+
 
 def mark_tip_viewed(parent_id, tip_id):
     conn = get_db_connection()
@@ -271,24 +272,24 @@ def resolve_complaint(complaint_id):
     conn.close()
 
 # ------------------- MODULE UPLOAD -------------------
-'''def upload_module_content(mentor_id, title, description):
-    conn = get_db_connection()
-    conn.execute("INSERT INTO modules (title, description) VALUES (?, ?)", (title, description))
-    conn.commit()
-    conn.close()'''
 
-def upload_module_content(mentor_id, title, description):
+
+def upload_module_content(mentor_id, title, description, video_url=None, resource_link=None):
     conn = get_db_connection()
     conn.execute(
-        "INSERT INTO modules (title, description, isDeleted) VALUES (?, ?, 0)",
-        (title, description)
+        """
+        INSERT INTO modules (mentor_id, title, description, video_url, resource_link, isDeleted)
+        VALUES (?, ?, ?, ?, ?, 0)
+        """,
+        (mentor_id, title, description, video_url, resource_link)
     )
     conn.commit()
     conn.close()
 
 
+
 # ------------------- QUIZ CREATION -------------------
-def create_quiz_with_questions(data):
+'''def create_quiz_with_questions(data):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -306,7 +307,51 @@ def create_quiz_with_questions(data):
             cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", (question_id, opt['text'], opt['is_correct']))
 
     conn.commit()
+    conn.close()'''
+
+def create_quiz_with_questions(data):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    quiz_title = data.get('title')
+    module_id = data.get('module_id')
+    questions = data.get('questions', [])
+
+    # Validate structure
+    if not isinstance(questions, list):
+        raise ValueError(f"'questions' must be a list, got {type(questions).__name__}")
+
+    # Insert quiz
+    cursor.execute("INSERT INTO quizzes (module_id, title) VALUES (?, ?)", (module_id, quiz_title))
+    quiz_id = cursor.lastrowid
+
+    for q in questions:
+        if not isinstance(q, dict):
+            raise ValueError(f"Each question must be a dict, got {type(q).__name__}")
+
+        cursor.execute(
+            "INSERT INTO questions (quiz_id, text, explanation) VALUES (?, ?, ?)",
+            (quiz_id, q['text'], q.get('explanation', ''))
+        )
+        question_id = cursor.lastrowid
+
+        options = q.get('options', [])
+        if not isinstance(options, list):
+            raise ValueError(f"'options' must be a list, got {type(options).__name__}")
+
+        for opt in options:
+            if not isinstance(opt, dict):
+                raise ValueError(f"Each option must be a dict, got {type(opt).__name__}")
+
+            cursor.execute(
+                "INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)",
+                (question_id, opt['text'], opt['is_correct'])
+            )
+
+    conn.commit()
     conn.close()
+    return quiz_id
+
 
 # ------------------- PROFILE -------------------
 def get_profile_details(user_id):
@@ -317,28 +362,77 @@ def get_profile_details(user_id):
 
 def update_profile_details(args):
     conn = get_db_connection()
+
+    # 🔍 Check if user exists
+    cur = conn.execute("SELECT id FROM users WHERE id = ?", (args['user_id'],))
+    user = cur.fetchone()
+    if not user:
+        conn.close()
+        raise ValueError("User not found")
+
+    # 🔍 Check email uniqueness
+    if args.get("email"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE email = ? AND id != ?",
+            (args["email"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Email already in use by another account")
+
+    # 🔍 Check username uniqueness
+    if args.get("username"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE username = ? AND id != ?",
+            (args["username"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Username already in use by another account")
+
+    # ✅ Prepare update fields
     fields = []
     values = []
     for field in ['username', 'email', 'password']:
         if args.get(field):
             fields.append(f"{field} = ?")
             values.append(args.get(field))
-    values.append(args['user_id'])
+
+    # Update only if there’s something to update
     if fields:
+        values.append(args['user_id'])
         conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
         conn.commit()
+
     conn.close()
+
 
 # ------------------- ACTIVITY -------------------
 def get_student_activity(student_id):
     conn = get_db_connection()
-    quizzes = conn.execute("SELECT * FROM student_quiz_attempts WHERE student_id = ?", (student_id,)).fetchall()
-    modules = conn.execute("SELECT * FROM modules WHERE module_id IN (SELECT module_id FROM student_progress WHERE student_id = ?)", (student_id,)).fetchall()
+
+    cur = conn.execute("SELECT user_id FROM students WHERE user_id = ?", (student_id,))
+    student = cur.fetchone()
+    if not student:
+        conn.close()
+        raise ValueError("Student not found")
+
+    quizzes = conn.execute(
+        "SELECT * FROM student_quiz_attempts WHERE student_id = ?",
+        (student_id,)
+    ).fetchall()
+
+    modules = conn.execute(
+        "SELECT * FROM modules WHERE module_id IN (SELECT module_id FROM student_progress WHERE student_id = ?)",
+        (student_id,)
+    ).fetchall()
+
     conn.close()
     return {
         "quiz_attempts": [dict(q) for q in quizzes],
         "modules_viewed": [dict(m) for m in modules]
     }
+
 
 # ------------------- ADMIN -------------------
 def get_all_users():
@@ -359,11 +453,57 @@ def get_pending_contents():
     conn.close()
     return contents
 
-def download_user_report():
-    return {"report": "Monthly user report (PDF/CSV placeholder)"}
 
+
+
+def download_user_report():
+    conn = get_db_connection()
+    users = conn.execute(
+        "SELECT id AS user_id, username, email, role, isActive FROM users"
+    ).fetchall()
+    conn.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["User ID", "Username", "Email", "Role", "Active"])
+    for user in users:
+        writer.writerow([
+            user["user_id"],
+            user["username"],
+            user["email"],
+            user["role"],
+            user["isActive"]
+        ])
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=users_report.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
 def download_summary():
-    return {"summary": "Monthly summary (PDF/CSV placeholder)"}
+    conn = get_db_connection()
+
+    total_users = conn.execute("SELECT COUNT(*) AS count FROM users").fetchone()["count"]
+    total_trainers = conn.execute("SELECT COUNT(*) AS count FROM users WHERE role = 'trainer'").fetchone()["count"]
+    total_students = conn.execute("SELECT COUNT(*) AS count FROM users WHERE role = 'student'").fetchone()["count"]
+    total_quizzes = conn.execute("SELECT COUNT(*) AS count FROM quizzes").fetchone()["count"]
+
+    conn.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Metric", "Count"])
+    writer.writerow(["Total Users", total_users])
+    writer.writerow(["Total Trainers", total_trainers])
+    writer.writerow(["Total Students", total_students])
+    writer.writerow(["Total Quizzes", total_quizzes])
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=summary_report.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
+
+
+
 
 def block_user(user_id):
     conn = get_db_connection()
@@ -433,11 +573,7 @@ def get_all_quizzes():
     conn.close()
     return quizzes
 
-'''def soft_delete_doubt(doubt_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE doubts SET isDeleted = 1 WHERE doubt_id = ?", (doubt_id,))
-    conn.commit()
-    conn.close()'''
+
 
 def soft_delete_doubt(doubt_id):
     conn = get_db_connection()
@@ -454,11 +590,6 @@ def get_all_doubts():
     conn.close()
     return doubts
 
-'''def soft_delete_complaint(complaint_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE complaints SET isDeleted = 1 WHERE complaint_id = ?", (complaint_id,))
-    conn.commit()
-    conn.close()'''
 
 def soft_delete_complaint(complaint_id):
     conn = get_db_connection()
@@ -476,12 +607,7 @@ def get_all_complaints():
     return complaints
 
 
-'''def soft_delete_tip(tip_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE tips SET isDeleted = 1 WHERE tip_id = ?", (tip_id,))
-    conn.commit()
-    conn.close()
-'''
+
 def soft_delete_tip(tip_id):
     conn = get_db_connection()
     cursor = conn.execute(
@@ -491,7 +617,12 @@ def soft_delete_tip(tip_id):
     conn.commit()
     updated_rows = cursor.rowcount
     conn.close()
+    
+    if updated_rows == 0:
+        raise ValueError(f"Tip with id {tip_id} does not exist or is already deleted.")
+    
     return updated_rows > 0
+
 
 
 def get_all_tips():
@@ -501,11 +632,7 @@ def get_all_tips():
     return tips
 
 
-'''def soft_delete_report(report_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE reports SET isDeleted = 1 WHERE report_id = ?", (report_id,))
-    conn.commit()
-    conn.close()'''
+
 
 def soft_delete_report(report_id):
     conn = get_db_connection()
@@ -529,11 +656,7 @@ def get_reports_for_student(student_id):
     return reports
 
 
-'''def soft_delete_alert(alert_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE alerts SET isDeleted = 1 WHERE alert_id = ?", (alert_id,))
-    conn.commit()
-    conn.close()'''
+
 
 def soft_delete_alert(alert_id):
     conn = get_db_connection()
@@ -552,6 +675,3 @@ def get_all_alerts():
     alerts = conn.execute("SELECT * FROM alerts WHERE isDeleted = 0").fetchall()
     conn.close()
     return alerts
-
-
-
