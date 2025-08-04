@@ -4,7 +4,7 @@ from models import ask_doubt, get_doubts_for_mentor, reply_to_doubt
 from flask_restful import Resource
 from models import soft_delete_doubt  
 
-from flask_restful import Resource
+'''from flask_restful import Resource
 from flask import request
 from models import (
     ask_doubt,
@@ -53,7 +53,7 @@ class ReplyToDoubtAPI(Resource):
 
         reply_to_doubt(doubt_id, answer)
         return {"message": "Reply submitted successfully"}, 200
-
+'''
 
 from flask_restful import Resource
 from flask import request
