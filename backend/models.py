@@ -411,7 +411,7 @@ def update_profile_details(args):
 def get_student_activity(student_id):
     conn = get_db_connection()
 
-    cur = conn.execute("SELECT id FROM students WHERE id = ?", (student_id,))
+    cur = conn.execute("SELECT user_id FROM students WHERE user_id = ?", (student_id,))
     student = cur.fetchone()
     if not student:
         conn.close()
