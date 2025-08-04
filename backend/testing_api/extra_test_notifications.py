@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "http://127.0.0.1:5000/api"
+BASE_URL = "http://127.0.0.1:5050/api"
 TEST_USERNAME = "testuser"
 TEST_PASSWORD = "testpass"
 TEST_EMAIL = "testuser@example.com"

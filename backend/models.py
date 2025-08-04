@@ -225,12 +225,18 @@ def get_all_tips():
 def get_viewed_tips_by_parent(parent_id):
     conn = get_db_connection()
     rows = conn.execute("""
-        SELECT t.* FROM tips t
+        SELECT DISTINCT t.* 
+        FROM tips t
         JOIN tip_views v ON t.tip_id = v.tip_id
         WHERE v.parent_id = ?
     """, (parent_id,)).fetchall()
     conn.close()
+    
+    if not rows:
+        raise ValueError(f"No viewed tips found for parent_id {parent_id}. It may not exist.")
+    
     return rows
+
 
 def mark_tip_viewed(parent_id, tip_id):
     conn = get_db_connection()
@@ -356,28 +362,77 @@ def get_profile_details(user_id):
 
 def update_profile_details(args):
     conn = get_db_connection()
+
+    # 🔍 Check if user exists
+    cur = conn.execute("SELECT id FROM users WHERE id = ?", (args['user_id'],))
+    user = cur.fetchone()
+    if not user:
+        conn.close()
+        raise ValueError("User not found")
+
+    # 🔍 Check email uniqueness
+    if args.get("email"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE email = ? AND id != ?",
+            (args["email"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Email already in use by another account")
+
+    # 🔍 Check username uniqueness
+    if args.get("username"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE username = ? AND id != ?",
+            (args["username"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Username already in use by another account")
+
+    # ✅ Prepare update fields
     fields = []
     values = []
     for field in ['username', 'email', 'password']:
         if args.get(field):
             fields.append(f"{field} = ?")
             values.append(args.get(field))
-    values.append(args['user_id'])
+
+    # Update only if there’s something to update
     if fields:
+        values.append(args['user_id'])
         conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
         conn.commit()
+
     conn.close()
+
 
 # ------------------- ACTIVITY -------------------
 def get_student_activity(student_id):
     conn = get_db_connection()
-    quizzes = conn.execute("SELECT * FROM student_quiz_attempts WHERE student_id = ?", (student_id,)).fetchall()
-    modules = conn.execute("SELECT * FROM modules WHERE module_id IN (SELECT module_id FROM student_progress WHERE student_id = ?)", (student_id,)).fetchall()
+
+    cur = conn.execute("SELECT id FROM students WHERE id = ?", (student_id,))
+    student = cur.fetchone()
+    if not student:
+        conn.close()
+        raise ValueError("Student not found")
+
+    quizzes = conn.execute(
+        "SELECT * FROM student_quiz_attempts WHERE student_id = ?",
+        (student_id,)
+    ).fetchall()
+
+    modules = conn.execute(
+        "SELECT * FROM modules WHERE module_id IN (SELECT module_id FROM student_progress WHERE student_id = ?)",
+        (student_id,)
+    ).fetchall()
+
     conn.close()
     return {
         "quiz_attempts": [dict(q) for q in quizzes],
         "modules_viewed": [dict(m) for m in modules]
     }
+
 
 # ------------------- ADMIN -------------------
 def get_all_users():
@@ -562,7 +617,12 @@ def soft_delete_tip(tip_id):
     conn.commit()
     updated_rows = cursor.rowcount
     conn.close()
+    
+    if updated_rows == 0:
+        raise ValueError(f"Tip with id {tip_id} does not exist or is already deleted.")
+    
     return updated_rows > 0
+
 
 
 def get_all_tips():
@@ -615,6 +675,3 @@ def get_all_alerts():
     alerts = conn.execute("SELECT * FROM alerts WHERE isDeleted = 0").fetchall()
     conn.close()
     return alerts
-
-
-

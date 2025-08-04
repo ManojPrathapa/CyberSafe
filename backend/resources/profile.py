@@ -46,13 +46,20 @@ class EditProfileAPI(Resource):
     def post(self):
         """Edit a user's profile (JWT required)"""
         parser = reqparse.RequestParser()
-        parser.add_argument('user_id', required=True)
+        parser.add_argument('user_id', required=True, type=int)
         parser.add_argument('email', required=False)
         parser.add_argument('username', required=False)
         parser.add_argument('password', required=False)
         args = parser.parse_args()
+
         try:
             update_profile_details(args)
             return {"message": "Profile updated successfully"}, 200
+
+        except ValueError as ve:  
+            # Validation issues (user not found, duplicate email, duplicate username)
+            return {"error": str(ve)}, 400  
+
         except Exception as e:
+            # Unexpected server issues
             return {"error": str(e)}, 500
