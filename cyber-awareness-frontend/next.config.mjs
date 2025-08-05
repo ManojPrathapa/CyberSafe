@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {};
 
-
 // export default nextConfig;
 export default {
   
@@ -39,7 +38,7 @@ export default {
       },
       {
         source: '/student',
-        destination: '/Students/home',
+        destination: '/Students',
         permanent: true,
       },
       {

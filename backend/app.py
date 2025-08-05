@@ -36,7 +36,7 @@ app = Flask(__name__)
 api = Api(app)
 
 #CORS(app, resources={r"/api/*": {"origins": "*"}})
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # JWT Setup
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')

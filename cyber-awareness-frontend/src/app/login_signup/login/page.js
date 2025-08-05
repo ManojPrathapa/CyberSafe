@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import Header from "@/components/Header";
+import { API_BASE_URL } from "@/src/app/utils/api"; 
+import { saveAuth } from "@/src/app/utils/auth";
+
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -12,7 +15,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://127.0.0.1:5050/api/login", {
+      const res = await fetch(`${API_BASE_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -21,19 +24,19 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        // Save token and user info
+        saveAuth(data.access_token, data.user);
+
         setMessage("Login successful! Redirecting...");
 
         // Redirect based on role
         setTimeout(() => {
           if (data.user.role === "student") {
-            window.location.href = "/student/home";
+            window.location.href = "/Students";
           } else if (data.user.role === "parent") {
-            window.location.href = "/parent/home";
+            window.location.href = "/Parents";
           } else {
-            window.location.href = "/Admin/dashboard";
+            window.location.href = "/Admin/home";
           }
         }, 1000);
       } else {

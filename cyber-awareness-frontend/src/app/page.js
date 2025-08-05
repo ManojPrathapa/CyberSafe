@@ -23,12 +23,12 @@ export default function HomePage() {
                 Home
               </button>
             </Link>
-            <Link href="/Students">
+            <Link href="/student">
               <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 I'm a Student
               </button>
             </Link>
-            <Link href="/Parents">
+            <Link href="/parent">
               <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 I'm a Parent
               </button>
