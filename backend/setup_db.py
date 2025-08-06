@@ -139,25 +139,31 @@ CREATE TABLE IF NOT EXISTS doubts (
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
 );
 
--- NOTIFICATIONS
 CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY,
     user_id INTEGER,
+    type TEXT,                   -- alert, doubt, complaint, quiz, admin, mentor
+    related_id INTEGER,          -- link to alerts/doubts/complaints/quizzes
     message TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    isRead BOOLEAN DEFAULT 0,
     isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+
 -- COMPLAINTS
 CREATE TABLE IF NOT EXISTS complaints (
     complaint_id INTEGER PRIMARY KEY,
-    filed_by TEXT,
-    against TEXT,
+    filed_by INTEGER,        -- user_id of student/parent/mentor
+    against INTEGER,         -- user_id of the person/system/admin
     description TEXT,
     status TEXT,
-    isDeleted BOOLEAN DEFAULT 0
+    isDeleted BOOLEAN DEFAULT 0,
+    FOREIGN KEY(filed_by) REFERENCES users(id),
+    FOREIGN KEY(against) REFERENCES users(id)
 );
+
 
 -- REPORTS
 CREATE TABLE IF NOT EXISTS reports (

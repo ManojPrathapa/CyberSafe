@@ -168,12 +168,16 @@ def get_all_quizzes():
 # ------------------- DOUBTS -------------------
 def ask_doubt(student_id, mentor_id, module_id, question):
     conn = get_db_connection()
-    conn.execute("""
+    cursor = conn.cursor()  
+    cursor.execute("""
         INSERT INTO doubts (student_id, mentor_id, module_id, question)
         VALUES (?, ?, ?, ?)
     """, (student_id, mentor_id, module_id, question))
     conn.commit()
+    doubt_id = cursor.lastrowid  
     conn.close()
+    return doubt_id  
+
 
 def get_doubts_for_mentor(mentor_id):
     conn = get_db_connection()
@@ -189,14 +193,77 @@ def reply_to_doubt(doubt_id, answer):
     conn.commit()
     conn.close()
 
+
+
 # ------------------- NOTIFICATIONS -------------------
+
+def create_notification(user_id, notif_type, message, related_id=None):
+    conn = get_db_connection()
+    conn.execute("""
+        INSERT INTO notifications (user_id, type, related_id, message)
+        VALUES (?, ?, ?, ?)
+    """, (user_id, notif_type, related_id, message))
+    conn.commit()
+    conn.close()
+
 def get_notifications(user_id):
     conn = get_db_connection()
     notifs = conn.execute("""
-        SELECT * FROM notifications WHERE user_id = ?
+        SELECT * FROM notifications 
+        WHERE user_id = ? AND isDeleted = 0
+        ORDER BY timestamp DESC
     """, (user_id,)).fetchall()
     conn.close()
     return notifs
+
+def mark_notification_read(notif_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE notifications SET isRead = 1 WHERE id = ?
+    """, (notif_id,))
+    conn.commit()
+    conn.close()
+
+def delete_notification(notif_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE notifications SET isDeleted = 1 WHERE id = ?
+    """, (notif_id,))
+    conn.commit()
+    conn.close()
+
+# ------------------- RECIPIENT HELPERS -------------------
+
+def get_all_user_ids():
+    conn = get_db_connection()
+    users = conn.execute("SELECT id FROM users").fetchall()
+    conn.close()
+    return [u["id"] for u in users]
+
+def get_mentor_id_for_student(student_id):
+    conn = get_db_connection()
+    mentor = conn.execute("""
+        SELECT mentor_id FROM student_mentor WHERE student_id = ?
+    """, (student_id,)).fetchone()
+    conn.close()
+    return mentor["mentor_id"] if mentor else None
+
+def get_parent_id_for_student(student_id):
+    conn = get_db_connection()
+    parent = conn.execute("""
+        SELECT parent_id FROM students WHERE id = ?
+    """, (student_id,)).fetchone()
+    conn.close()
+    return parent["parent_id"] if parent else None
+
+def get_admin_ids():
+    conn = get_db_connection()
+    admins = conn.execute("""
+        SELECT id FROM users WHERE role = 'admin'
+    """).fetchall()
+    conn.close()
+    return [a["id"] for a in admins]
+
 
 # ------------------- REPORTS -------------------
 def get_reports_for_student(student_id):
@@ -244,18 +311,23 @@ def mark_tip_viewed(parent_id, tip_id):
 # ------------------- COMPLAINTS -------------------
 def file_complaint(filed_by, against, description):
     conn = get_db_connection()
-    conn.execute("""
+    cursor = conn.cursor()  
+    cursor.execute("""
         INSERT INTO complaints (filed_by, against, description, status)
         VALUES (?, ?, ?, 'open')
     """, (filed_by, against, description))
     conn.commit()
+    complaint_id = cursor.lastrowid  
     conn.close()
+    return complaint_id  
+
 
 def get_complaints():
     conn = get_db_connection()
     complaints = conn.execute("SELECT * FROM complaints").fetchall()
     conn.close()
     return complaints
+
 
 def resolve_complaint(complaint_id):
     conn = get_db_connection()
@@ -264,6 +336,7 @@ def resolve_complaint(complaint_id):
     """, (complaint_id,))
     conn.commit()
     conn.close()
+
 
 # ------------------- MODULE UPLOAD -------------------
 

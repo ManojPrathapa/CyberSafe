@@ -16,7 +16,7 @@ from resources.auth import RegisterAPI, LoginAPI
 from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI
 from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI
 from resources.doubts import AskDoubtAPI, MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI
-from resources.notifications import NotificationAPI
+#from resources.notifications import NotificationAPI
 from resources.attempts import StudentAttemptsAPI
 from resources.reports import StudentReportAPI, DeleteReportAPI
 from resources.tips import TipListAPI, ParentViewedTipsAPI, MarkTipViewedAPI, DeleteTipAPI
@@ -75,7 +75,11 @@ api.add_resource(ReplyToDoubtAPI, '/api/doubt/reply')
 api.add_resource(DeleteDoubtAPI, '/api/doubt/delete/<int:doubt_id>')
 
 # Notifications
-api.add_resource(NotificationAPI, '/api/notifications/<int:user_id>')
+'''api.add_resource(NotificationAPI, '/api/notifications/<int:user_id>')'''
+from resources.notifications import NotificationListAPI, NotificationDetailAPI
+# Register Notification endpoints
+api.add_resource(NotificationListAPI, "/notifications/<int:user_id>", "/notifications")
+api.add_resource(NotificationDetailAPI, "/notifications/<int:notif_id>")
 
 # Attempts
 api.add_resource(StudentAttemptsAPI, '/api/student/<int:student_id>/attempts')
