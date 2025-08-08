@@ -35,8 +35,17 @@ export default function LoginPage() {
             window.location.href = "/Students";
           } else if (data.user.role === "parent") {
             window.location.href = "/Parents";
-          } else {
+          } else if (data.user.role === "admin") {
             window.location.href = "/Admin/home";
+          }
+          else if (data.user.role === "mentor") {
+            window.location.href = "/Mentor";
+          }
+          else if (data.user.role === "support") {
+            window.location.href = "/support";
+          } 
+          else {
+            window.location.href = "/login_signup/login";
           }
         }, 1000);
       } else {
