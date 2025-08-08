@@ -39,7 +39,7 @@ export default function LoginPage() {
             window.location.href = "/Admin/home";
           }
           else if (data.user.role === "mentor") {
-            window.location.href = "/Mentor";
+            window.location.href = "/mentor";
           }
           else if (data.user.role === "support") {
             window.location.href = "/support";
