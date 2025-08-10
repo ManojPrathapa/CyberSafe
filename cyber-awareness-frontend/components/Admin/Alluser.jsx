@@ -18,7 +18,7 @@ export default function AllUsers() {
           return;
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        const res = await fetch(`${API_BASE_URL}/admin/users`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export default function AllUsers() {
   const handleBlock = async (id) => {
     try {
       const token = getToken();
-      const res = await fetch(`${API_BASE_URL}/api/admin/block`, {
+              const res = await fetch(`${API_BASE_URL}/admin/block`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

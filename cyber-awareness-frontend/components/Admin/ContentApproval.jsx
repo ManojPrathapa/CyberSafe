@@ -18,7 +18,7 @@ export default function ContentApproval() {
           return;
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/admin/contents/pending`, {
+        const res = await fetch(`${API_BASE_URL}/admin/contents/pending`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

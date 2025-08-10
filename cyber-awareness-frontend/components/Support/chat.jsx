@@ -21,7 +21,7 @@ export default function ChatBox() {
 
     try {
       const token = getToken();
-      const res = await fetch(`${API_BASE_URL}/api/chat`, {
+              const res = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
