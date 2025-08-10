@@ -40,22 +40,19 @@ export default function ParentHome() {
         
         // Transform tips data to topics format
         if (Array.isArray(topicsData) && topicsData.length > 0) {
-          // If we get structured tip data, extract titles/content
-          const transformedTopics = topicsData.map(tip => 
-            tip.title || tip.content || "Cybersecurity topic"
-          );
-          setTopics(transformedTopics);
+          // If we get structured tip data, use the tips directly
+          setTopics(topicsData);
         } else {
-          // Fallback to default topics
-          setTopics([
-            "Protection from cyberattacks",
-            "Maintaining confidentiality",
-            "Ensuring data integrity",
-            "System availability",
-            "Tools: firewalls, anti-malware, etc.",
-            "Cybersecurity policies",
-            "Educating & training children"
-          ]);
+                  // Fallback to default topics
+        setTopics([
+          { title: "Protection from cyberattacks", content: "Learn about protecting against various cyber threats." },
+          { title: "Maintaining confidentiality", content: "Understand how to keep information secure." },
+          { title: "Ensuring data integrity", content: "Learn about data protection and validation." },
+          { title: "System availability", content: "Understand system security and uptime." },
+          { title: "Tools: firewalls, anti-malware", content: "Learn about security tools and software." },
+          { title: "Cybersecurity policies", content: "Understand organizational security policies." },
+          { title: "Educating & training children", content: "Learn how to teach children about online safety." }
+        ]);
         }
       } catch (error) {
         console.error('Error loading topics:', error);
@@ -63,13 +60,13 @@ export default function ParentHome() {
         
         // Set fallback topics
         setTopics([
-          "Protection from cyberattacks",
-          "Maintaining confidentiality",
-          "Ensuring data integrity",
-          "System availability",
-          "Tools: firewalls, anti-malware, etc.",
-          "Cybersecurity policies",
-          "Educating & training children"
+          { title: "Protection from cyberattacks", content: "Learn about protecting against various cyber threats." },
+          { title: "Maintaining confidentiality", content: "Understand how to keep information secure." },
+          { title: "Ensuring data integrity", content: "Learn about data protection and validation." },
+          { title: "System availability", content: "Understand system security and uptime." },
+          { title: "Tools: firewalls, anti-malware", content: "Learn about security tools and software." },
+          { title: "Cybersecurity policies", content: "Understand organizational security policies." },
+          { title: "Educating & training children", content: "Learn how to teach children about online safety." }
         ]);
       } finally {
         setLoading(false);
@@ -123,12 +120,12 @@ export default function ParentHome() {
             key={index}
             className="border border-purple-300 bg-white p-6 rounded shadow hover:shadow-md hover:bg-purple-50 transition"
           >
-            <h3 className="font-semibold text-lg text-black">{topic}</h3>
+            <h3 className="font-semibold text-lg text-black">{topic.title || topic}</h3>
             <p className="text-sm text-gray-600 mt-2">
-              Learn about: {topic}.
+              {topic.content || `Learn about: ${topic.title || topic}.`}
             </p>
             <Link
-              href={`/parent`}
+              href={`/parent?section=content`}
               className="text-purple-700 text-sm mt-3 inline-block hover:underline"
             >
               Explore →

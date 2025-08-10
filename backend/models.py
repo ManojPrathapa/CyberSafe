@@ -260,9 +260,7 @@ def get_viewed_tips_by_parent(parent_id):
     """, (parent_id,)).fetchall()
     conn.close()
     
-    if not rows:
-        raise ValueError(f"No viewed tips found for parent_id {parent_id}. It may not exist.")
-    
+    # Return empty list instead of raising error if no viewed tips found
     return rows
 
 
