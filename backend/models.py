@@ -11,47 +11,75 @@ import sqlite3
 
 
 def create_user(username, email, password, role):
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    # Insert into users table
-    cursor.execute("""
-        INSERT INTO users (username, email, password, role, isActive)
-        VALUES (?, ?, ?, ?, 1)
-    """, (username, email, password, role))
+        # Start transaction
+        conn.execute("BEGIN TRANSACTION")
 
-    # Get the ID of the newly inserted user
-    user_id = cursor.lastrowid
+        # Insert into users table
+        cursor.execute("""
+            INSERT INTO users (username, email, password, role, isActive)
+            VALUES (?, ?, ?, ?, 1)
+        """, (username, email, password, role))
 
-    # Insert into the respective role table
-    if role == 'student':
-        cursor.execute("INSERT INTO students (user_id, age) VALUES (?, ?)", (user_id, None))
-    elif role == 'parent':
-        cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (user_id,))
-    elif role == 'mentor':
-        cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years) VALUES (?, ?, ?)", (user_id, '', 0))
-    
+        # Get the ID of the newly inserted user
+        user_id = cursor.lastrowid
 
-    conn.commit()
-    conn.close()
+        # Insert into the respective role table
+        if role == 'student':
+            cursor.execute("INSERT INTO students (user_id, age) VALUES (?, ?)", (user_id, None))
+        elif role == 'parent':
+            cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (user_id,))
+        elif role == 'mentor':
+            cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years) VALUES (?, ?, ?)", (user_id, '', 0))
+        elif role == 'admin':
+            cursor.execute("INSERT INTO admins (user_id) VALUES (?)", (user_id,))
+        elif role == 'support':
+            cursor.execute("INSERT INTO support (user_id) VALUES (?)", (user_id,))
+
+        # Commit transaction
+        conn.commit()
+        
+    except sqlite3.IntegrityError as e:
+        if conn:
+            conn.rollback()
+        raise e
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Error creating user: {e}")
+        raise e
+    finally:
+        if conn:
+            conn.close()
 
 def get_user_by_username(username):
-    conn = get_db_connection()
-    conn.row_factory = sqlite3.Row  # Add this line!
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-    row = cursor.fetchone()
-    conn.close()
+    conn = None
+    try:
+        conn = get_db_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        row = cursor.fetchone()
 
-    if row:
-        return {
-            'id': row['id'],
-            'username': row['username'],
-            'email': row['email'],
-            'password': row['password'],
-            'role': row['role']
-        }
-    return None
+        if row:
+            return {
+                'id': row['id'],
+                'username': row['username'],
+                'email': row['email'],
+                'password': row['password'],
+                'role': row['role']
+            }
+        return None
+    except Exception as e:
+        print(f"Error getting user by username: {e}")
+        return None
+    finally:
+        if conn:
+            conn.close()
 
 
 '''def get_user_by_username(username):

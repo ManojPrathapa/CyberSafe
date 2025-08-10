@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Header from "@/components/Header";
-import { API_BASE_URL } from "@/src/app/utils/api"; 
+import { API_BASE_URL } from "@/src/app/utils/apiConfig"; 
 import { saveAuth } from "@/src/app/utils/auth";
 
 

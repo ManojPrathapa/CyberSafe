@@ -2,7 +2,7 @@
 
 import Header from "@/components/Admin/adminHeader";
 import { useState, useEffect } from "react";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 import { getToken } from "@/src/app/utils/auth";
 import {
   LineChart, Line, PieChart, Pie, BarChart, Bar,
