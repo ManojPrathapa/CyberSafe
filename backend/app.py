@@ -13,7 +13,7 @@ load_dotenv()
 
 
 from resources.auth import RegisterAPI, LoginAPI
-from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI
+from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI, ModuleWithContentAPI
 from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI
 from resources.doubts import AskDoubtAPI, MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI
 from resources.notifications import NotificationAPI
@@ -33,10 +33,13 @@ from resources.profile import ProfileAPI, EditProfileAPI
 from resources.activity import StudentActivityAPI
 
 app = Flask(__name__)
+
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
 api = Api(app)
 
 #CORS(app, resources={r"/api/*": {"origins": "*"}})
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+
 
 # JWT Setup
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
@@ -61,6 +64,8 @@ api.add_resource(LoginAPI, '/api/login')
 api.add_resource(ModuleListAPI, '/api/modules')
 api.add_resource(UploadModuleAPI, '/api/modules/upload')
 api.add_resource(DeleteModuleAPI, '/api/modules/delete/<int:module_id>')
+api.add_resource(ModuleWithContentAPI, "/api/modules_with_content")
+
 
 # Quizzes
 api.add_resource(QuizAPI, '/api/quiz/<int:quiz_id>')
