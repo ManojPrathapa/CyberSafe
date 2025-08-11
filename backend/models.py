@@ -357,6 +357,19 @@ def create_quiz_with_questions(data):
 def get_profile_details(user_id):
     conn = get_db_connection()
     row = conn.execute("SELECT id, username, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
+    
+    user_role=row["role"]
+    if user_role=="mentor":
+        row_2 = conn.execute("SELECT user_id, expertise, experience_years FROM mentors WHERE user_id = ?", (user_id,)).fetchone()
+        profile_details={
+            "name":row["username"],
+            "email":row["email"],
+            "experience":row_2["experience_years"],
+            "expertise": row_2["expertise"]
+        }
+        conn.close()
+        return profile_details
+    
     conn.close()
     return dict(row) if row else {}
 
