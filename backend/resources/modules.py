@@ -37,11 +37,13 @@ class UploadModuleAPI(Resource):
 from flask_restful import Resource
 from flask import request
 from flask_jwt_extended import jwt_required
+from flask import jsonify
 
 from models import (
     upload_module_content,
     soft_delete_module,
-    get_all_modules
+    get_all_modules,
+    get_modules_with_content
 )
 
 
@@ -61,6 +63,13 @@ class ModuleListAPI(Resource):
         """Get list of all modules (JWT required)"""
         modules = get_all_modules()
         return [dict(m) for m in modules]
+
+class ModuleWithContentAPI(Resource):
+    @jwt_required()
+    def get(self):
+    
+        data = get_modules_with_content()
+        return jsonify(data)
 
 
 class UploadModuleAPI(Resource):

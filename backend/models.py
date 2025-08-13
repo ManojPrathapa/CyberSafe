@@ -69,6 +69,43 @@ def get_all_modules():
     conn.close()
     return modules
 
+def get_modules_with_content():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Get all modules
+    cur.execute("SELECT * FROM modules WHERE isDeleted = 0")
+    modules = cur.fetchall()
+
+    result = []
+    for mod in modules:
+        module_id = mod["module_id"]
+
+        # Get videos for this module
+        cur.execute(
+            "SELECT video_id, title FROM videos WHERE module_id = ? AND isDeleted = 0",
+            (module_id,)
+        )
+        videos = [dict(v) for v in cur.fetchall()]
+
+        # Get quizzes for this module
+        cur.execute(
+            "SELECT quiz_id, title FROM quizzes WHERE module_id = ? AND isDeleted = 0",
+            (module_id,)
+        )
+        quizzes = [dict(q) for q in cur.fetchall()]
+
+        result.append({
+            "module_id": module_id,
+            "title": mod["title"],
+            "description": mod["description"],
+            "videos": videos,
+            "quizzes": quizzes
+        })
+
+    conn.close()
+    return result
+
 # ------------------- QUIZZES -------------------
 
 def get_quiz_with_questions(quiz_id):

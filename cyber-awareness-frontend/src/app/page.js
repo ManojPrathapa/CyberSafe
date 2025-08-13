@@ -1,4 +1,4 @@
-import Navbar from '@/components/Navbar';
+//import Navbar from '@/components/Navbar';
 import Header from '@/components/Header';
 import Link from 'next/link';
 
@@ -6,12 +6,11 @@ export default function HomePage() {
   return (
     <>
       <Header page="home"/>
-      <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50 px-6 py-12 flex flex-col items-center text-center">
         {/* Hero Section */}
         <div className="max-w-3xl">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-800 mb-6 animate-fadeIn">
-            Welcome to <span className="text-purple-700">Cyber Awareness</span>
+            Welcome to <span className="text-purple-700">Cybersafe</span>
           </h1>
           <p className="text-lg sm:text-xl text-gray-700 mb-8 animate-fadeIn delay-100">
             Empowering kids, parents, and mentors with knowledge to stay safe online.
@@ -19,24 +18,34 @@ export default function HomePage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/student/home">
+            <Link href="/home">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
+                Home
+              </button>
+            </Link>
+            <Link href="/student">
               <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 I'm a Student
               </button>
             </Link>
-            <Link href="/parent/home">
+            <Link href="/parent">
               <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 I'm a Parent
               </button>
             </Link>
-            <Link href="/mentor/home">
+            <Link href="/mentor">
               <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 I'm a Mentor
               </button>
             </Link>
-            <Link href="/admin">
+            <Link href="/Admin/home">
               <button className="bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded shadow transition hover:scale-105">
                 Admin Login
+              </button>
+            </Link>
+            <Link href="/support">
+              <button className="bg-gray-700 hover:bg-gray-500 text-white px-6 py-3 rounded shadow transition hover:scale-105">
+                Support Login
               </button>
             </Link>
           </div>

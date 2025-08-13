@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {};
 
-
 // export default nextConfig;
 export default {
   
@@ -23,18 +22,28 @@ export default {
         permanent: true,
       },
       {
+        source: '/support',
+        destination: '/support/home',
+        permanent: true,
+      },
+      {
+        source: '/supportDashboard',
+        destination: '/support/dashboard',
+        permanent: true,
+      },
+      {
         source: '/trainer',
         destination: '/trainer/dashboard',
         permanent: true,
       },
       {
         source: '/student',
-        destination: '/student/home',
+        destination: '/Students',
         permanent: true,
       },
       {
         source: '/parent',
-        destination: '/parent/home',
+        destination: '/Parents',
         permanent: true,
       },
       {

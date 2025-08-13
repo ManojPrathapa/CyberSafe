@@ -9,6 +9,8 @@ import TrainerApproval from "@/components/Admin/TrainerApproval";
 import ContentApproval from "@/components/Admin/ContentApproval";
 import AdminNotifications from "@/components/Admin/adminNotification";
 
+
+
 const notifications = [
   { type: "register", message: "Student 5 registered in the application.", time: "2 min ago" },
   { type: "approval", message: "Trainer 3 approved in the application", time: "1 hr ago" },
@@ -17,9 +19,9 @@ const notifications = [
   { type: "resolved", message: "Compliant by Student 3 was resolved", time: "4 days ago" },
 ];
 
-export default function AdminDashboard() {
+export default function SupportHome() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState("dashboard");
+  const [selectedSection, setSelectedSection] = useState("home");
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-blue-100 to-indigo-100 text-gray-800">
@@ -37,7 +39,6 @@ export default function AdminDashboard() {
             <button onClick={() => setSelectedSection("users")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">ALL USERS</button>
             <button onClick={() => setSelectedSection("trainer")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">TRAINER APPROVAL</button>
             <button onClick={() => setSelectedSection("content")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">CONTENT APPROVAL</button>
-            <button onClick={() => setSelectedSection("notification")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">NOTIFICATIONS</button>
           </div>
         </nav>
       </aside>
@@ -48,7 +49,7 @@ export default function AdminDashboard() {
           <h2 className="text-2xl font-bold px-6 py-2 bg-white shadow rounded-full text-indigo-800">HI ADMIN</h2>
           <div className="flex items-center gap-4">
             <Link href="/adminDashboard">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">🖥</div>
+              <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">📊</div>
             </Link>
             <button
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow"
@@ -56,12 +57,17 @@ export default function AdminDashboard() {
             >
               🔔
             </button>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow">LOGOUT</button>
+            <Link href={"/"}>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow"
+            >LOGOUT</button>
+            </Link>
+
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow max-w-5xl">
-          {selectedSection === "dashboard" && (
+       
+          {selectedSection === "home" && (
+             <div className="bg-white border border-gray-200 p-6 rounded-xl shadow max-w-5xl">
             <ul className="list-disc pl-6 space-y-4 text-base leading-relaxed">
               <li><strong>Record Keeping and Data Management:</strong> Organizing, maintaining, and updating records, files, and databases.</li>
               <li><strong>Communication and Coordination:</strong> Facilitating effective communication within the organization, coordinating meetings and events, and liaising with external stakeholders.</li>
@@ -70,13 +76,16 @@ export default function AdminDashboard() {
               <li><strong>Resource Management:</strong> Managing office supplies, equipment, and other resources to ensure they are readily available and maintained.</li>
               <li><strong>Scheduling and Planning:</strong> Managing schedules, booking appointments, and coordinating travel arrangements.</li>
             </ul>
+             </div>
           )}
-        </div>
 
         {selectedSection === "users" && <AllUsers />}
         {selectedSection === "trainer" && <TrainerApproval />}
         {selectedSection === "content" && <ContentApproval />}
-        {selectedSection === "notification" && <AdminNotifications notifications={notifications} />}
+        {selectedSection === "notification" && (
+          <AdminNotifications notifications={notifications} />
+        )}
+        
       </main>
     </div>
   );
