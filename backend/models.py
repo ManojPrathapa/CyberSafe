@@ -420,7 +420,7 @@ def create_quiz_with_questions(data):
     return quiz_id
 
 
-# ------------------- PROFILE -------------------
+'''# ------------------- PROFILE -------------------
 def get_profile_details(user_id):
     conn = get_db_connection()
     row = conn.execute("SELECT id, username, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
@@ -439,6 +439,72 @@ def update_profile_details(args):
     if fields:
         conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
         conn.commit()
+    conn.close()'''
+
+# ------------------- PROFILE -------------------
+def get_profile_details(user_id):
+    conn = get_db_connection()
+    row = conn.execute("SELECT id, username, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
+    
+    user_role=row["role"]
+    if user_role=="mentor":
+        row_2 = conn.execute("SELECT user_id, expertise, experience_years FROM mentors WHERE user_id = ?", (user_id,)).fetchone()
+        profile_details={
+            "name":row["username"],
+            "email":row["email"],
+            "experience":row_2["experience_years"],
+            "expertise": row_2["expertise"]
+        }
+        conn.close()
+        return profile_details
+    
+    conn.close()
+    return dict(row) if row else {}
+
+def update_profile_details(args):
+    conn = get_db_connection()
+
+    #  Check if user exists
+    cur = conn.execute("SELECT id FROM users WHERE id = ?", (args['user_id'],))
+    user = cur.fetchone()
+    if not user:
+        conn.close()
+        raise ValueError("User not found")
+
+    #  Check email uniqueness
+    if args.get("email"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE email = ? AND id != ?",
+            (args["email"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Email already in use by another account")
+
+    #  Check username uniqueness
+    if args.get("username"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE username = ? AND id != ?",
+            (args["username"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Username already in use by another account")
+
+    #  Prepare update fields
+    fields = []
+    values = []
+    for field in ['username', 'email', 'password']:
+        if args.get(field):
+            fields.append(f"{field} = ?")
+            values.append(args.get(field))
+
+    # Update only if there’s something to update
+    if fields:
+        values.append(args['user_id'])
+        conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
+        conn.commit()
+
     conn.close()
 
 # ------------------- ACTIVITY -------------------
