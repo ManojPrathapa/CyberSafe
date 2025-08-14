@@ -59,7 +59,15 @@ class ParentViewedTipsAPI(Resource):
     @jwt_required()
     def get(self, parent_id):
         """Get all tips viewed by a specific parent (JWT required)"""
+<<<<<<< HEAD
         return [dict(t) for t in get_viewed_tips_by_parent(parent_id)]
+=======
+        try:
+            tips = get_viewed_tips_by_parent(parent_id)
+            return [dict(t) for t in tips], 200
+        except Exception as e:
+            return {'error': str(e)}, 500
+>>>>>>> origin/main
 
 
 class MarkTipViewedAPI(Resource):

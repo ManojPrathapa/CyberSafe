@@ -11,29 +11,50 @@ import sqlite3
 
 
 def create_user(username, email, password, role):
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    # Insert into users table
-    cursor.execute("""
-        INSERT INTO users (username, email, password, role, isActive)
-        VALUES (?, ?, ?, ?, 1)
-    """, (username, email, password, role))
+        # Start transaction
+        conn.execute("BEGIN TRANSACTION")
 
-    # Get the ID of the newly inserted user
-    user_id = cursor.lastrowid
+        # Insert into users table
+        cursor.execute("""
+            INSERT INTO users (username, email, password, role, isActive)
+            VALUES (?, ?, ?, ?, 1)
+        """, (username, email, password, role))
 
-    # Insert into the respective role table
-    if role == 'student':
-        cursor.execute("INSERT INTO students (user_id, age) VALUES (?, ?)", (user_id, None))
-    elif role == 'parent':
-        cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (user_id,))
-    elif role == 'mentor':
-        cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years) VALUES (?, ?, ?)", (user_id, '', 0))
-    
+        # Get the ID of the newly inserted user
+        user_id = cursor.lastrowid
 
-    conn.commit()
-    conn.close()
+        # Insert into the respective role table
+        if role == 'student':
+            cursor.execute("INSERT INTO students (user_id, age) VALUES (?, ?)", (user_id, None))
+        elif role == 'parent':
+            cursor.execute("INSERT INTO parents (user_id) VALUES (?)", (user_id,))
+        elif role == 'mentor':
+            cursor.execute("INSERT INTO mentors (user_id, expertise, experience_years) VALUES (?, ?, ?)", (user_id, '', 0))
+        elif role == 'admin':
+            cursor.execute("INSERT INTO admins (user_id) VALUES (?)", (user_id,))
+        elif role == 'support':
+            cursor.execute("INSERT INTO support (user_id) VALUES (?)", (user_id,))
+
+        # Commit transaction
+        conn.commit()
+        
+    except sqlite3.IntegrityError as e:
+        if conn:
+            conn.rollback()
+        raise e
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Error creating user: {e}")
+        raise e
+    finally:
+        if conn:
+            conn.close()
 
 import sqlite3
 from db import get_db_connection  # make sure this exists
@@ -59,22 +80,29 @@ def get_user_by_id(user_id):
 
 
 def get_user_by_username(username):
-    conn = get_db_connection()
-    conn.row_factory = sqlite3.Row  # Add this line!
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-    row = cursor.fetchone()
-    conn.close()
+    conn = None
+    try:
+        conn = get_db_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        row = cursor.fetchone()
 
-    if row:
-        return {
-            'id': row['id'],
-            'username': row['username'],
-            'email': row['email'],
-            'password': row['password'],
-            'role': row['role']
-        }
-    return None
+        if row:
+            return {
+                'id': row['id'],
+                'username': row['username'],
+                'email': row['email'],
+                'password': row['password'],
+                'role': row['role']
+            }
+        return None
+    except Exception as e:
+        print(f"Error getting user by username: {e}")
+        return None
+    finally:
+        if conn:
+            conn.close()
 
 
 '''def get_user_by_username(username):
@@ -449,6 +477,11 @@ def get_viewed_tips_by_parent(parent_id):
         WHERE v.parent_id = ?
     """, (parent_id,)).fetchall()
     conn.close()
+<<<<<<< HEAD
+=======
+    
+    # Return empty list instead of raising error if no viewed tips found
+>>>>>>> origin/main
     return rows
 
 def mark_tip_viewed(parent_id, tip_id):
@@ -578,6 +611,19 @@ def create_quiz_with_questions(data):
 def get_profile_details(user_id):
     conn = get_db_connection()
     row = conn.execute("SELECT id, username, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
+    
+    user_role=row["role"]
+    if user_role=="mentor":
+        row_2 = conn.execute("SELECT user_id, expertise, experience_years FROM mentors WHERE user_id = ?", (user_id,)).fetchone()
+        profile_details={
+            "name":row["username"],
+            "email":row["email"],
+            "experience":row_2["experience_years"],
+            "expertise": row_2["expertise"]
+        }
+        conn.close()
+        return profile_details
+    
     conn.close()
     return dict(row) if row else {}
 

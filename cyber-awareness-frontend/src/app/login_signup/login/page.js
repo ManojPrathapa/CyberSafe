@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Header from "@/components/Header";
-import { API_BASE_URL } from "@/src/app/utils/api"; 
+import { API_BASE_URL } from "@/src/app/utils/apiConfig"; 
 import { saveAuth } from "@/src/app/utils/auth";
 
 
@@ -16,10 +16,14 @@ export default function LoginPage() {
 
     try {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const res = await fetch(`${API_BASE_URL}/login`, {
 =======
       const res = await fetch(`${API_BASE_URL}/api/login`, {
 >>>>>>> 0600fab (merge_conflict)
+=======
+              const res = await fetch(`${API_BASE_URL}/login`, {
+>>>>>>> origin/main
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

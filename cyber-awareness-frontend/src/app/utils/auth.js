@@ -1,9 +1,22 @@
+<<<<<<< HEAD
 "use client";
 
 import { useState, useEffect } from "react";
 import { Pencil, Save, UploadCloud, User } from "lucide-react";
 import { API_BASE_URL } from "@/src/app/utils/api";
 import { getToken, getUser, saveAuth } from "@/src/app/utils/auth";
+=======
+// Save token & user info
+export function saveAuth(token, user) {
+  localStorage.setItem("jwt_token", token);
+  localStorage.setItem("user", JSON.stringify(user));
+}
+
+// Get token for API calls
+export function getToken() {
+  return localStorage.getItem("jwt_token");
+}
+>>>>>>> origin/main
 
 export default function ProfilePage() {
   const [editable, setEditable] = useState(false);
@@ -11,6 +24,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+<<<<<<< HEAD
   // Load profile when page mounts
   useEffect(() => {
     const fetchProfile = async () => {
@@ -135,4 +149,11 @@ export default function ProfilePage() {
       </div>
     </div>
   );
+=======
+// Remove auth info (for logout)
+export function logout() {
+  localStorage.removeItem("jwt_token");
+  localStorage.removeItem("user");
+  window.location.href = "/login";
+>>>>>>> origin/main
 }

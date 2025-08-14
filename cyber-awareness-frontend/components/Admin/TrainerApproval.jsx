@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 import { getToken } from "@/src/app/utils/auth";
 
 export default function TrainerApproval() {
@@ -18,7 +18,7 @@ export default function TrainerApproval() {
           return;
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/admin/trainers/pending`, {
+        const res = await fetch(`${API_BASE_URL}/admin/trainers/pending`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
