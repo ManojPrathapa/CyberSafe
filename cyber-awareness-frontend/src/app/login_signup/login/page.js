@@ -15,7 +15,11 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
+<<<<<<< HEAD
       const res = await fetch(`${API_BASE_URL}/login`, {
+=======
+      const res = await fetch(`${API_BASE_URL}/api/login`, {
+>>>>>>> 0600fab (merge_conflict)
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -26,7 +30,13 @@ export default function LoginPage() {
       if (res.ok) {
         // Save token and user info
         saveAuth(data.access_token, data.user);
+<<<<<<< HEAD
 
+=======
+        
+        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+>>>>>>> 0600fab (merge_conflict)
         setMessage("Login successful! Redirecting...");
 
         // Redirect based on role
