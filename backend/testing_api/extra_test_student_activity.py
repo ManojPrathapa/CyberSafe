@@ -45,5 +45,18 @@ try:
 except:
     print("Response (raw):", res.text)
 
+# Step 4: Access the StudentActivityAPI of an invalid student ID
+student_id = 9999  # Replace with an invalid student ID
+print("\nAccessing /api/activity/<student_id> endpoint...")
+headers = {"Authorization": f"Bearer {token}"}
+res = requests.get(f"{BASE_URL}/activity/{student_id}", headers=headers)
+
+print("Status:", res.status_code)
+try:
+    print("Response:", res.json())
+except:
+    print("Response (raw):", res.text)
+
+
 
     

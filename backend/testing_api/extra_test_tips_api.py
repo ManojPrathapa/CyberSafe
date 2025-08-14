@@ -29,8 +29,21 @@ data = res.json()
 token = data["access_token"]
 print("JWT Token:", token)
 
-# Step 3: Test Tips Endpoints
 headers = {"Authorization": f"Bearer {token}"}
+
+
+# Step 2.1: Create a new tip
+print("\nCreating a new tip...")
+res = requests.post(f"{BASE_URL}/tips", headers=headers, json={
+    "title": "Healthy Eating for Kids",
+    "content": "Encourage your child to eat fruits and vegetables daily."
+})
+print("Status:", res.status_code)
+print("Response:", res.json())
+tip_id = res.json().get("tip_id", 2)
+
+
+# Step 3: Test Tips Endpoints
 
 # 3.1 Get all tips
 print("\nFetching all tips...")
@@ -53,8 +66,22 @@ res = requests.get(f"{BASE_URL}/tips/viewed/1", headers=headers)
 print("Status:", res.status_code)
 print("Response:", res.json())
 
-# 3.4 Delete tip (example tip_id=1)
+# 3.4 Get viewed tips by parent who isn't existent (100)
+print("\nFetching viewed tips for parent 100...")
+res = requests.get(f"{BASE_URL}/tips/viewed/100", headers=headers)
+print("Status:", res.status_code)
+print("Response:", res.json())
+
+
+# 3.5 Delete tip (example tip_id=1)
 print("\nDeleting tip 1...")
 res = requests.delete(f"{BASE_URL}/tips/delete/1", headers=headers)
+print("Status:", res.status_code)
+print("Response:", res.json())
+
+
+# 3.6 Delete tip which is non existent (example tip_id=1)
+print("\nDeleting tip 100...")
+res = requests.delete(f"{BASE_URL}/tips/delete/100", headers=headers)
 print("Status:", res.status_code)
 print("Response:", res.json())

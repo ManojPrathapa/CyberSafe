@@ -37,13 +37,11 @@ class UploadModuleAPI(Resource):
 from flask_restful import Resource
 from flask import request
 from flask_jwt_extended import jwt_required
-from flask import jsonify
 
 from models import (
     upload_module_content,
     soft_delete_module,
-    get_all_modules,
-    get_modules_with_content
+    get_all_modules
 )
 
 
@@ -64,13 +62,6 @@ class ModuleListAPI(Resource):
         modules = get_all_modules()
         return [dict(m) for m in modules]
 
-class ModuleWithContentAPI(Resource):
-    @jwt_required()
-    def get(self):
-    
-        data = get_modules_with_content()
-        return jsonify(data)
-
 
 class UploadModuleAPI(Resource):
     @jwt_required()
@@ -80,8 +71,8 @@ class UploadModuleAPI(Resource):
         mentor_id = data.get('mentor_id')
         title = data.get('title')
         description = data.get('description')
+        video_url = data.get('video_url')
+        resource_link = data.get('resource_link')
 
-        # No video_url and resource_link anymore
-        upload_module_content(mentor_id, title, description)
+        upload_module_content(mentor_id, title, description, video_url, resource_link)
         return {'message': 'Module uploaded successfully'}, 201
-
