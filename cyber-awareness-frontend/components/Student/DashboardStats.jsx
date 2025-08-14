@@ -5,9 +5,6 @@ import {
   PieChart, Pie, Cell,
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from "recharts";
-import { API_BASE_URL } from "@/src/app/utils/api";
-import { getToken } from "@/src/app/utils/auth";
-
 
 const scoreData = [
   { name: "Module 1", score: 70 },

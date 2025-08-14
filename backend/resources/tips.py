@@ -42,32 +42,34 @@ class DeleteTipAPI(Resource):
     @jwt_required()
     def delete(self, tip_id):
         """Soft delete a tip by ID (JWT required)"""
-        result = soft_delete_tip(tip_id)
-        if result:
+        try:
+            result = soft_delete_tip(tip_id)
             return {'message': f'Tip {tip_id} deleted successfully'}, 200
-        return {'message': f'Tip {tip_id} not found or already deleted'}, 404
+        except ValueError as e:
+            return {'error': str(e)}, 404
+        except Exception as e:
+            return {'error': str(e)}, 500
 
 
 class TipListAPI(Resource):
     @jwt_required()
     def get(self):
         """Get all tips (JWT required)"""
-        return [dict(t) for t in get_all_tips()]
+        try:
+            return [dict(t) for t in get_all_tips()], 200
+        except Exception as e:
+            return {'error': str(e)}, 500
 
 
 class ParentViewedTipsAPI(Resource):
     @jwt_required()
     def get(self, parent_id):
         """Get all tips viewed by a specific parent (JWT required)"""
-<<<<<<< HEAD
-        return [dict(t) for t in get_viewed_tips_by_parent(parent_id)]
-=======
         try:
             tips = get_viewed_tips_by_parent(parent_id)
             return [dict(t) for t in tips], 200
         except Exception as e:
             return {'error': str(e)}, 500
->>>>>>> origin/main
 
 
 class MarkTipViewedAPI(Resource):
@@ -78,5 +80,12 @@ class MarkTipViewedAPI(Resource):
         parser.add_argument('parent_id', required=True, type=int)
         parser.add_argument('tip_id', required=True, type=int)
         args = parser.parse_args()
-        mark_tip_viewed(args['parent_id'], args['tip_id'])
-        return {'message': 'Tip marked as viewed'}, 201
+
+        try:
+            mark_tip_viewed(args['parent_id'], args['tip_id'])
+            return {'message': 'Tip marked as viewed'}, 201
+        except ValueError as e:
+            return {'error': str(e)}, 404
+        except Exception as e:
+            return {'error': str(e)}, 500
+
