@@ -2,7 +2,7 @@
 
 import Header from "@/components/Admin/adminHeader";
 import { useState, useEffect } from "react";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 import { getToken } from "@/src/app/utils/auth";
 import {
   LineChart, Line, PieChart, Pie, BarChart, Bar,
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
       if (!token) return console.error("No token");
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        const res = await fetch(`${API_BASE_URL}/admin/users`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to load users");
@@ -64,12 +64,12 @@ export default function AdminDashboard() {
   const downloadUserReport = () => {
     const token = getToken();
     if (!token) return;
-    window.open(`${API_BASE_URL}/api/admin/reports/download/users?month=${reportMonth}`, "_blank");
+            window.open(`${API_BASE_URL}/admin/reports/download/users?month=${reportMonth}`, "_blank");
   };
   const downloadSummary = () => {
     const token = getToken();
     if (!token) return;
-    window.open(`${API_BASE_URL}/api/admin/reports/download/summary?month=${summaryMonth}`, "_blank");
+            window.open(`${API_BASE_URL}/admin/reports/download/summary?month=${summaryMonth}`, "_blank");
   };
 
   if (loading) return <p className="text-gray-600 p-6">Loading...</p>;
