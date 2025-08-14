@@ -31,6 +31,10 @@ from resources.admin import (
 from resources.alerts import AlertPostAPI, DeleteAlertAPI
 from resources.profile import ProfileAPI, EditProfileAPI
 from resources.activity import StudentActivityAPI
+from resources.videos import (
+    VideoListAPI, VideoAPI, VideoBlockAPI, VideoUnblockAPI,
+    VideoViewAPI, VideoLikeAPI
+)
 
 app = Flask(__name__)
 
@@ -88,6 +92,14 @@ api.add_resource(NotificationDetailAPI, "/notifications/<int:notif_id>")
 
 # Attempts
 api.add_resource(StudentAttemptsAPI, '/api/student/<int:student_id>/attempts')
+
+#Videos
+api.add_resource(VideoListAPI, '/videos')
+api.add_resource(VideoAPI, '/videos/<int:video_id>')
+api.add_resource(VideoBlockAPI, '/videos/<int:video_id>/block')
+api.add_resource(VideoUnblockAPI, '/videos/<int:video_id>/unblock')
+api.add_resource(VideoViewAPI, '/videos/<int:video_id>/view')
+api.add_resource(VideoLikeAPI, '/videos/<int:video_id>/like')
 
 # Reports
 api.add_resource(StudentReportAPI, '/api/reports/<int:student_id>')

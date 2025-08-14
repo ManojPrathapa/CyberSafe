@@ -52,27 +52,35 @@ CREATE TABLE IF NOT EXISTS modules (
     mentor_id INTEGER,
     title TEXT,
     description TEXT,
-    video_url TEXT,
-    resource_link TEXT,
     approved BOOLEAN DEFAULT 0,
     isDeleted BOOLEAN DEFAULT 0
 );
 
 
 -- VIDEOS
+
+
 CREATE TABLE IF NOT EXISTS videos (
     video_id INTEGER PRIMARY KEY,
     title TEXT,
     description TEXT,
     uploaded_by INTEGER,
+    mentor_id INTEGER,
+    module_id INTEGER,
     views INTEGER DEFAULT 0,
     likes INTEGER DEFAULT 0,
-    module_id INTEGER,
     isDeleted BOOLEAN DEFAULT 0,
-    FOREIGN KEY(uploaded_by) REFERENCES mentors(user_id),
+    timestamp TEXT,
+    FOREIGN KEY(uploaded_by) REFERENCES users(id),
+    FOREIGN KEY(mentor_id) REFERENCES mentors(user_id),
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
 );
 
+                     
+
+
+                   
+                     
 -- QUIZZES
 CREATE TABLE IF NOT EXISTS quizzes (
     quiz_id INTEGER PRIMARY KEY,

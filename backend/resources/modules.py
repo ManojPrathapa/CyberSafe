@@ -80,8 +80,8 @@ class UploadModuleAPI(Resource):
         mentor_id = data.get('mentor_id')
         title = data.get('title')
         description = data.get('description')
-        video_url = data.get('video_url')
-        resource_link = data.get('resource_link')
 
-        upload_module_content(mentor_id, title, description, video_url, resource_link)
+        # No video_url and resource_link anymore
+        upload_module_content(mentor_id, title, description)
         return {'message': 'Module uploaded successfully'}, 201
+

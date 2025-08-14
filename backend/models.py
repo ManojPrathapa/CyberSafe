@@ -35,6 +35,29 @@ def create_user(username, email, password, role):
     conn.commit()
     conn.close()
 
+import sqlite3
+from db import get_db_connection  # make sure this exists
+
+def get_user_by_id(user_id):
+    """Fetch a user by their ID"""
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row  # To access columns by name
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if row:
+        return {
+            'id': row['id'],
+            'username': row['username'],
+            'email': row['email'],
+            'password': row['password'],
+            'role': row['role']
+        }
+    return None
+
+
 def get_user_by_username(username):
     conn = get_db_connection()
     conn.row_factory = sqlite3.Row  # Add this line!
@@ -230,6 +253,98 @@ def reply_to_doubt(doubt_id, answer):
     conn.commit()
     conn.close()
 
+import datetime
+from db import get_db_connection
+
+
+# ------------------- VIDEOS -------------------
+
+def create_video(title, description, uploaded_by, mentor_id, module_id):
+    conn = get_db_connection()
+    conn.execute("""
+        INSERT INTO videos (title, description, uploaded_by, mentor_id, module_id, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (title, description, uploaded_by, mentor_id, module_id, datetime.datetime.now()))
+    conn.commit()
+    conn.close()
+
+def get_all_videos():
+    conn = get_db_connection()
+    videos = conn.execute("""
+        SELECT * FROM videos
+        WHERE isDeleted = 0
+        ORDER BY timestamp DESC
+    """).fetchall()
+    conn.close()
+    return videos
+
+def get_video_by_id(video_id):
+    conn = get_db_connection()
+    video = conn.execute("""
+        SELECT * FROM videos
+        WHERE video_id = ? AND isDeleted = 0
+    """, (video_id,)).fetchone()
+    conn.close()
+    return video
+
+def update_video(video_id, title, description, module_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE videos
+        SET title = ?, description = ?, module_id = ?
+        WHERE video_id = ?
+    """, (title, description, module_id, video_id))
+    conn.commit()
+    conn.close()
+
+def block_video(video_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE videos
+        SET isDeleted = 1
+        WHERE video_id = ?
+    """, (video_id,))
+    conn.commit()
+    conn.close()
+
+def unblock_video(video_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE videos
+        SET isDeleted = 0
+        WHERE video_id = ?
+    """, (video_id,))
+    conn.commit()
+    conn.close()
+
+def delete_video(video_id):
+    conn = get_db_connection()
+    conn.execute("""
+        DELETE FROM videos
+        WHERE video_id = ?
+    """, (video_id,))
+    conn.commit()
+    conn.close()
+
+def increment_video_views(video_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE videos
+        SET views = views + 1
+        WHERE video_id = ? AND isDeleted = 0
+    """, (video_id,))
+    conn.commit()
+    conn.close()
+
+def increment_video_likes(video_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE videos
+        SET likes = likes + 1
+        WHERE video_id = ? AND isDeleted = 0
+    """, (video_id,))
+    conn.commit()
+    conn.close()
 
 
 # ------------------- NOTIFICATIONS -------------------
@@ -378,17 +493,19 @@ def resolve_complaint(complaint_id):
 # ------------------- MODULE UPLOAD -------------------
 
 
-def upload_module_content(mentor_id, title, description, video_url=None, resource_link=None):
+def upload_module_content(mentor_id, title, description):
     conn = get_db_connection()
     conn.execute(
         """
-        INSERT INTO modules (mentor_id, title, description, video_url, resource_link, isDeleted)
-        VALUES (?, ?, ?, ?, ?, 0)
+        INSERT INTO modules (mentor_id, title, description, isDeleted)
+        VALUES (?, ?, ?, 0)
         """,
-        (mentor_id, title, description, video_url, resource_link)
+        (mentor_id, title, description )
     )
     conn.commit()
     conn.close()
+
+
 
 
 
@@ -479,7 +596,7 @@ def update_profile_details(args):
     conn.close()'''
 
 # ------------------- PROFILE -------------------
-def get_profile_details(user_id):
+'''def get_profile_details(user_id):
     conn = get_db_connection()
     row = conn.execute("SELECT id, username, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
     
@@ -542,7 +659,111 @@ def update_profile_details(args):
         conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
         conn.commit()
 
+    conn.close()'''
+
+from db import get_db_connection
+
+# ------------------- PROFILE -------------------
+def get_profile_details(user_id):
+    conn = get_db_connection()
+    row = conn.execute(
+        "SELECT id, username, email, role FROM users WHERE id = ?", 
+        (user_id,)
+    ).fetchone()
+    
+    if not row:
+        conn.close()
+        return {}
+
+    user_role = row["role"]
+
+    # Mentor profile details
+    if user_role == "mentor":
+        row_2 = conn.execute(
+            "SELECT user_id, expertise, experience_years FROM mentors WHERE user_id = ?", 
+            (user_id,)
+        ).fetchone()
+        profile_details = {
+            "name": row["username"],
+            "email": row["email"],
+            "experience": row_2["experience_years"] if row_2 else None,
+            "expertise": row_2["expertise"] if row_2 else None
+        }
+        conn.close()
+        return profile_details
+
+    # Parent profile details (with linked student)
+    if user_role == "parent":
+        student_row = conn.execute("""
+            SELECT u.id, u.username, u.email 
+            FROM parent_student ps
+            JOIN users u ON ps.student_id = u.id
+            WHERE ps.parent_id = ?
+        """, (user_id,)).fetchone()
+
+        profile_details = {
+            "name": row["username"],
+            "email": row["email"],
+            "linked_student": {
+                "id": student_row["id"],
+                "name": student_row["username"],
+                "email": student_row["email"]
+            } if student_row else None
+        }
+        conn.close()
+        return profile_details
+
+    # Default for other roles
     conn.close()
+    return dict(row)
+
+
+def update_profile_details(args):
+    conn = get_db_connection()
+
+    #  Check if user exists
+    cur = conn.execute("SELECT id FROM users WHERE id = ?", (args['user_id'],))
+    user = cur.fetchone()
+    if not user:
+        conn.close()
+        raise ValueError("User not found")
+
+    #  Check email uniqueness
+    if args.get("email"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE email = ? AND id != ?",
+            (args["email"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Email already in use by another account")
+
+    #  Check username uniqueness
+    if args.get("username"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE username = ? AND id != ?",
+            (args["username"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Username already in use by another account")
+
+    #  Prepare update fields
+    fields = []
+    values = []
+    for field in ['username', 'email', 'password']:
+        if args.get(field):
+            fields.append(f"{field} = ?")
+            values.append(args.get(field))
+
+    # Update only if there’s something to update
+    if fields:
+        values.append(args['user_id'])
+        conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
+        conn.commit()
+
+    conn.close()
+
 
 # ------------------- ACTIVITY -------------------
 def get_student_activity(student_id):
@@ -641,9 +862,15 @@ def unblock_user(user_id):
 # ------------------- ALERTS -------------------
 def post_alert(message):
     conn = get_db_connection()
-    conn.execute("INSERT INTO alerts (message, timestamp) VALUES (?, datetime('now'))", (message,))
+    cursor = conn.execute(
+        "INSERT INTO alerts (message, timestamp) VALUES (?, datetime('now'))",
+        (message,)
+    )
     conn.commit()
+    alert_id = cursor.lastrowid  # Get the inserted alert's ID
     conn.close()
+    return alert_id
+
 
 '''def soft_delete_module(module_id):
     conn = get_db_connection()
