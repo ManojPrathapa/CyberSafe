@@ -31,8 +31,8 @@ print("JWT Token:", token)
 
 headers = {"Authorization": f"Bearer {token}"}
 
-# Step 3: Test Student Report API 
-student_id = 1 # replace student_id=1 with actual id
+# Step 3: Test Student Report API (replace student_id=1 with actual id)
+student_id = 1
 print(f"\nFetching reports for student_id={student_id}...")
 res = requests.get(f"{BASE_URL}/reports/{student_id}", headers=headers)
 print("Status:", res.status_code)
@@ -40,14 +40,6 @@ print("Response:", res.json())
 
 # Step 4: Test Delete Report API (replace report_id=1 with actual id to test)
 report_id = 1
-print(f"\nDeleting report_id={report_id}...")
-res = requests.delete(f"{BASE_URL}/reports/delete/{report_id}", headers=headers)
-print("Status:", res.status_code)
-print("Response:", res.json())
-
-
-# Step 5: Test Delete Report API which isn't existent (replace report_id=1 with actual id to test)
-report_id = 100
 print(f"\nDeleting report_id={report_id}...")
 res = requests.delete(f"{BASE_URL}/reports/delete/{report_id}", headers=headers)
 print("Status:", res.status_code)

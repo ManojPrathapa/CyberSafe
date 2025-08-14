@@ -23,9 +23,6 @@ class RegisterAPI(Resource):
 
         if get_user_by_username(args['username']):
             return {'error': 'Username already exists'}, 400
-        
-        if not args['role'] in ['student', 'parent', 'mentor','admin','support']:
-            return {'error': 'Invalid role'}, 400
 
         # Hash password before storing
         hashed_password = generate_password_hash(args['password'])

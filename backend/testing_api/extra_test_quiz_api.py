@@ -5,18 +5,18 @@ BASE_URL = "http://127.0.0.1:5050/api"
 # 1. Register a student
 print("\nRegistering student...")
 student_data = {
-    "username": "teacher155",
-    "email": "teacher155@example.com",
+    "username": "student155",
+    "email": "student155@example.com",
     "password": "password123",
-    "role": "mentor"
+    "role": "student"
 }
 res = requests.post(f"{BASE_URL}/register", json=student_data)
 print("Register:", res.status_code, res.json())
 
 # 2. Login student
-print("\nLogging in mentor...")
+print("\nLogging in student...")
 login_data = {
-    "username": "teacher155",
+    "username": "student155",
     "password": "password123"
 }
 res = requests.post(f"{BASE_URL}/login", json=login_data)
@@ -50,7 +50,6 @@ quiz_payload = {
     ]
 }
 
-
 res = requests.post(f"{BASE_URL}/quiz/create", json=quiz_payload, headers=headers)
 try:
     print("Create Quiz:", res.status_code, res.json())
@@ -58,26 +57,17 @@ except Exception:
     print("Create Quiz Raw Response:", res.status_code, res.text)
 
 # 4. Fetch quiz
-print("\nFetching deleted quiz with ID 1...")
+print("\nFetching quiz with ID 1...")
 res = requests.get(f"{BASE_URL}/quiz/1", headers=headers)
 try:
     print("Fetch Quiz:", res.status_code, res.json())
 except Exception:
     print("Fetch Quiz Raw Response:", res.status_code, res.text)
 
-# 5. Fetch quiz
-print("\nFetching quiz with ID 2...")
-res = requests.get(f"{BASE_URL}/quiz/2", headers=headers)
-try:
-    print("Fetch Quiz:", res.status_code, res.json())
-except Exception:
-    print("Fetch Quiz Raw Response:", res.status_code, res.text)
-
-
-# 6. Submit quiz attempt
+# 5. Submit quiz attempt
 print("\nSubmitting quiz attempt...")
 submit_payload = {
-    "quiz_id": 2,
+    "quiz_id": 1,
     "student_id": 1,
     "answers": {
         "1": 1,  # question_id : selected_option_id

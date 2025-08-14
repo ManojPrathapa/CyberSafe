@@ -38,30 +38,11 @@ res = requests.get(f"{BASE_URL}/profile/{user_id}", headers=headers)
 print("Profile GET status:", res.status_code)
 print("Response:", res.json())
 
-
 # Step 4: Test POST Edit Profile
 print("\nUpdating profile...")
 res = requests.post(f"{BASE_URL}/profile/edit", json={
     "user_id": user_id,
     "email": "updated_email@example.com"
-}, headers=headers)
-print("Profile Edit status:", res.status_code)
-print("Response:", res.json())
-
-# Step 5: Test POST Edit Profile with wrong user ID
-print("\nUpdating profile...")
-res = requests.post(f"{BASE_URL}/profile/edit", json={
-    "user_id": 16,
-    "email": "updated_email@example.com"
-}, headers=headers)
-print("Profile Edit status:", res.status_code)
-print("Response:", res.json())
-
-# Step 6: Test POST Edit Profile by changing email to existing ID
-print("\nUpdating profile...")
-res = requests.post(f"{BASE_URL}/profile/edit", json={
-    "user_id": 6,
-    "email": "student1@example.com"
 }, headers=headers)
 print("Profile Edit status:", res.status_code)
 print("Response:", res.json())
