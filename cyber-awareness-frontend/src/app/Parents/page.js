@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Bell } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import ParentTips from '@/components/Parent/ContentManager';
 // import ForumManager from '@/components/Parent/ForumManager';
@@ -18,6 +18,15 @@ export default function MentorDashboard() {
   const [selectedSection, setSelectedSection] = useState('home');
   const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Handle URL parameters for section navigation
+  useEffect(() => {
+    const section = searchParams.get('section');
+    if (section && ['home', 'dashboard', 'content', 'activity', 'profile', 'settings'].includes(section)) {
+      setSelectedSection(section);
+    }
+  }, [searchParams]);
 
 
   const notifications = [

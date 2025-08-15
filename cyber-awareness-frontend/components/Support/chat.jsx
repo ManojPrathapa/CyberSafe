@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 import { getToken } from "@/src/app/utils/auth";
 
 export default function ChatBox() {
@@ -21,7 +21,7 @@ export default function ChatBox() {
 
     try {
       const token = getToken();
-      const res = await fetch(`${API_BASE_URL}/api/chat`, {
+              const res = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

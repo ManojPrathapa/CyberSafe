@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Header from "@/components/Header";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -15,7 +16,7 @@ export default function SignupPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://127.0.0.1:5050/api/register", {
+      const res = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

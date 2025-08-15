@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import create_user, get_user_by_username
 from utils.auth_utils import role_required, roles_required
+import sqlite3
 
 
 register_parser = reqparse.RequestParser()
@@ -29,8 +30,18 @@ class RegisterAPI(Resource):
         # Hash password before storing
         hashed_password = generate_password_hash(args['password'])
 
-        create_user(args['username'], args['email'], hashed_password, args['role'])
-        return {'message': 'User registered successfully'}, 201
+        try:
+            create_user(args['username'], args['email'], hashed_password, args['role'])
+            return {'message': 'User registered successfully'}, 201
+        except sqlite3.IntegrityError as e:
+            if 'UNIQUE constraint failed: users.email' in str(e):
+                return {'error': 'Email already exists'}, 400
+            elif 'UNIQUE constraint failed: users.username' in str(e):
+                return {'error': 'Username already exists'}, 400
+            else:
+                return {'error': 'Registration failed due to database constraint'}, 400
+        except Exception as e:
+            return {'error': f'Registration failed: {str(e)}'}, 500
 
 
 class LoginAPI(Resource):
