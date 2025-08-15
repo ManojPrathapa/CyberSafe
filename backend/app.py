@@ -17,6 +17,7 @@ from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI, M
 from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI
 from resources.doubts import AskDoubtAPI, MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI
 from resources.notifications import NotificationAPI
+from resources.mentor_dashboard import VideoStatusAPI,DoubtStatusAPI
 from resources.attempts import StudentAttemptsAPI
 from resources.reports import StudentReportAPI, DeleteReportAPI
 from resources.tips import TipListAPI, ParentViewedTipsAPI, MarkTipViewedAPI, DeleteTipAPI
@@ -84,7 +85,7 @@ api.add_resource(ReplyToDoubtAPI, '/api/doubt/reply')
 api.add_resource(DeleteDoubtAPI, '/api/doubt/delete/<int:doubt_id>')
 
 # Notifications
-api.add_resource(NotificationAPI, '/api/notifications/<int:user_id>')
+#api.add_resource(NotificationAPI, '/api/notifications/<int:user_id>')
 
 # Attempts
 api.add_resource(StudentAttemptsAPI, '/api/student/<int:student_id>/attempts')
@@ -127,6 +128,11 @@ api.add_resource(StudentActivityAPI, '/api/activity/<int:student_id>')
 
 # Student Dashboard
 api.add_resource(StudentDashboardAPI, "/api/dashboard/<int:student_id>")
+
+# Mentor Dashboard APIs
+api.add_resource(VideoStatusAPI,'/api/videostatus/<int:user_id>')
+#api.add_resource(QuizStatusAPI,'/api/quizstatus/<int:user_id'>)
+api.add_resource(DoubtStatusAPI,'/api/doubtstatus/<int:user_id>')
 
 
 if __name__ == '__main__':

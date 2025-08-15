@@ -1161,3 +1161,18 @@ def get_module_progress(student_id):
     return [
         {"name": "Completed", "modules": completed},
         {"name": "Remaining", "modules": total_modules - completed}
+    ]
+    
+
+#----------------MENTOR DASHBOARD------------------------------#
+def get_mentor_video_status(user_id):
+    conn=get_db_connection()
+    mentor_videos=conn.execute("SELECT * FROM videos WHERE is mentor_id= ? AND isDeleted = 0",(user_id,)).fetchall()
+    conn.close()
+    return mentor_videos
+
+def get_mentor_doubt_status(user_id):
+    conn=get_db_connection()
+    mentor_doubts=conn.execute("SELECT * FROM doubts WHERE is mentor_id= ? AND isDeleted = 0",(user_id,)).fetchall()
+    conn.close()
+    return mentor_doubts
