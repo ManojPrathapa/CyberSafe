@@ -6,6 +6,7 @@ import csv
 import io
 from flask import make_response
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 
@@ -58,6 +59,31 @@ def create_user(username, email, password, role):
 
 import sqlite3
 from db import get_db_connection  # make sure this exists
+
+#Update the password for a user
+def update_user_password(user_id, old_password, new_password):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Get existing password hash
+    cursor.execute("SELECT password FROM users WHERE id = ?", (user_id,))
+    row = cursor.fetchone()
+    if not row:
+        return False, "User not found"
+
+    stored_hash = row[0]
+    if not check_password_hash(stored_hash, old_password):
+        return False, "Old password is incorrect"
+
+    # Update with new hash
+    new_hash = generate_password_hash(new_password)
+    cursor.execute(
+        "UPDATE users SET password = ? WHERE id = ?",
+        (new_hash, user_id)
+    )
+    conn.commit()
+    return True, "Password updated successfully"
+
 
 def get_user_by_id(user_id):
     """Fetch a user by their ID"""
@@ -1063,4 +1089,75 @@ def get_all_alerts():
     conn.close()
     return alerts
 
+#-------------------- STUDENT DASHBOARD -------------------
+def get_student_scores(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT m.title, AVG(sqa.score)
+        FROM modules m
+        JOIN quizzes q ON q.module_id = m.module_id
+        JOIN student_quiz_attempts sqa ON sqa.quiz_id = q.quiz_id
+        WHERE sqa.student_id = ?
+        GROUP BY m.module_id
+    """, (student_id,))
+    data = [
+        {"name": row[0], "score": round(row[1], 1) if row[1] else 0}
+        for row in cursor.fetchall()
+    ]
+    conn.close()
+    return data
 
+
+def get_student_time_spent(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT strftime('%a', sqa.timestamp), SUM(CAST(replace(reports.duration, ' min', '') AS INTEGER))
+        FROM reports
+        JOIN student_quiz_attempts sqa ON sqa.quiz_id = reports.quiz_id
+        WHERE reports.student_id = ?
+        GROUP BY strftime('%a', sqa.timestamp)
+    """, (student_id,))
+    data = [{"name": row[0], "mins": row[1] if row[1] else 0} for row in cursor.fetchall()]
+    conn.close()
+    return data
+
+
+def get_student_doubts(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM doubts WHERE student_id = ?", (student_id,))
+    asked = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COUNT(*) FROM doubts
+        WHERE student_id = ? AND answer IS NOT NULL AND TRIM(answer) != ''
+    """, (student_id,))
+    resolved = cursor.fetchone()[0]
+
+    conn.close()
+    return [
+        {"name": "Asked", "value": asked},
+        {"name": "Resolved", "value": resolved}
+    ]
+
+
+def get_module_progress(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM modules")
+    total_modules = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COUNT(*) FROM student_progress
+        WHERE student_id = ? AND progress >= 100
+    """, (student_id,))
+    completed = cursor.fetchone()[0]
+
+    conn.close()
+    return [
+        {"name": "Completed", "modules": completed},
+        {"name": "Remaining", "modules": total_modules - completed}
