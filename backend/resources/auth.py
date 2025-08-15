@@ -1,8 +1,8 @@
 from flask_restful import Resource, reqparse
 from flask import request
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import create_user, get_user_by_username
+from models import create_user, get_user_by_username,  update_user_password
 from utils.auth_utils import role_required, roles_required
 import sqlite3
 
@@ -68,4 +68,18 @@ class LoginAPI(Resource):
         return {'error': 'Invalid credentials'}, 401
 
 
+class UpdatePasswordAPI(Resource):
+    @jwt_required()
+    def post(self):
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('old_password', required=True)
+        parser.add_argument('new_password', required=True)
+        args = parser.parse_args()
+
+        user_id = get_jwt_identity()
+        success, message = update_user_password(user_id, args['old_password'], args['new_password'])
+
+        status_code = 200 if success else 400
+        return {"message": message}, status_code
 
