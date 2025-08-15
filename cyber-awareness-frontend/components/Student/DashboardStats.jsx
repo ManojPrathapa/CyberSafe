@@ -1,39 +1,61 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   LineChart, Line,
   PieChart, Pie, Cell,
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from "recharts";
-
-const scoreData = [
-  { name: "Module 1", score: 70 },
-  { name: "Module 2", score: 85 },
-  { name: "Module 3", score: 90 },
-  { name: "Module 4", score: 80 }
-];
-
-const timeData = [
-  { name: "Mon", mins: 20 },
-  { name: "Tue", mins: 35 },
-  { name: "Wed", mins: 40 },
-  { name: "Thu", mins: 30 },
-  { name: "Fri", mins: 50 }
-];
-
-const doubtsData = [
-  { name: "Asked", value: 3 },
-  { name: "Resolved", value: 2 }
-];
-
-const moduleProgress = [
-  { name: "Completed", modules: 4 },
-  { name: "Remaining", modules: 2 }
-];
+import { API_BASE_URL } from "@/src/app/utils/api";
+import { getToken, getUser } from "@/src/app/utils/auth";
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f7f"];
 
 export default function StudentDashboard() {
+  const [scoreData, setScoreData] = useState([]);
+  const [timeData, setTimeData] = useState([]);
+  const [doubtsData, setDoubtsData] = useState([]);
+  const [moduleProgress, setModuleProgress] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const token = getToken();
+        const user = getUser();
+        if (!user?.id) {
+          console.error("No logged-in user found");
+          return;
+        }
+
+        const res = await fetch(`${API_BASE_URL}/dashboard/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch dashboard data");
+
+        const data = await res.json();
+
+        setScoreData(data.scores || []);
+        setTimeData(data.timeSpent || []);
+        setDoubtsData(data.doubts || []);
+        setModuleProgress(data.progress || []);
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return <div className="p-8 text-purple-900">Loading dashboard...</div>;
+  }
+
   return (
     <div className="p-8 text-purple-900">
       <h2 className="text-3xl font-bold text-blue-700 mb-6">📊 Dashboard Overview</h2>
@@ -49,7 +71,15 @@ export default function StudentDashboard() {
               <Tooltip />
             </LineChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-sm">Average Score: <strong>82%</strong></p>
+          <p className="mt-2 text-sm">
+            Average Score: <strong>
+              {scoreData.length
+                ? `${(
+                    scoreData.reduce((sum, s) => sum + s.score, 0) / scoreData.length
+                  ).toFixed(1)}%`
+                : "N/A"}
+            </strong>
+          </p>
         </div>
 
         {/* Time Spent */}
@@ -63,7 +93,15 @@ export default function StudentDashboard() {
               <Bar dataKey="mins" fill="#82ca9d" />
             </BarChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-sm">Avg Time per Day: <strong>40 min</strong></p>
+          <p className="mt-2 text-sm">
+            Avg Time per Day: <strong>
+              {timeData.length
+                ? `${(
+                    timeData.reduce((sum, t) => sum + t.mins, 0) / timeData.length
+                  ).toFixed(0)} min`
+                : "N/A"}
+            </strong>
+          </p>
         </div>
 
         {/* Doubts */}
@@ -88,7 +126,11 @@ export default function StudentDashboard() {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-sm">3 Doubts Asked | 2 Resolved</p>
+          {doubtsData.length >= 2 && (
+            <p className="mt-2 text-sm">
+              {doubtsData[0].value} Doubts Asked | {doubtsData[1].value} Resolved
+            </p>
+          )}
         </div>
 
         {/* Modules Completed */}
@@ -114,7 +156,11 @@ export default function StudentDashboard() {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-sm">4 Modules Completed | 2 Remaining</p>
+          {moduleProgress.length >= 2 && (
+            <p className="mt-2 text-sm">
+              {moduleProgress[0].modules} Modules Completed | {moduleProgress[1].modules} Remaining
+            </p>
+          )}
         </div>
       </div>
     </div>
