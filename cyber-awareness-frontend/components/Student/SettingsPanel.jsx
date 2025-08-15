@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Bell, Lock, EyeOff, Send, Shield, Trash2, Edit3, Save } from "lucide-react";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 import { getUser, getToken } from "@/src/app/utils/auth";
 
 export default function SettingsPanel() {
@@ -64,7 +64,7 @@ export default function SettingsPanel() {
         },
         body: JSON.stringify({
           filed_by: user.id,
-          against: "admin",
+          against: 1, // Use user ID 1 (admin) instead of string "admin"
           description: complaint.trim(),
         }),
       });
@@ -109,7 +109,7 @@ export default function SettingsPanel() {
         },
         body: JSON.stringify({
           filed_by: user.id,
-          against: "admin",
+          against: 1, // Use user ID 1 (admin) instead of string "admin"
           description: editText.trim(),
         }),
       });

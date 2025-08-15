@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { apiHelpers, handleApiError, getUserId } from "../../src/app/utils/apiConfig";
 
@@ -13,8 +13,11 @@ export default function ParentProfile() {
     username: "parent_01"
   });
   const [editingField, setEditingField] = useState(null);
+  const [editingValue, setEditingValue] = useState("");
   const [children, setChildren] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Get user ID from JWT token or use default
   const userId = getUserId() || 1;
@@ -47,13 +50,11 @@ export default function ParentProfile() {
     }
   };
 
-  // Fetch linked children (using admin users endpoint)
+  // Fetch linked children using the real endpoint
   const fetchLinkedChildren = async () => {
     try {
-      const users = await apiHelpers.get('/admin/users');
-      // Filter for students linked to this parent
-      const studentUsers = users.filter(user => user.role === 'student');
-      return studentUsers;
+      const children = await apiHelpers.get(`/parents/children/${userId}`);
+      return children || [];
     } catch (error) {
       console.error('Error fetching linked children:', error);
       // Return fallback data if API fails
@@ -84,7 +85,8 @@ export default function ParentProfile() {
       setChildren(childrenData.map(child => ({
         id: child.id,
         name: child.username,
-        grade: "6" // This should come from student profile
+        email: child.email,
+        grade: child.age ? `Grade ${child.age}` : "Grade N/A"
       })));
 
     } catch (error) {
@@ -108,11 +110,16 @@ export default function ParentProfile() {
 
   // Handle profile update
   const handleProfileUpdate = async (field, value) => {
+    if (!value || value.trim() === "") {
+      setMessage({ type: 'error', text: `${field} cannot be empty.` });
+      return;
+    }
+
     setSaving(true);
     try {
       const updateData = {
         user_id: userId,
-        [field]: value
+        [field]: value.trim()
       };
 
       await updateProfile(updateData);
@@ -120,33 +127,62 @@ export default function ParentProfile() {
       // Update local state
       setProfile(prev => ({
         ...prev,
-        [field]: value
+        [field === 'username' ? 'name' : field]: value.trim(),
+        username: field === 'username' ? value.trim() : prev.username
       }));
       
       setEditingField(null);
+      setEditingValue("");
+      setMessage({ type: 'success', text: `${field} updated successfully!` });
+      
+      // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      setMessage({ 
+        type: 'error', 
+        text: error.message || `Failed to update ${field}. Please try again.` 
+      });
     } finally {
       setSaving(false);
     }
   };
 
-  // Handle remove child
-  const handleRemoveChild = (id) => {
-    setChildren(children.filter(child => child.id !== id));
-    // TODO: Implement API call to unlink child from parent
+  // Handle edit field start
+  const handleEditStart = (field) => {
+    setEditingField(field);
+    setEditingValue(profile[field === 'username' ? 'name' : field]);
+    setMessage(null);
   };
 
-  // Handle add child
-  const handleAddChild = () => {
-    const newChild = {
-      id: children.length + 1,
-      name: `Child_${children.length + 1}`,
-      grade: "7"
-    };
-    setChildren([...children, newChild]);
-    // TODO: Implement API call to link child to parent
+  // Handle edit cancel
+  const handleEditCancel = () => {
+    setEditingField(null);
+    setEditingValue("");
+    setMessage(null);
+  };
+
+  // Handle picture change
+  const handlePictureChange = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Handle file selection
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // For now, just show a message since we don't have backend support for file uploads
+      setMessage({ 
+        type: 'info', 
+        text: 'Picture upload functionality will be implemented soon. Selected file: ' + file.name 
+      });
+      
+      // Clear the file input
+      event.target.value = '';
+      
+      // Clear message after 5 seconds
+      setTimeout(() => setMessage(null), 5000);
+    }
   };
 
   // Load data on component mount
@@ -189,6 +225,19 @@ export default function ParentProfile() {
     <div className="p-8 text-purple-900 min-h-screen">
       <h2 className="text-3xl font-bold text-purple-700 mb-6">👨‍👩‍👦 Your Profile</h2>
 
+      {/* Message Display */}
+      {message && (
+        <div className={`mb-6 p-4 rounded-lg border ${
+          message.type === 'error' 
+            ? 'bg-red-50 border-red-200 text-red-700' 
+            : message.type === 'info'
+            ? 'bg-blue-50 border-blue-200 text-blue-700'
+            : 'bg-green-50 border-green-200 text-green-700'
+        }`}>
+          {message.text}
+        </div>
+      )}
+
       {/* Profile Section */}
       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
         {/* Profile Picture */}
@@ -196,7 +245,19 @@ export default function ParentProfile() {
           <div className="w-32 h-32 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 font-bold text-xl shadow">
             {profile.name.charAt(0).toUpperCase()}
           </div>
-          <button className="mt-2 text-sm text-blue-600 hover:underline">Change Picture</button>
+          <button 
+            onClick={handlePictureChange}
+            className="mt-2 text-sm text-blue-600 hover:underline"
+          >
+            Change Picture
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
         </div>
 
         {/* Info Boxes */}
@@ -208,27 +269,43 @@ export default function ParentProfile() {
                 <input
                   type="text"
                   className="flex-1 border px-2 py-1 rounded"
-                  value={profile.name}
-                  onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-                  onBlur={() => setEditingField(null)}
+                  value={editingValue}
+                  onChange={(e) => setEditingValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleProfileUpdate('username', editingValue);
+                    } else if (e.key === 'Escape') {
+                      handleEditCancel();
+                    }
+                  }}
+                  autoFocus
                 />
                 <button
-                  onClick={() => handleProfileUpdate('username', profile.name)}
+                  onClick={() => handleProfileUpdate('username', editingValue)}
                   disabled={saving}
                   className="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : 'Save'}
                 </button>
+                <button
+                  onClick={handleEditCancel}
+                  disabled={saving}
+                  className="text-sm bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
               </div>
             ) : (
               <p><strong>Name:</strong> {profile.name}</p>
             )}
-            <button
-              className="text-sm text-blue-600 hover:underline ml-4"
-              onClick={() => setEditingField("name")}
-            >
-              Change
-            </button>
+            {editingField !== "name" && (
+              <button
+                className="text-sm text-blue-600 hover:underline ml-4"
+                onClick={() => handleEditStart("name")}
+              >
+                Change
+              </button>
+            )}
           </div>
 
           {/* Email */}
@@ -238,54 +315,67 @@ export default function ParentProfile() {
                 <input
                   type="email"
                   className="flex-1 border px-2 py-1 rounded"
-                  value={profile.email}
-                  onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
-                  onBlur={() => setEditingField(null)}
+                  value={editingValue}
+                  onChange={(e) => setEditingValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleProfileUpdate('email', editingValue);
+                    } else if (e.key === 'Escape') {
+                      handleEditCancel();
+                    }
+                  }}
+                  autoFocus
                 />
                 <button
-                  onClick={() => handleProfileUpdate('email', profile.email)}
+                  onClick={() => handleProfileUpdate('email', editingValue)}
                   disabled={saving}
                   className="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : 'Save'}
                 </button>
+                <button
+                  onClick={handleEditCancel}
+                  disabled={saving}
+                  className="text-sm bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
               </div>
             ) : (
               <p><strong>Email:</strong> {profile.email}</p>
             )}
-            <button
-              className="text-sm text-blue-600 hover:underline ml-4"
-              onClick={() => setEditingField("email")}
-            >
-              Change
-            </button>
+            {editingField !== "email" && (
+              <button
+                className="text-sm text-blue-600 hover:underline ml-4"
+                onClick={() => handleEditStart("email")}
+              >
+                Change
+              </button>
+            )}
           </div>
 
-          {/* Linked Children */}
+          {/* Linked Children - Read Only */}
           <div className="bg-white border border-purple-300 rounded p-4 shadow">
             <h3 className="text-lg font-semibold text-purple-700 mb-2">👶 Linked Children</h3>
-            {children.map(child => (
-              <div
-                key={child.id}
-                className="flex justify-between items-center text-sm bg-purple-50 p-2 rounded mb-2"
-              >
-                <p>
-                  <strong>{child.name}</strong> – Grade {child.grade}
-                </p>
-                <button
-                  onClick={() => handleRemoveChild(child.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs"
+            {children.length === 0 ? (
+              <p className="text-gray-500 text-sm">No children linked yet. Go to Settings to add children.</p>
+            ) : (
+              children.map(child => (
+                <div
+                  key={child.id}
+                  className="text-sm bg-purple-50 p-3 rounded mb-2"
                 >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <button
-              onClick={handleAddChild}
-              className="mt-2 text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-            >
-              ➕ Add Child
-            </button>
+                  <div>
+                    <p className="font-semibold text-gray-900">{child.name}</p>
+                    {child.email && <p className="text-gray-600 text-xs">{child.email}</p>}
+                    <p className="text-gray-600 text-xs">{child.grade}</p>
+                  </div>
+                </div>
+              ))
+            )}
+            <p className="text-xs text-gray-500 mt-2">
+              💡 Go to <strong>Settings → Manage Linked Children</strong> to add or remove children
+            </p>
           </div>
         </div>
       </div>

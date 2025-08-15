@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Pencil, Save, UploadCloud, User } from "lucide-react";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 import { getToken, getUser, saveAuth } from "@/src/app/utils/auth";
 
 export default function ProfileCard() {

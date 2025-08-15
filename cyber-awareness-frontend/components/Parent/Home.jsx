@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { apiHelpers, handleApiError } from "../../src/app/utils/apiConfig";
+import { useRouter } from "next/navigation";
+import { apiHelpers, handleApiError, isAuthenticated } from "../../src/app/utils/apiConfig";
 
 export default function ParentHome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [topics, setTopics] = useState([]);
+  const router = useRouter();
 
   // Fetch tips from backend using API helpers
   const fetchTopics = async () => {
@@ -34,6 +35,22 @@ export default function ParentHome() {
     const loadTopics = async () => {
       setLoading(true);
       setError(null);
+      
+      // Check if user is authenticated
+      if (!isAuthenticated()) {
+        console.log('ParentHome: User not authenticated, showing fallback topics');
+        setTopics([
+          { title: "Protection from cyberattacks", content: "Learn about protecting against various cyber threats." },
+          { title: "Maintaining confidentiality", content: "Understand how to keep information secure." },
+          { title: "Ensuring data integrity", content: "Learn about data protection and validation." },
+          { title: "System availability", content: "Understand system security and uptime." },
+          { title: "Tools: firewalls, anti-malware", content: "Learn about security tools and software." },
+          { title: "Cybersecurity policies", content: "Understand organizational security policies." },
+          { title: "Educating & training children", content: "Learn how to teach children about online safety." }
+        ]);
+        setLoading(false);
+        return;
+      }
       
       try {
         const topicsData = await fetchTopics();
@@ -124,12 +141,9 @@ export default function ParentHome() {
             <p className="text-sm text-gray-600 mt-2">
               {topic.content || `Learn about: ${topic.title || topic}.`}
             </p>
-            <Link
-              href={`/parent?section=content`}
-              className="text-purple-700 text-sm mt-3 inline-block hover:underline"
-            >
+        
               Explore →
-            </Link>
+      
           </div>
         ))}
       </div>

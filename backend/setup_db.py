@@ -215,6 +215,19 @@ CREATE TABLE IF NOT EXISTS alerts (
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     isDeleted BOOLEAN DEFAULT 0
 );
+
+-- USER PREFERENCES
+CREATE TABLE IF NOT EXISTS user_preferences (
+    user_id INTEGER PRIMARY KEY,
+    theme TEXT DEFAULT 'system',
+    notification_email BOOLEAN DEFAULT 1,
+    notification_push BOOLEAN DEFAULT 1,
+    notification_sms BOOLEAN DEFAULT 0,
+    frequency TEXT DEFAULT 'immediate',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
 """)
 
 conn.commit()

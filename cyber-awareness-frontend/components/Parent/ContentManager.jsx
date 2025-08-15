@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiHelpers, handleApiError, getUserId } from "../../src/app/utils/apiConfig";
+import { apiHelpers, handleApiError, getUserId, isAuthenticated } from "../../src/app/utils/apiConfig";
 
 export default function ParentTips() {
   const [showHelpline, setShowHelpline] = useState(false);
@@ -14,21 +14,21 @@ export default function ParentTips() {
   // Get parent ID from JWT token or use default
   const parentId = getUserId() || 1;
 
-  // Fetch tips from backend using API helpers
-  const fetchTips = async () => {
+  // Fetch tips with viewed status from backend using API helpers
+  const fetchTipsWithViewedStatus = async () => {
     try {
-      const tipsData = await apiHelpers.get('/tips');
+      const tipsData = await apiHelpers.get(`/tips/with-viewed-status/${parentId}`);
       return tipsData;
     } catch (error) {
-      console.error('Error fetching tips:', error);
+      console.error('Error fetching tips with viewed status:', error);
       // Return fallback tips if API fails
       return handleApiError(error, [
-        { tip_id: 1, title: "Strong Passwords", content: "Use strong, unique passwords for each account.", category: "Security" },
-        { tip_id: 2, title: "Software Updates", content: "Keep software and antivirus tools updated.", category: "Maintenance" },
-        { tip_id: 3, title: "Online Safety Rules", content: "Discuss online safety rules with your children regularly.", category: "Communication" },
-        { tip_id: 4, title: "Screen Time Monitoring", content: "Monitor screen time and online behavior.", category: "Monitoring" },
-        { tip_id: 5, title: "Parental Controls", content: "Enable parental controls on devices.", category: "Controls" },
-        { tip_id: 6, title: "Suspicious Links", content: "Teach kids to avoid suspicious links and messages.", category: "Education" }
+        { tip_id: 1, title: "Strong Passwords", content: "Use strong, unique passwords for each account.", category: "Security", is_viewed: false },
+        { tip_id: 2, title: "Software Updates", content: "Keep software and antivirus tools updated.", category: "Maintenance", is_viewed: false },
+        { tip_id: 3, title: "Online Safety Rules", content: "Discuss online safety rules with your children regularly.", category: "Communication", is_viewed: false },
+        { tip_id: 4, title: "Screen Time Monitoring", content: "Monitor screen time and online behavior.", category: "Monitoring", is_viewed: false },
+        { tip_id: 5, title: "Parental Controls", content: "Enable parental controls on devices.", category: "Controls", is_viewed: false },
+        { tip_id: 6, title: "Suspicious Links", content: "Teach kids to avoid suspicious links and messages.", category: "Education", is_viewed: false }
       ]);
     }
   };
@@ -46,6 +46,15 @@ export default function ParentTips() {
       // Update local state
       setViewedTips(prev => new Set([...prev, tipId]));
       
+      // Update the tip in the tips array to mark it as viewed
+      setTips(prevTips => 
+        prevTips.map(tip => 
+          tip.tip_id === tipId 
+            ? { ...tip, is_viewed: true }
+            : tip
+        )
+      );
+      
     } catch (error) {
       console.error('Error marking tip as viewed:', error);
       // Still update local state for better UX
@@ -59,9 +68,34 @@ export default function ParentTips() {
       setLoading(true);
       setError(null);
       
+      // Check if user is authenticated
+      if (!isAuthenticated()) {
+        console.log('ContentManager: User not authenticated, showing fallback tips');
+        setTips([
+          { tip_id: 1, title: "Strong Passwords", content: "Use strong, unique passwords for each account.", category: "Security", is_viewed: false },
+          { tip_id: 2, title: "Software Updates", content: "Keep software and antivirus tools updated.", category: "Maintenance", is_viewed: false },
+          { tip_id: 3, title: "Online Safety Rules", content: "Discuss online safety rules with your children regularly.", category: "Communication", is_viewed: false },
+          { tip_id: 4, title: "Screen Time Monitoring", content: "Monitor screen time and online behavior.", category: "Monitoring", is_viewed: false },
+          { tip_id: 5, title: "Parental Controls", content: "Enable parental controls on devices.", category: "Controls", is_viewed: false },
+          { tip_id: 6, title: "Suspicious Links", content: "Teach kids to avoid suspicious links and messages.", category: "Education", is_viewed: false }
+        ]);
+        setLoading(false);
+        return;
+      }
+      
       try {
-        const tipsData = await fetchTips();
+        const tipsData = await fetchTipsWithViewedStatus();
         setTips(tipsData);
+        
+        // Initialize viewed tips set from the API response
+        const viewedTipIds = new Set();
+        tipsData.forEach(tip => {
+          if (tip.is_viewed) {
+            viewedTipIds.add(tip.tip_id);
+          }
+        });
+        setViewedTips(viewedTipIds);
+        
       } catch (error) {
         console.error('Error loading tips:', error);
         setError('Failed to load tips. Please try again.');
@@ -115,30 +149,34 @@ export default function ParentTips() {
 
       {/* Tips as interactive boxes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {tips.map((tip, index) => (
-          <div
-            key={tip.tip_id || index}
-            className={`border rounded-lg p-4 shadow hover:shadow-md transition cursor-pointer ${
-              viewedTips.has(tip.tip_id) 
-                ? 'bg-green-50 border-green-300' 
-                : 'bg-white border-purple-200 hover:bg-purple-50'
-            }`}
-            onClick={() => handleTipClick(tip.tip_id)}
-          >
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="font-semibold text-lg text-black">{tip.title || tip.content}</h3>
-              {viewedTips.has(tip.tip_id) && (
-                <span className="text-green-600 text-sm">✓ Viewed</span>
+        {tips.map((tip, index) => {
+          const isViewed = tip.is_viewed || viewedTips.has(tip.tip_id);
+          
+          return (
+            <div
+              key={tip.tip_id || index}
+              className={`border rounded-lg p-4 shadow hover:shadow-md transition cursor-pointer ${
+                isViewed 
+                  ? 'bg-green-50 border-green-300' 
+                  : 'bg-white border-purple-200 hover:bg-purple-50'
+              }`}
+              onClick={() => handleTipClick(tip.tip_id)}
+            >
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="font-semibold text-lg text-black">{tip.title || tip.content}</h3>
+                {isViewed && (
+                  <span className="text-green-600 text-sm">✓ Viewed</span>
+                )}
+              </div>
+              <p className="text-sm text-gray-600">{tip.content}</p>
+              {tip.category && (
+                <span className="inline-block mt-2 px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded">
+                  {tip.category}
+                </span>
               )}
             </div>
-            <p className="text-sm text-gray-600">{tip.content}</p>
-            {tip.category && (
-              <span className="inline-block mt-2 px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded">
-                {tip.category}
-              </span>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Video Button */}

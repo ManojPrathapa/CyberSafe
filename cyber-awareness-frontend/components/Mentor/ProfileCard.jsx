@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Pencil, Save, UploadCloud, User } from "lucide-react";
 import { getToken } from "@/src/app/utils/auth";
 import { getUser } from "@/src/app/utils/auth";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 
 export default function ProfileCard() {
   const [editable, setEditable] = useState(false);
@@ -13,6 +13,7 @@ export default function ProfileCard() {
   const handleChange = (field, value) => {
     setProfile({ ...profile, [field]: value });
   };
+
   const Profile_Details = async () => {
     try {
       const token = getToken();

@@ -92,6 +92,7 @@ from flask_jwt_extended import jwt_required
 from models import (
     file_complaint,
     get_complaints,
+    get_complaints_by_user,
     resolve_complaint,
     soft_delete_complaint
 )
@@ -123,9 +124,9 @@ class FileComplaintAPI(Resource):
 
         # Trigger notification for the user who filed the complaint
         send_notification(
-            event_type="complaint_filed",
+            event_type="complaint_raised",
             related_id=complaint_id,
-            user_id=args['filed_by'],
+            student_id=args['filed_by'],
             message="Your complaint has been filed successfully."
         )
 
@@ -154,8 +155,19 @@ class ResolveComplaintAPI(Resource):
         send_notification(
             event_type="complaint_resolved",
             related_id=args['complaint_id'],
-            user_id=args['filed_by'],
+            student_id=args['filed_by'],
             message="Your complaint has been resolved."
         )
 
         return {'message': 'Complaint resolved'}
+
+
+class UserComplaintsAPI(Resource):
+    @jwt_required()
+    def get(self, user_id):
+        """Get all complaints filed by a specific user"""
+        try:
+            complaints = get_complaints_by_user(user_id)
+            return [dict(c) for c in complaints], 200
+        except Exception as e:
+            return {"error": str(e)}, 500

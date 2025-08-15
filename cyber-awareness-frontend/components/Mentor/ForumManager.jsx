@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Send, MessageSquare, ThumbsUp, Trash2, Reply } from "lucide-react";
 import { getToken } from "@/src/app/utils/auth";
 import { getUser } from "@/src/app/utils/auth";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 
 export default function ForumManager() {
   const [doubts, setDoubts] = useState([]);
@@ -21,7 +21,7 @@ export default function ForumManager() {
       }
       const user = getUser();
       console.log(user);
-      const res = await fetch(`${API_BASE_URL}/api/doubts/${user.id}`, {
+      const res = await fetch(`${API_BASE_URL}/doubts/${user.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default function ForumManager() {
       }
 
       // Send reply to backend
-      const res = await fetch(`${API_BASE_URL}/api/doubt/reply`, {
+      const res = await fetch(`${API_BASE_URL}/doubt/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

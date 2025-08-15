@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { getToken } from "@/src/app/utils/auth";
 import { getUser } from "@/src/app/utils/auth";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 import { ChevronDown, UploadCloud, FilePlus } from "lucide-react";
 
 export default function ContentManager() {
@@ -41,7 +41,7 @@ export default function ContentManager() {
       }
       const user = getUser();
       console.log(user);
-      const res = await fetch(`${API_BASE_URL}/api/modules/${user.id}`, {
+      const res = await fetch(`${API_BASE_URL}/modules/${user.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +80,7 @@ export default function ContentManager() {
         resource_link: Resource_Link,
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/modules/upload`, {
+      const response = await fetch(`${API_BASE_URL}/modules/upload`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

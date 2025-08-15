@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { Trash2 } from "lucide-react";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 //import { saveAuth } from "@/src/app/utils/auth";
 import { getToken } from "@/src/app/utils/auth";
 
@@ -73,7 +73,7 @@ export default function QuizManager() {
 
     try {
       const token = getToken();
-      const res = await fetch(`${API_BASE_URL}/api/quiz/create`, {
+      const res = await fetch(`${API_BASE_URL}/quiz/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -106,7 +106,7 @@ export default function QuizManager() {
           console.error("No token found. Please log in.");
           return;
         }
-                const res = await fetch(`${API_BASE_URL}/api/quiz/2`, {
+                const res = await fetch(`${API_BASE_URL}/quiz/2`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
