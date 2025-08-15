@@ -276,7 +276,7 @@ export default function DashboardStats() {
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Area
@@ -287,7 +287,7 @@ export default function DashboardStats() {
               />
             </AreaChart>
           </ResponsiveContainer>
-          <p>Maybe some other content</p>
+          <p>Content Likes</p>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart
               width={500}
@@ -302,7 +302,7 @@ export default function DashboardStats() {
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Area

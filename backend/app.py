@@ -16,7 +16,7 @@ from resources.auth import RegisterAPI, LoginAPI, UpdatePasswordAPI
 from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI, ModuleWithContentAPI
 from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI
 from resources.doubts import AskDoubtAPI, MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI
-from resources.notifications import NotificationAPI
+#from resources.notifications import NotificationAPI
 from resources.mentor_dashboard import VideoStatusAPI,DoubtStatusAPI,VideoStatusAPI_2,VideoStatusAPI_3
 from resources.attempts import StudentAttemptsAPI
 from resources.reports import StudentReportAPI, DeleteReportAPI
@@ -30,7 +30,7 @@ from resources.admin import (
     BlockUserAPI, UnblockUserAPI
 )
 from resources.alerts import AlertPostAPI, DeleteAlertAPI
-from resources.profile import ProfileAPI, EditProfileAPI
+from resources.profile import ProfileAPI, EditProfileAPI,EditProfileAPI_Mentor
 from resources.activity import StudentActivityAPI
 from resources.studentDashboard import StudentDashboardAPI
 
@@ -122,6 +122,7 @@ api.add_resource(DeleteAlertAPI, '/api/alerts/delete/<int:alert_id>')
 # Profile
 api.add_resource(ProfileAPI, '/api/profile/<int:user_id>')
 api.add_resource(EditProfileAPI, '/api/profile/edit')
+api.add_resource(EditProfileAPI_Mentor, '/api/profile/mentor/edit')
 
 # Activity
 api.add_resource(StudentActivityAPI, '/api/activity/<int:student_id>')

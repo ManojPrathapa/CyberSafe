@@ -1176,3 +1176,72 @@ def get_mentor_doubt_status(user_id):
     mentor_doubts=conn.execute("SELECT * FROM doubts WHERE mentor_id= ? AND isDeleted = 0",(user_id,)).fetchall()
     conn.close()
     return mentor_doubts
+
+
+#--------------MENTOR PROFILE-------------------------------------#
+
+def update_mentor_profile_details(args):
+    conn = get_db_connection()
+
+    #  Check if user exists
+    cur = conn.execute("SELECT id FROM users WHERE id = ?", (args['user_id'],))
+    user = cur.fetchone()
+    if not user:
+        conn.close()
+        raise ValueError("User not found")
+
+    #  Check email uniqueness
+    if args.get("email"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE email = ? AND id != ?",
+            (args["email"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Email already in use by another account")
+
+    #  Check username uniqueness
+    if args.get("username"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE username = ? AND id != ?",
+            (args["username"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Username already in use by another account")
+
+    #  Prepare update fields
+    fields = []
+    values = []
+    for field in ['username', 'email']:
+        if args.get(field):
+            fields.append(f"{field} = ?")
+            values.append(args.get(field))
+    
+
+
+    # Update only if there’s something to update
+    if fields:
+        values.append(args['user_id'])
+        conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
+        conn.commit()
+        
+        
+    #  Prepare additional update fields
+        
+    fields_2 = []
+    values_2 = []
+    for field_2 in ['expertise', 'experience_years']:
+        if args.get(field_2):
+            fields_2.append(f"{field_2} = ?")
+            values_2.append(args.get(field_2))
+
+            
+    # Update only if there’s something to update
+    if fields_2:
+        values_2.append(args['user_id'])
+        conn.execute(f"UPDATE mentors SET {', '.join(fields_2)} WHERE user_id = ?", values_2)
+        conn.commit()
+        
+    conn.close()
+
