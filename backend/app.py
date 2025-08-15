@@ -17,7 +17,7 @@ from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI, M
 from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI
 from resources.doubts import AskDoubtAPI, MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI
 from resources.notifications import NotificationAPI
-from resources.mentor_dashboard import VideoStatusAPI,DoubtStatusAPI
+from resources.mentor_dashboard import VideoStatusAPI,DoubtStatusAPI,VideoStatusAPI_2,VideoStatusAPI_3
 from resources.attempts import StudentAttemptsAPI
 from resources.reports import StudentReportAPI, DeleteReportAPI
 from resources.tips import TipListAPI, ParentViewedTipsAPI, MarkTipViewedAPI, DeleteTipAPI
@@ -131,6 +131,8 @@ api.add_resource(StudentDashboardAPI, "/api/dashboard/<int:student_id>")
 
 # Mentor Dashboard APIs
 api.add_resource(VideoStatusAPI,'/api/videostatus/<int:user_id>')
+api.add_resource(VideoStatusAPI_2,'/api/videostatus_2/<int:user_id>')
+api.add_resource(VideoStatusAPI_3,'/api/videostatus_3/<int:user_id>')
 #api.add_resource(QuizStatusAPI,'/api/quizstatus/<int:user_id'>)
 api.add_resource(DoubtStatusAPI,'/api/doubtstatus/<int:user_id>')
 

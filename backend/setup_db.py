@@ -70,10 +70,12 @@ CREATE TABLE IF NOT EXISTS videos (
     views INTEGER DEFAULT 0,
     likes INTEGER DEFAULT 0,
     isDeleted BOOLEAN DEFAULT 0,
-    timestamp TEXT,
+    isApproved BOOLEAN DEFAULT 0,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(uploaded_by) REFERENCES users(id),
     FOREIGN KEY(mentor_id) REFERENCES mentors(user_id),
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
+    
 );
 
                      

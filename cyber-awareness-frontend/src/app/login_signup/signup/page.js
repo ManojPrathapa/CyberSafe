@@ -99,7 +99,7 @@ export default function SignupPage() {
                 <option value="">Select Role</option>
                 <option value="parent">Parent</option>
                 <option value="student">Student</option>
-                <option value="trainer">Trainer</option>
+                <option value="mentor">Mentor</option>
               </select>
             </div>
 
