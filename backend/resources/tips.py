@@ -42,23 +42,17 @@ class DeleteTipAPI(Resource):
     @jwt_required()
     def delete(self, tip_id):
         """Soft delete a tip by ID (JWT required)"""
-        try:
-            result = soft_delete_tip(tip_id)
+        result = soft_delete_tip(tip_id)
+        if result:
             return {'message': f'Tip {tip_id} deleted successfully'}, 200
-        except ValueError as e:
-            return {'error': str(e)}, 404
-        except Exception as e:
-            return {'error': str(e)}, 500
+        return {'message': f'Tip {tip_id} not found or already deleted'}, 404
 
 
 class TipListAPI(Resource):
     @jwt_required()
     def get(self):
         """Get all tips (JWT required)"""
-        try:
-            return [dict(t) for t in get_all_tips()], 200
-        except Exception as e:
-            return {'error': str(e)}, 500
+        return [dict(t) for t in get_all_tips()]
 
 
 class ParentViewedTipsAPI(Resource):
@@ -66,8 +60,9 @@ class ParentViewedTipsAPI(Resource):
     def get(self, parent_id):
         """Get all tips viewed by a specific parent (JWT required)"""
         try:
-            tips = get_viewed_tips_by_parent(parent_id)
-            return [dict(t) for t in tips], 200
+            return [dict(t) for t in get_viewed_tips_by_parent(parent_id)], 200
+        except ValueError as e:
+            return {'error': str(e)}, 404
         except Exception as e:
             return {'error': str(e)}, 500
 
@@ -80,12 +75,5 @@ class MarkTipViewedAPI(Resource):
         parser.add_argument('parent_id', required=True, type=int)
         parser.add_argument('tip_id', required=True, type=int)
         args = parser.parse_args()
-
-        try:
-            mark_tip_viewed(args['parent_id'], args['tip_id'])
-            return {'message': 'Tip marked as viewed'}, 201
-        except ValueError as e:
-            return {'error': str(e)}, 404
-        except Exception as e:
-            return {'error': str(e)}, 500
-
+        mark_tip_viewed(args['parent_id'], args['tip_id'])
+        return {'message': 'Tip marked as viewed'}, 201

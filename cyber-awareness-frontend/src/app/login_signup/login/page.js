@@ -15,7 +15,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-              const res = await fetch(`${API_BASE_URL}/login`, {
+      const res = await fetch(`${API_BASE_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -26,6 +26,11 @@ export default function LoginPage() {
       if (res.ok) {
         // Save token and user info
         saveAuth(data.access_token, data.user);
+
+
+        
+        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
         setMessage("Login successful! Redirecting...");
 
