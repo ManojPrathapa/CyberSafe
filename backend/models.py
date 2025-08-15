@@ -477,10 +477,9 @@ def get_viewed_tips_by_parent(parent_id):
         WHERE v.parent_id = ?
     """, (parent_id,)).fetchall()
     conn.close()
-    
-    if not rows:
-        raise ValueError(f"No viewed tips found for parent_id {parent_id}. It may not exist.")
-    
+
+        # Return empty list instead of raising error if no viewed tips found
+
     return rows
 
 def mark_tip_viewed(parent_id, tip_id):
@@ -1063,6 +1062,5 @@ def get_all_alerts():
     alerts = conn.execute("SELECT * FROM alerts WHERE isDeleted = 0").fetchall()
     conn.close()
     return alerts
-
 
 

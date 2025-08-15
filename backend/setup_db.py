@@ -52,27 +52,35 @@ CREATE TABLE IF NOT EXISTS modules (
     mentor_id INTEGER,
     title TEXT,
     description TEXT,
-    video_url TEXT,
-    resource_link TEXT,
     approved BOOLEAN DEFAULT 0,
     isDeleted BOOLEAN DEFAULT 0
 );
 
 
 -- VIDEOS
+
+
 CREATE TABLE IF NOT EXISTS videos (
     video_id INTEGER PRIMARY KEY,
     title TEXT,
     description TEXT,
     uploaded_by INTEGER,
+    mentor_id INTEGER,
+    module_id INTEGER,
     views INTEGER DEFAULT 0,
     likes INTEGER DEFAULT 0,
-    module_id INTEGER,
     isDeleted BOOLEAN DEFAULT 0,
-    FOREIGN KEY(uploaded_by) REFERENCES mentors(user_id),
+    timestamp TEXT,
+    FOREIGN KEY(uploaded_by) REFERENCES users(id),
+    FOREIGN KEY(mentor_id) REFERENCES mentors(user_id),
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
 );
 
+                     
+
+
+                   
+                     
 -- QUIZZES
 CREATE TABLE IF NOT EXISTS quizzes (
     quiz_id INTEGER PRIMARY KEY,
@@ -139,25 +147,31 @@ CREATE TABLE IF NOT EXISTS doubts (
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
 );
 
--- NOTIFICATIONS
 CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY,
     user_id INTEGER,
+    type TEXT,                   -- alert, doubt, complaint, quiz, admin, mentor
+    related_id INTEGER,          -- link to alerts/doubts/complaints/quizzes
     message TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    isRead BOOLEAN DEFAULT 0,
     isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+
 -- COMPLAINTS
 CREATE TABLE IF NOT EXISTS complaints (
     complaint_id INTEGER PRIMARY KEY,
-    filed_by TEXT,
-    against TEXT,
+    filed_by INTEGER,        -- user_id of student/parent/mentor
+    against INTEGER,         -- user_id of the person/system/admin
     description TEXT,
     status TEXT,
-    isDeleted BOOLEAN DEFAULT 0
+    isDeleted BOOLEAN DEFAULT 0,
+    FOREIGN KEY(filed_by) REFERENCES users(id),
+    FOREIGN KEY(against) REFERENCES users(id)
 );
+
 
 -- REPORTS
 CREATE TABLE IF NOT EXISTS reports (

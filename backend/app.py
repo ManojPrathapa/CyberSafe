@@ -13,10 +13,10 @@ load_dotenv()
 
 
 from resources.auth import RegisterAPI, LoginAPI
-from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI
+from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI, ModuleWithContentAPI
 from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI
 from resources.doubts import AskDoubtAPI, MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI
-from resources.notifications import NotificationAPI
+#from resources.notifications import NotificationAPI
 from resources.attempts import StudentAttemptsAPI
 from resources.reports import StudentReportAPI, DeleteReportAPI
 from resources.tips import TipListAPI, ParentViewedTipsAPI, MarkTipViewedAPI, DeleteTipAPI
@@ -31,6 +31,11 @@ from resources.admin import (
 from resources.alerts import AlertPostAPI, DeleteAlertAPI
 from resources.profile import ProfileAPI, EditProfileAPI
 from resources.activity import StudentActivityAPI
+from resources.videos import (
+    VideoListAPI, VideoAPI, VideoBlockAPI, VideoUnblockAPI,
+    VideoViewAPI, VideoLikeAPI
+)
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -61,6 +66,8 @@ api.add_resource(LoginAPI, '/api/login')
 api.add_resource(ModuleListAPI, '/api/modules')
 api.add_resource(UploadModuleAPI, '/api/modules/upload')
 api.add_resource(DeleteModuleAPI, '/api/modules/delete/<int:module_id>')
+api.add_resource(ModuleWithContentAPI, "/api/modules_with_content")
+
 
 # Quizzes
 api.add_resource(QuizAPI, '/api/quiz/<int:quiz_id>')
@@ -75,10 +82,22 @@ api.add_resource(ReplyToDoubtAPI, '/api/doubt/reply')
 api.add_resource(DeleteDoubtAPI, '/api/doubt/delete/<int:doubt_id>')
 
 # Notifications
-api.add_resource(NotificationAPI, '/api/notifications/<int:user_id>')
+'''api.add_resource(NotificationAPI, '/api/notifications/<int:user_id>')'''
+from resources.notifications import NotificationListAPI, NotificationDetailAPI
+# Register Notification endpoints
+api.add_resource(NotificationListAPI, "/notifications/<int:user_id>", "/notifications")
+api.add_resource(NotificationDetailAPI, "/notifications/<int:notif_id>")
 
 # Attempts
 api.add_resource(StudentAttemptsAPI, '/api/student/<int:student_id>/attempts')
+
+#Videos
+api.add_resource(VideoListAPI, '/videos')
+api.add_resource(VideoAPI, '/videos/<int:video_id>')
+api.add_resource(VideoBlockAPI, '/videos/<int:video_id>/block')
+api.add_resource(VideoUnblockAPI, '/videos/<int:video_id>/unblock')
+api.add_resource(VideoViewAPI, '/videos/<int:video_id>/view')
+api.add_resource(VideoLikeAPI, '/videos/<int:video_id>/like')
 
 # Reports
 api.add_resource(StudentReportAPI, '/api/reports/<int:student_id>')
@@ -118,7 +137,6 @@ api.add_resource(StudentActivityAPI, '/api/activity/<int:student_id>')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)
-
 
 
 
