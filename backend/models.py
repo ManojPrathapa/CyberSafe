@@ -371,14 +371,15 @@ from db import get_db_connection
 
 # ------------------- VIDEOS -------------------
 
-def create_video(title, description, uploaded_by, mentor_id, module_id):
+def create_video(title, description, uploaded_by, mentor_id, module_id,video_url):
     conn = get_db_connection()
     conn.execute("""
-        INSERT INTO videos (title, description, uploaded_by, mentor_id, module_id, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (title, description, uploaded_by, mentor_id, module_id, datetime.datetime.now()))
+        INSERT INTO videos (title, description, uploaded_by, mentor_id, module_id,video_url,timestamp)
+        VALUES (?, ?, ?, ?, ?, ?,?)
+    """, (title, description, uploaded_by, mentor_id, module_id,video_url, datetime.datetime.now()))
     conn.commit()
     conn.close()
+    
 
 def get_all_videos():
     conn = get_db_connection()
@@ -1793,3 +1794,30 @@ def update_mentor_profile_details(args):
         conn.commit()
         
     conn.close()
+    
+def get_mentor_videos(user_id):
+    conn = get_db_connection()
+    mentor_videos = conn.execute(" SELECT * FROM videos  WHERE mentor_id =? AND isDeleted = 0",(user_id,)).fetchall()
+    print(type(mentor_videos))   
+    mentor_video_list=[]
+    for video in mentor_videos:
+        modified_video_url="http://127.0.0.1:5050/backend"+str(video["video_url"])
+        data={
+        "video_id":video["video_id"],
+        "title":video["title"],
+        "description":video["description"],
+        "uploaded_by":video["uploaded_by"],
+        "mentor_id":video["mentor_id"],
+        "module_id":video["module_id"],
+        "views":video["views"],
+        "likes":video["likes"],
+        "video_url":modified_video_url,
+        "isDeleted":video["isDeleted"],
+        "isApproved":video["isApproved"],
+        "timestamp":video["timestamp"]
+        }
+        mentor_video_list.append(data)
+    print(mentor_video_list)
+        
+    conn.close()
+    return mentor_video_list

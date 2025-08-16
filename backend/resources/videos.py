@@ -1,10 +1,17 @@
+import os
+import datetime
+from flask import request
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
 from models import (
     create_video, get_all_videos, get_video_by_id,
     update_video, block_video, unblock_video, delete_video,
-    increment_video_views, increment_video_likes
+    increment_video_views, increment_video_likes,get_mentor_videos
 )
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "static", "videos")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True) 
+
+print(UPLOAD_FOLDER)
 
 # Parser for video creation & update
 video_parser = reqparse.RequestParser()
@@ -23,15 +30,40 @@ class VideoListAPI(Resource):
     @jwt_required()
     def post(self):
         """Add a new video"""
-        args = video_parser.parse_args()
+        print("PATH_NAME:",UPLOAD_FOLDER)
+        #args = video_parser.parse_args()
+        #create_video(
+        #    args['title'],
+        #    args.get('description', ''),
+        #    args['uploaded_by'],
+        #    args['mentor_id'],
+        #    args['module_id']
+        #)
+        title=request.form.get("title")
+        description = request.form.get("description")
+        uploaded_by = request.form.get("uploaded_by")
+        mentor_id = request.form.get("mentor_id")
+        module_id = request.form.get("module_id")  
+        video_file = request.files.get("video")
+        if not video_file:
+            return {"error": "No video file uploaded"}, 400
+        
+        filename = f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_{video_file.filename}"
+        save_path = os.path.join(UPLOAD_FOLDER, filename)
+        video_file.save(save_path)
+        video_url = f"/static/videos/{filename}"
         create_video(
-            args['title'],
-            args.get('description', ''),
-            args['uploaded_by'],
-            args['mentor_id'],
-            args['module_id']
+            title,
+            description,
+            uploaded_by,
+            mentor_id,
+            module_id,
+            video_url
         )
-        return {"message": "Video created successfully"}, 201
+        print("Request content type:", request.content_type)
+        print("Form data:", request.form)
+        print("Files:", request.files)
+        return {"message": "Video uploaded successfully"}, 201
 
 
 class VideoAPI(Resource):
@@ -92,3 +124,11 @@ class VideoLikeAPI(Resource):
         """Increment video likes"""
         increment_video_likes(video_id)
         return {"message": "Video like count updated"}
+    
+    
+class Mentor_VideoListAPI(Resource):
+    @jwt_required()
+    def get(self,user_id):
+        """Get all active videos"""
+        #return [dict(v) for v in get_mentor_videos(user_id)]
+        return get_mentor_videos(user_id)

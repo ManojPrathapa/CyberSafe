@@ -15,7 +15,7 @@ load_dotenv()
 from resources.auth import RegisterAPI, LoginAPI, UpdatePasswordAPI
 from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI, ModuleWithContentAPI
 from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI
-from resources.doubts import AskDoubtAPI, MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI
+from resources.doubts import MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI #,AskDoubtAPI
 from resources.notifications import NotificationAPI
 from resources.mentor_dashboard import VideoStatusAPI,DoubtStatusAPI,VideoStatusAPI_2,VideoStatusAPI_3
 from resources.doubts import MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI, StudentDoubtsAPI
@@ -37,6 +37,7 @@ from resources.activity import StudentActivityAPI, ParentChildrenActivityAPI, Pa
 from resources.preferences import ThemePrefsAPI, NotificationPrefsAPI
 from resources.parents import ParentChildrenAPI, LinkChildAPI, UnlinkChildAPI, AvailableStudentsAPI
 from resources.studentDashboard import StudentDashboardAPI
+from resources.videos import Mentor_VideoListAPI,VideoListAPI
 
 app = Flask(__name__)
 
@@ -85,7 +86,7 @@ api.add_resource(DeleteQuizAPI, '/api/quiz/delete/<int:quiz_id>')
 api.add_resource(MentorDoubtAPI, '/api/doubts/<int:mentor_id>')
 api.add_resource(ReplyToDoubtAPI, '/api/doubt/reply')
 api.add_resource(DeleteDoubtAPI, '/api/doubt/delete/<int:doubt_id>')
-api.add_resource(StudentDoubtsAPI, "/api/student/doubts", "/api/student/doubts/<int:doubt_id>")
+#api.add_resource(StudentDoubtsAPI, "/api/student/doubts", "/api/student/doubts/<int:doubt_id>")
 
 
 
@@ -155,6 +156,15 @@ api.add_resource(VideoStatusAPI_2,'/api/videostatus_2/<int:user_id>')
 api.add_resource(VideoStatusAPI_3,'/api/videostatus_3/<int:user_id>')
 #api.add_resource(QuizStatusAPI,'/api/quizstatus/<int:user_id'>)
 api.add_resource(DoubtStatusAPI,'/api/doubtstatus/<int:user_id>')
+
+
+
+# MENTOR VIDEO MODULES
+api.add_resource(Mentor_VideoListAPI, '/api/modules/mentor/<int:user_id>')
+api.add_resource(VideoListAPI,'/api/modules/videos/upload')
+#api.add_resource(UploadModuleAPI, '/api/modules/upload')
+#api.add_resource(DeleteModuleAPI, '/api/modules/delete/<int:module_id>')
+#api.add_resource(ModuleWithContentAPI, "/api/modules_with_content")
 
 
 if __name__ == '__main__':

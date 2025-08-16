@@ -13,11 +13,14 @@ export default function ContentManager() {
   const [showFileUpload, setShowFileUpload] = useState(false);
   //const [showBottomUpload, setShowBottomUpload] = useState(false);
   const [showBottomText, setShowBottomText] = useState(false);
-  const [moduleTitle, setModuleTitle] = useState("");
-  const [moduleDescription, setModuleDescription] = useState("");
-  const [Video_URL, setVideoURL] = useState("");
-  const [Resource_Link, setResourceLink] = useState("");
+  const [ModuleID, setModuleID] = useState("");
+  const [Video_Title, setVideo_Title] = useState("");
+  const [Video_Description, setVideo_Description] = useState("");
+  //const [Video_URL, setVideoURL] = useState("");
+  //const [Resource_Link, setResourceLink] = useState("");
   const [modules, getModules] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
+  //  const [videourl, getvideourl] = useState(null);
 
   //const modules = [
   //  {
@@ -41,7 +44,7 @@ export default function ContentManager() {
       }
       const user = getUser();
       console.log(user);
-      const res = await fetch(`${API_BASE_URL}/modules/${user.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/modules/mentor/${user.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -52,9 +55,13 @@ export default function ContentManager() {
         throw new Error(`Error: ${res.status}`);
       }
       const data = await res.json();
-      getModules(data);
+      //const file_url = `http://127.0.0.1:5050/uploads/${data.video_url}`;
+      //getvideourl(file_url);
+      console.log("VIDEO DATA");
       console.log(data);
-      console.log("DATA OF DATA");
+      getModules(data);
+
+      console.log(data);
       console.log(typeof data);
     } catch (error) {
       console.error("Failed to  fetch modules", error);
@@ -71,35 +78,49 @@ export default function ContentManager() {
         return;
       }
       const user = getUser();
-      console.log(user);
-      const payload = {
-        mentor_id: user.id,
-        title: moduleTitle,
-        description: moduleDescription,
-        video_url: Video_URL,
-        resource_link: Resource_Link,
-      };
+      const formData = new FormData();
+      formData.append("title", Video_Title);
+      formData.append("description", Video_Description);
+      formData.append("uploaded_by", user.id);
+      formData.append("mentor_id", user.id);
+      formData.append("module_id", ModuleID);
 
-      const response = await fetch(`${API_BASE_URL}/modules/upload`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // If using authentication:
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      if (videoFile) {
+        formData.append("video", videoFile); // backend should expect "video"
+      }
+      console.log(user);
+      //const payload = {
+      //  mentor_id: user.id,
+      //   module_id: ModuleID,
+      //   video_description: Video_Description,
+      //video_url: Video_URL,
+      //resource_link: Resource_Link,
+      // };
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/modules/videos/upload`,
+        {
+          method: "POST",
+          headers: {
+            // If using authentication:
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const result = await response.json();
-      setModuleTitle("");
-      setModuleDescription("");
-      setVideoURL("");
-      setResourceLink("");
+      setModuleID("");
+      setVideo_Description("");
+      setVideoFile(null);
+      //setVideoURL("");
+      //setResourceLink("");
 
       console.log("Upload successful:", result);
+      Fetch_Modules();
       alert("Module uploaded successfully!");
     } catch (error) {
       console.error("Upload failed:", error);
@@ -138,16 +159,15 @@ export default function ContentManager() {
           {openModule === index && (
             <div className="p-4 space-y-2 bg-blue-50 border-t">
               <div>
-                <h4 className="font-semibold">
-                  🎥 Videos:{" "}
-                  <a
-                    href={mod.video_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Link
-                  </a>
-                </h4>
+                <video
+                  width="640"
+                  height="360"
+                  controls
+                  className="rounded shadow"
+                >
+                  <source src={mod.video_url} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
                 <p></p>
                 <h4 className="font-semibold">
                   Resources:{" "}
@@ -207,44 +227,52 @@ export default function ContentManager() {
         <div>
           <p></p>
           <br></br>
-          <p>Module Title</p>
+          <p>Module Id</p>
+          <select
+            value={ModuleID}
+            onChange={(e) => setModuleID(e.target.value)}
+            className="w-full border px-3 py-1 rounded"
+          >
+            <option value="">Select Module</option>
+            <option value="1">Module 1</option>
+            <option value="2">Module 2</option>
+            <option value="3">Module 3</option>
+            <option value="4">Module 4</option>
+            <option value="5">Module 5</option>
+            <option value="6">Module 6</option>
+          </select>
+
+          <p></p>
+          <br></br>
+          <p>Video Title</p>
           <input
             type="text"
-            value={moduleTitle}
-            onChange={(e) => setModuleTitle(e.target.value)}
+            value={Video_Title}
+            onChange={(e) => setVideo_Title(e.target.value)}
             className="w-full border px-3 py-1 rounded"
-            placeholder="Module Title"
+            placeholder="Video Title"
           />
           <p></p>
           <br></br>
-          <p>Module Description</p>
+          <p>Video Description</p>
           <input
             type="text"
-            value={moduleDescription}
-            onChange={(e) => setModuleDescription(e.target.value)}
+            value={Video_Description}
+            onChange={(e) => setVideo_Description(e.target.value)}
             className="w-full border px-3 py-1 rounded"
-            placeholder="Module Description"
+            placeholder="Video Description"
           />
           <p></p>
           <br></br>
-          <p>Video URL</p>
-          <input
-            type="text"
-            value={Video_URL}
-            onChange={(e) => setVideoURL(e.target.value)}
-            className="w-full border px-3 py-1 rounded"
-            placeholder="Video URL"
-          />
-          <p></p>
-          <br></br>
-          <p>Resource Link</p>
-          <input
-            type="text"
-            value={Resource_Link}
-            onChange={(e) => setResourceLink(e.target.value)}
-            className="w-full border px-3 py-1 rounded"
-            placeholder="Resource Link"
-          />
+          <div>
+            <p>Upload Video</p>
+            <input
+              type="file"
+              accept="video/*"
+              onChange={(e) => setVideoFile(e.target.files[0])}
+              className="w-full border px-3 py-1 rounded"
+            />
+          </div>
           <p></p>
           <br></br>
           <button

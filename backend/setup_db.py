@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS videos (
     module_id INTEGER,
     views INTEGER DEFAULT 0,
     likes INTEGER DEFAULT 0,
+    video_url TEXT,
     isDeleted BOOLEAN DEFAULT 0,
     isApproved BOOLEAN DEFAULT 0,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
