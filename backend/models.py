@@ -182,52 +182,76 @@ def get_modules_with_content():
 
 # ------------------- QUIZZES -------------------
 
-def get_quiz_with_questions(quiz_id):
+def get_quiz_with_questions(user_id):
     conn = get_db_connection()
 
     # Get quiz info
-    quiz = conn.execute("""
-        SELECT * FROM quizzes WHERE quiz_id = ? AND isDeleted = 0
-    """, (quiz_id,)).fetchone()
+    quizzes = conn.execute("""
+        SELECT * FROM quizzes WHERE mentor_id = ? AND isDeleted = 0
+    """, (user_id,)).fetchall()
+    
+    quizzes_list=[]
+    
+    for quiz in quizzes:
+         if not quiz:
+             conn.close()
+             return None
 
-    if not quiz:
-        conn.close()
-        return None
+        # Get module info
+         module = conn.execute("""
+         SELECT * FROM modules WHERE module_id = ? AND isDeleted = 0
+         """, (quiz["module_id"],)).fetchone()
 
-    # Get module info
-    module = conn.execute("""
-        SELECT * FROM modules WHERE module_id = ? AND isDeleted = 0
-    """, (quiz["module_id"],)).fetchone()
-
-    # Get questions (excluding deleted)
-    questions = conn.execute("""
+         # Get questions (excluding deleted)
+         questions = conn.execute("""
         SELECT * FROM questions WHERE quiz_id = ? AND isDeleted = 0
-    """, (quiz_id,)).fetchall()
+        """, (quiz["quiz_id"],)).fetchall()
 
-    result = []
-    for q in questions:
-        options = conn.execute("""
+         questions_list = []
+         for q in questions:
+           options = conn.execute("""
             SELECT * FROM options WHERE question_id = ? AND isDeleted = 0
-        """, (q['question_id'],)).fetchall()
+            """, (q['question_id'],)).fetchall()
 
-        result.append({
+           questions_list.append({
             "question_id": q["question_id"],
             "text": q["text"],
             "explanation": q["explanation"],
             "options": [{"option_id": o["option_id"], "text": o["text"]} for o in options]
         })
+         if module is not None:
+            quizzes_list.append({
+                 "quiz_id":quiz["quiz_id"],
+                 "quiz_title":quiz["title"],
+                 "module_id":module["module_id"],
+                 "module_title":module["description"],
+                 "questions_list":questions_list
+            
+                   })
+         else:
+               quizzes_list.append({
+                 "quiz_id":quiz["quiz_id"],
+                 "quiz_title":quiz["title"],
+                 "module_id":"",
+                 "module_title":"",
+                 "questions_list":questions_list
+            
+                   })
+        
 
     conn.close()
+    
+    return quizzes_list
 
-    return {
-        "quiz_id": quiz["quiz_id"],
-        "title": quiz["title"],
-        "module": {
-            "module_id": module["module_id"] if module else None,
-            "title": module["title"] if module else "Unknown"
-        },
-        "questions": result
-    }
+    #return {
+    #    "quiz_id": quiz["quiz_id"],
+    #    "title": quiz["title"],
+    #    "module": {
+    #        "module_id": module["module_id"] if module else None,
+    #        "title": module["title"] if module else "Unknown"
+    #    },
+    #    "questions": result
+    #}
 
 
 
@@ -670,7 +694,8 @@ def upload_module_content(mentor_id, title, description):
 def create_quiz_with_questions(data):
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
+    mentor_id=data.get("mentor_id")
     quiz_title = data.get('title')
     module_id = data.get('module_id')
     questions = data.get('questions', [])
@@ -680,7 +705,7 @@ def create_quiz_with_questions(data):
         raise ValueError(f"'questions' must be a list, got {type(questions).__name__}")
 
     # Insert quiz
-    cursor.execute("INSERT INTO quizzes (module_id, title) VALUES (?, ?)", (module_id, quiz_title))
+    cursor.execute("INSERT INTO quizzes (module_id,mentor_id, title) VALUES (?, ?,?)", (module_id,mentor_id, quiz_title))
     quiz_id = cursor.lastrowid
 
     for q in questions:

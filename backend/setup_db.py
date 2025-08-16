@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS videos (
 CREATE TABLE IF NOT EXISTS quizzes (
     quiz_id INTEGER PRIMARY KEY,
     module_id INTEGER,
+    mentor_id INTEGER,
     title TEXT,
     isDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(module_id) REFERENCES modules(module_id)

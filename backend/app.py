@@ -74,7 +74,7 @@ api.add_resource(ModuleWithContentAPI, "/api/modules_with_content")
 
 
 # Quizzes
-api.add_resource(QuizAPI, '/api/quiz/<int:quiz_id>')
+api.add_resource(QuizAPI, '/api/quiz/<int:user_id>')
 api.add_resource(QuizSubmitAPI, '/api/quiz/submit')
 api.add_resource(QuizCreateAPI, '/api/quiz/create')
 api.add_resource(DeleteQuizAPI, '/api/quiz/delete/<int:quiz_id>')

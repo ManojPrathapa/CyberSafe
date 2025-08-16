@@ -85,7 +85,7 @@ export default function DashboardStats() {
       }
       const user = getUser();
       console.log(user);
-      const res = await fetch(`${API_BASE_URL}/videostatus/${user.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/videostatus/${user.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -201,7 +201,7 @@ export default function DashboardStats() {
       }
       const user = getUser();
       console.log(user);
-      const res = await fetch(`${API_BASE_URL}/doubtstatus/${user.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/doubtstatus/${user.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

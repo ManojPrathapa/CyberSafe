@@ -84,11 +84,12 @@ class DeleteQuizAPI(Resource):
 
 class QuizAPI(Resource):
     @jwt_required()
-    def get(self, quiz_id):
+    def get(self, user_id):
         """Get quiz with questions"""
-        quiz = get_quiz_with_questions(quiz_id)
+        quiz = get_quiz_with_questions(user_id)
         if not quiz:
             return {"error": "Quiz not found"}, 404
+        print(quiz)
         return quiz
 
 

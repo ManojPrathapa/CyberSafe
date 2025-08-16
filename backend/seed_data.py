@@ -100,14 +100,14 @@ if cursor.fetchone()[0] == 0:
     tip_id = cursor.lastrowid
 
     # Quiz
-    cursor.execute("INSERT INTO quizzes (module_id, title) VALUES (?, ?)", (module_id, "Cyber Quiz"))
+    cursor.execute("INSERT INTO quizzes (module_id,mentor_id, title) VALUES (?, ?,?)", (module_id,mentor_user_id,"Cyber Quiz"))
 
     quiz_id = cursor.lastrowid
 
     # Question + Options
     cursor.execute("""
-        INSERT INTO questions (quiz_id, text, explanation) VALUES (?, ?, ?)
-    """, (quiz_id, "What is phishing?", "Phishing is a scam technique."))
+        INSERT INTO questions (quiz_id, text, explanation) VALUES (?, ?,?)
+    """, (quiz_id, "What is phishing?","Phishing is a scam technique."))
     question_id = cursor.lastrowid
     cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", (question_id, "A scam email", 1))
     cursor.execute("INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)", (question_id, "A game", 0))
