@@ -123,9 +123,10 @@ class FileComplaintAPI(Resource):
 
         # Trigger notification for the user who filed the complaint
         send_notification(
-            event_type="complaint_filed",
+            event_type="complaint_raised",
             related_id=complaint_id,
-            user_id=args['filed_by'],
+            student_id=args['filed_by'],
+            mentor_id=args['against'],  # Assuming 'against' is the mentor ID
             message="Your complaint has been filed successfully."
         )
 

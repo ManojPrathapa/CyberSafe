@@ -1,120 +1,192 @@
 "use client";
 
-import { useState } from "react";
-import { Send, MessageSquare, ThumbsUp, Trash2, Reply } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Send, Edit3, Save, Trash2, MessageCircle } from "lucide-react";
+import { API_BASE_URL } from "@/src/app/utils/api";
+import { getUser, getToken } from "@/src/app/utils/auth";
 
-export default function ForumManager() {
-  const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState("");
-  const [replies, setReplies] = useState({});
+export default function DoubtsPanel() {
+  const [doubts, setDoubts] = useState([]);
+  const [question, setQuestion] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handlePost = () => {
-    if (newPost.trim()) {
-      const post = {
-        id: Date.now(),
-        content: newPost,
-        time: "Just now",
-        likes: 0,
-        responses: []
-      };
-      setPosts([post, ...posts]);
-      setNewPost("");
+  const token = getToken();
+  const user = getUser();
+
+  const fetchDoubts = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/doubts/student/${user.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch doubts");
+      const data = await res.json();
+      setDoubts(data.filter((d) => String(d.student_id) === String(user.id)));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLike = (id) => {
-    setPosts(posts.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
+  useEffect(() => {
+    if (token && user?.id) {
+      fetchDoubts();
+    }
+  }, []);
+
+  const handleAskDoubt = async () => {
+    if (!question.trim()) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/doubts/ask`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          student_id: user.id,
+          mentor_id: 4, // Example: assign to a default mentor or chosen from UI
+          module_id: 1, // Example: assign to a module or choose from UI
+          question: question.trim(),
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to post doubt");
+      setQuestion("");
+      fetchDoubts();
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  const handleDelete = (id) => {
-    setPosts(posts.filter(p => p.id !== id));
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this doubt?")) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/doubts/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to delete doubt");
+      fetchDoubts();
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  const handleReply = (id, message) => {
-    if (!message.trim()) return;
-    const newPosts = posts.map(p => {
-      if (p.id === id) {
-        return { ...p, responses: [...p.responses, { message, time: "Just now" }] };
-      }
-      return p;
-    });
-    setPosts(newPosts);
-    setReplies({ ...replies, [id]: "" });
+  const handleEdit = async (id) => {
+    if (!editText.trim()) return;
+    try {
+      // Soft delete old
+      await fetch(`${API_BASE_URL}/doubts/delete/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Create new doubt
+      await fetch(`${API_BASE_URL}/doubts/ask`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          student_id: user.id,
+          mentor_id: 4,
+          module_id: 1,
+          question: editText.trim(),
+        }),
+      });
+
+      setEditId(null);
+      setEditText("");
+      fetchDoubts();
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow text-purple-900">
-      <h3 className="text-2xl font-bold mb-4">💬 Student Forum</h3>
-      <p className="mb-4 text-gray-600">Open discussions. Raise doubts. Share your thoughts. Learn together.</p>
+    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-2xl shadow-xl max-w-3xl mx-auto text-gray-800">
+      <h3 className="text-3xl font-bold text-blue-700 mb-6 flex items-center gap-2">
+        <MessageCircle size={28} /> My Doubts
+      </h3>
 
-      <div className="flex items-center gap-2 mb-6">
-        <input
-          type="text"
-          value={newPost}
-          onChange={(e) => setNewPost(e.target.value)}
-          placeholder="Ask a question or start a discussion..."
-          className="flex-grow border rounded px-4 py-2 text-sm"
+      {/* Ask Doubt */}
+      <div className="bg-white p-4 rounded-lg shadow space-y-3 mb-6">
+        <textarea
+          placeholder="Type your doubt..."
+          rows={3}
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          className="w-full p-2 border rounded"
         />
         <button
-          onClick={handlePost}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded flex items-center gap-1"
+          onClick={handleAskDoubt}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow flex items-center gap-2"
         >
-          <Send size={16} /> Post
+          <Send size={18} /> Submit
         </button>
       </div>
 
-      <div className="space-y-6">
-        {posts.map((post) => (
-          <div key={post.id} className="bg-gray-50 border p-4 rounded shadow">
-            <div className="mb-2 text-sm text-gray-800">
-              <MessageSquare className="inline w-4 h-4 mr-1 text-blue-500" /> <strong>Student:</strong> {post.content}
-              <span className="ml-4 text-xs text-gray-500">{post.time}</span>
-            </div>
-            <div className="flex gap-4 text-sm text-gray-600 mt-2">
-              <button onClick={() => handleLike(post.id)} className="flex items-center gap-1 hover:text-blue-600">
-                <ThumbsUp size={14} /> Like ({post.likes})
-              </button>
-              <button onClick={() => setReplies({ ...replies, [post.id]: replies[post.id] ?? "" })} className="flex items-center gap-1 hover:text-blue-600">
-                <Reply size={14} /> Reply
-              </button>
-              <button onClick={() => handleDelete(post.id)} className="flex items-center gap-1 hover:text-red-600">
-                <Trash2 size={14} /> Delete
-              </button>
-            </div>
-
-            {/* Replies */}
-            {post.responses.length > 0 && (
-              <div className="mt-4 border-t pt-2 space-y-2">
-                {post.responses.map((r, idx) => (
-                  <div key={idx} className="text-sm pl-4 border-l-2 border-blue-300">
-                    <p className="text-gray-700"><strong>Reply:</strong> {r.message}</p>
-                    <p className="text-xs text-gray-500">{r.time}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Reply Box */}
-            {replies[post.id] !== undefined && (
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="text"
-                  value={replies[post.id]}
-                  onChange={(e) => setReplies({ ...replies, [post.id]: e.target.value })}
-                  placeholder="Write a reply..."
-                  className="flex-grow border rounded px-3 py-1 text-sm"
-                />
+      {loading ? (
+        <p className="text-gray-500">Loading doubts...</p>
+      ) : doubts.length === 0 ? (
+        <p className="text-gray-500">No doubts found.</p>
+      ) : (
+        <ul className="space-y-3">
+          {doubts.map((d) => (
+            <li
+              key={d.doubt_id}
+              className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
+            >
+              {editId === d.doubt_id ? (
+                <div className="flex-1">
+                  <textarea
+                    rows={2}
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    className="w-full p-2 border rounded"
+                  />
+                  <button
+                    onClick={() => handleEdit(d.doubt_id)}
+                    className="mt-2 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded flex items-center gap-1"
+                  >
+                    <Save size={14} /> Save
+                  </button>
+                </div>
+              ) : (
+                <p className="flex-1">{d.question}</p>
+              )}
+              <div className="flex gap-2">
                 <button
-                  onClick={() => handleReply(post.id, replies[post.id])}
-                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                  onClick={() => {
+                    setEditId(d.doubt_id);
+                    setEditText(d.question);
+                  }}
+                  className="text-yellow-500 hover:text-yellow-600"
                 >
-                  Send
+                  <Edit3 size={18} />
+                </button>
+                <button
+                  onClick={() => handleDelete(d.doubt_id)}
+                  className="text-red-500 hover:text-red-600"
+                >
+                  <Trash2 size={18} />
                 </button>
               </div>
-            )}
-          </div>
-        ))}
-      </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {error && <p className="mt-4 text-red-500">{error}</p>}
     </div>
   );
 }

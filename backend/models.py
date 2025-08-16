@@ -292,6 +292,43 @@ def ask_doubt(student_id, mentor_id, module_id, question):
     conn.close()
     return doubt_id  
 
+def get_doubts_for_student(student_id):
+    conn = get_db_connection()
+    doubts = conn.execute("""
+        SELECT d.*, m.title AS module_title
+        FROM doubts d
+        LEFT JOIN modules m ON d.module_id = m.module_id
+        WHERE d.student_id = ? AND d.isDeleted = 0
+        ORDER BY d.timestamp DESC
+    """, (student_id,)).fetchall()
+    conn.close()
+    return doubts
+
+
+def update_doubt(doubt_id, question, module_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE doubts
+        SET question = ?, module_id = ?
+        WHERE doubt_id = ? AND isDeleted = 0
+    """, (question, module_id, doubt_id))
+    conn.commit()
+    conn.close()
+
+
+def soft_delete_doubt(doubt_id):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE doubts
+        SET isDeleted = 1
+        WHERE doubt_id = ?
+    """, (doubt_id,))
+    conn.commit()
+    changes = conn.total_changes
+    conn.close()
+    return changes > 0
+
+
 
 def get_doubts_for_mentor(mentor_id):
     conn = get_db_connection()
