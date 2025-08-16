@@ -117,41 +117,59 @@ class DeleteDoubtAPI(Resource):
 
 from flask_restful import Resource
 from flask import request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import (
     ask_doubt,
+    get_doubts_for_student,
     get_doubts_for_mentor,
     reply_to_doubt,
+    update_doubt,
     soft_delete_doubt
 )
 from helpers.notifications_helper import send_notification
 
-class AskDoubtAPI(Resource):
+class StudentDoubtsAPI(Resource):
+    @jwt_required()
+    def get(self):
+        """Get all doubts for logged-in student"""
+        student_id = get_jwt_identity()
+        doubts = get_doubts_for_student(student_id)
+        return [dict(d) for d in doubts], 200
+
     @jwt_required()
     def post(self):
-        """Student asks a doubt"""
+        """Ask a new doubt"""
         data = request.get_json()
-        student_id = data.get("student_id")
+        student_id = get_jwt_identity()
         mentor_id = data.get("mentor_id")
         module_id = data.get("module_id")
         question = data.get("question")
 
-        if not all([student_id, mentor_id, module_id, question]):
+        if not all([mentor_id, module_id, question]):
             return {"message": "Missing required fields"}, 400
 
-        # Insert doubt into DB and get doubt_id
         doubt_id = ask_doubt(student_id, mentor_id, module_id, question)
+        return {"message": "Doubt submitted successfully", "doubt_id": doubt_id}, 201
 
-        # Trigger notification: Student -> Mentor
-        send_notification(
-            event_type="doubt_student",
-            related_id=doubt_id,
-            mentor_id=mentor_id,
-            message=f"New doubt posted by student {student_id}"
-        )
+    @jwt_required()
+    def put(self, doubt_id):
+        """Update a doubt"""
+        data = request.get_json()
+        question = data.get("question")
+        module_id = data.get("module_id")
 
-        return {"message": "Doubt submitted successfully"}, 201
+        if not question or not module_id:
+            return {"message": "Missing required fields"}, 400
 
+        update_doubt(doubt_id, question, module_id)
+        return {"message": "Doubt updated successfully"}, 200
+
+    @jwt_required()
+    def delete(self, doubt_id):
+        """Soft delete a doubt"""
+        if soft_delete_doubt(doubt_id):
+            return {"message": "Doubt deleted successfully"}, 200
+        return {"message": "Doubt not found"}, 404
 
 class MentorDoubtAPI(Resource):
     @jwt_required()

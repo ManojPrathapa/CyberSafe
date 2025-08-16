@@ -64,7 +64,8 @@ export default function SettingsPanel() {
         },
         body: JSON.stringify({
           filed_by: user.id,
-          against: 1, // Use user ID 1 (admin) instead of string "admin"
+          against: 4, // Assuming 4 is the ID for admin
+          // Adjust this based on your backend logic
           description: complaint.trim(),
         }),
       });
@@ -109,7 +110,7 @@ export default function SettingsPanel() {
         },
         body: JSON.stringify({
           filed_by: user.id,
-          against: 1, // Use user ID 1 (admin) instead of string "admin"
+          against: 4,
           description: editText.trim(),
         }),
       });
