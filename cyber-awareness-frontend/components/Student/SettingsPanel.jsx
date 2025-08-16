@@ -25,7 +25,7 @@ export default function SettingsPanel() {
   const fetchComplaints = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/complaints`, {
+      const res = await fetch(`${API_BASE_URL}/api/complaints`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
