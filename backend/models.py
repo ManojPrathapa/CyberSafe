@@ -157,7 +157,7 @@ def get_modules_with_content():
 
         # Get videos for this module
         cur.execute(
-            "SELECT video_id, title FROM videos WHERE module_id = ? AND isDeleted = 0",
+            "SELECT video_id, video_url, title FROM videos WHERE module_id = ? AND isDeleted = 0",
             (module_id,)
         )
         videos = [dict(v) for v in cur.fetchall()]

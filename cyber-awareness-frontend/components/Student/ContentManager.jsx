@@ -74,25 +74,23 @@ export default function ContentManager() {
             </button>
 
             {openModule === index && (
-              <div className="p-4 space-y-4 bg-blue-50 border-t">
+              <div className="p-4 space-y-6 bg-blue-50 border-t">
                 {/* Videos */}
                 <div>
                   <h4 className="font-semibold">🎥 Videos:</h4>
                   {mod.videos && mod.videos.length > 0 ? (
-                    <ul className="list-disc list-inside ml-4 text-sm">
+                    <ul className="space-y-4 ml-2 text-sm">
                       {mod.videos.map((v) => (
-                        <li key={v.video_id}>
-                          {v.url ? (
-                            <a
-                              href={v.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
-                            >
-                              {v.title}
-                            </a>
+                        <li key={v.video_id} className="space-y-2">
+                          <p className="font-medium">{v.title}</p>
+                          {v.video_url ? (
+                            <video
+                              src={v.video_url}
+                              controls
+                              className="w-full max-w-lg rounded shadow"
+                            />
                           ) : (
-                            v.title
+                            <p className="text-gray-500">No video file available</p>
                           )}
                         </li>
                       ))}
