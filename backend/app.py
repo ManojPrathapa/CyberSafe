@@ -22,7 +22,7 @@ from resources.doubts import MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI, St
 from resources.mentor_dashboard import VideoStatusAPI,DoubtStatusAPI
 from resources.attempts import StudentAttemptsAPI
 from resources.reports import StudentReportAPI, DeleteReportAPI
-from resources.tips import TipListAPI, ParentViewedTipsAPI, MarkTipViewedAPI, DeleteTipAPI, TipsWithViewedStatusAPI
+from resources.tips import TipListAPI, ParentViewedTipsAPI, MarkTipViewedAPI, DeleteTipAPI, TipsWithViewedStatusAPI,MentorTipListAPI,MentorUploadTipsAPI
 from resources.complaints import (
     FileComplaintAPI, ComplaintListAPI, ResolveComplaintAPI, DeleteComplaintAPI, UserComplaintsAPI
 )
@@ -165,6 +165,10 @@ api.add_resource(VideoListAPI,'/api/modules/videos/upload')
 #api.add_resource(UploadModuleAPI, '/api/modules/upload')
 #api.add_resource(DeleteModuleAPI, '/api/modules/delete/<int:module_id>')
 #api.add_resource(ModuleWithContentAPI, "/api/modules_with_content")
+
+#MENTOR TIPS
+api.add_resource(MentorTipListAPI, '/api/tips/<int:user_id>')
+api.add_resource(MentorUploadTipsAPI, '/api/tips/upload')
 
 
 if __name__ == '__main__':

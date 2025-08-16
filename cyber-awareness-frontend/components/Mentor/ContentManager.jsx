@@ -169,16 +169,20 @@ export default function ContentManager() {
                   Your browser does not support the video tag.
                 </video>
                 <p></p>
-                <h4 className="font-semibold">
-                  Resources:{" "}
-                  <a
-                    href={mod.resource_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Resource Link
-                  </a>
-                </h4>
+                <div>
+                  <p></p>
+                  <p></p>
+                </div>
+                <h4 className="font-semibold">STATUS: {mod.isApproved}</h4>
+                <p></p>
+                {mod.isApproved !== "Approval Pending" && (
+                  <>
+                    <h3 className="font-semibold">LIKES: {mod.likes} 👍</h3>
+                    <h3 className="font-semibold">VIEWS: {mod.views} views </h3>
+                    <p></p>
+                  </>
+                )}
+                <p></p>
                 <ul className="list-disc list-inside ml-4 text-sm"></ul>
               </div>
 

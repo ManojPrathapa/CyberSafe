@@ -6,7 +6,9 @@ from models import (
     get_viewed_tips_by_parent,
     get_all_tips_with_viewed_status,
     mark_tip_viewed,
-    soft_delete_tip
+    soft_delete_tip,
+    get_mentor_tips,
+    upload_mentor_tips
 )
 
 class DeleteTipAPI(Resource):
@@ -58,3 +60,25 @@ class MarkTipViewedAPI(Resource):
         args = parser.parse_args()
         mark_tip_viewed(args['parent_id'], args['tip_id'])
         return {'message': 'Tip marked as viewed'}, 201
+    
+class MentorTipListAPI(Resource):
+    @jwt_required()
+    def get(self,user_id):
+        """Get all tips (JWT required)"""
+        print("MentorTipListAPI")
+        return [dict(t) for t in get_mentor_tips(user_id)]
+
+class MentorUploadTipsAPI(Resource):
+    @jwt_required()
+    def post(self):
+        """Mark a tip as viewed by a parent (JWT required)"""
+        parser = reqparse.RequestParser()
+        parser.add_argument('title', required=True, type=str)
+        parser.add_argument('content', required=True, type=str)
+        parser.add_argument('mentor_id', required=True, type=int)
+        parser.add_argument('category', type=str)
+        parser.add_argument('source_url', type=str)
+        
+        args = parser.parse_args()
+        upload_mentor_tips(args["title"],args["content"],args["mentor_id"],args["category"],args['source_url'])
+        return {'message': 'Tip uploaded successfully'}, 201

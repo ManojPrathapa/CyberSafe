@@ -95,9 +95,9 @@ if cursor.fetchone()[0] == 0:
 
     # Tip
     cursor.execute("""
-        INSERT INTO tips (title, content, category, source_url) 
-        VALUES (?, ?, ?, ?)
-    """, ("Phishing Alert", "Don’t click unknown links.", "email", "https://example.com/phishing"))
+        INSERT INTO tips (title, content,mentor_id, category, source_url) 
+        VALUES (?, ?, ?, ?,?)
+    """, ("Phishing Alert", "Don’t click unknown links.",mentor_user_id, "email", "https://example.com/phishing"))
     tip_id = cursor.lastrowid
 
     # Quiz

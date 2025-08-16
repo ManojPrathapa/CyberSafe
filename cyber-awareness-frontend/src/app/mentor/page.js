@@ -11,10 +11,12 @@ import ForumManager from '@/components/Mentor/ForumManager';
 import DashboardStats from '@/components/Mentor/DashboardStats';
 import ProfileCard from '@/components/Mentor/ProfileCard';
 import SettingsPanel from '@/components/Mentor/SettingsPanel';
+import TipsCreation from '@/components/Mentor/TipsCreation';
 
 export default function MentorDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedSection, setSelectedSection] = useState('dashboard');
+
   const router = useRouter();
 
   const handleLogout = () => {
@@ -35,6 +37,7 @@ export default function MentorDashboard() {
           <button className="bg-purple-500 hover:bg-purple-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('dashboard')}>DASHBOARD</button>
           <button className="bg-purple-500 hover:bg-purple-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('content')}>CONTENT MANAGER</button>
           <button className="bg-purple-500 hover:bg-purple-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('quiz')}>QUIZ MANAGER</button>
+           <button className="bg-purple-500 hover:bg-purple-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('tips')}>TIPS CREATION</button>
           <button className="bg-purple-500 hover:bg-purple-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('forum')}>FORUM</button>
           <button className="bg-purple-500 hover:bg-purple-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('profile')}>PROFILE</button>
           <button className="bg-purple-500 hover:bg-purple-200 rounded-lg px-4 py-3 text-left font-semibold" onClick={() => setSelectedSection('settings')}>SETTINGS</button>
@@ -61,6 +64,7 @@ export default function MentorDashboard() {
           {selectedSection === 'dashboard' && <DashboardStats />}
           {selectedSection === 'content' && <ContentManager />}
           {selectedSection === 'quiz' && <QuizManager />}
+          {selectedSection === 'tips' && <TipsCreation />}
           {selectedSection === 'forum' && <ForumManager />}
           {selectedSection === 'profile' && <ProfileCard />}
           {selectedSection === 'settings' && <SettingsPanel />}

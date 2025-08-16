@@ -194,6 +194,7 @@ CREATE TABLE IF NOT EXISTS tips (
     tip_id INTEGER PRIMARY KEY,
     title TEXT,
     content TEXT,
+    mentor_id INTEGER,
     category TEXT,
     source_url TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
