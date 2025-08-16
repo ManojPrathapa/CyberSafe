@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { getToken } from "@/src/app/utils/auth";
 import { getUser } from "@/src/app/utils/auth";
-import { API_BASE_URL } from "@/src/app/utils/api";
+import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 
 import {
   LineChart,
@@ -15,34 +15,57 @@ import {
   BarChart,
   Bar,
   XAxis,
+  Area,
   YAxis,
   Tooltip,
+  AreaChart,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 
-const contentData = [
-  { name: "", uploads: 3 },
-  { name: "Module 2", uploads: 5 },
-  { name: "Module 3", uploads: 4 },
-  { name: "Module 4", uploads: 2 },
-];
-
-const doubtsResolvedData = [
-  { name: "Mon", resolved: 5 },
-  { name: "Tue", resolved: 3 },
-  { name: "Wed", resolved: 6 },
-  { name: "Thu", resolved: 4 },
-  { name: "Fri", resolved: 7 },
-];
-
-const quizStats = [
-  { name: "Created", value: 12 },
-  { name: "Used", value: 9 },
-];
-
-const mentorProgress = [
-  { name: "Answered", modules: 15 },
-  { name: "Pending", modules: 5 },
+const data = [
+  {
+    name: "Page A",
+    uv: 4000,
+    pv: 2400,
+    amt: 2400,
+  },
+  {
+    name: "Page B",
+    uv: 3000,
+    pv: 1398,
+    amt: 2210,
+  },
+  {
+    name: "Page C",
+    uv: 2000,
+    pv: 9800,
+    amt: 2290,
+  },
+  {
+    name: "Page D",
+    uv: 2780,
+    pv: 3908,
+    amt: 2000,
+  },
+  {
+    name: "Page E",
+    uv: 1890,
+    pv: 4800,
+    amt: 2181,
+  },
+  {
+    name: "Page F",
+    uv: 2390,
+    pv: 3800,
+    amt: 2500,
+  },
+  {
+    name: "Page G",
+    uv: 3490,
+    pv: 4300,
+    amt: 2100,
+  },
 ];
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f7f"];
@@ -50,6 +73,8 @@ const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f7f"];
 export default function DashboardStats() {
   const [videos, getVideos] = useState([]);
   const [doubts, getDoubts] = useState([]);
+  const [videos_2, getVideos_2] = useState([]);
+  const [videos_3, getVideos_3] = useState([]);
 
   const Video_Status = async () => {
     try {
@@ -60,7 +85,7 @@ export default function DashboardStats() {
       }
       const user = getUser();
       console.log(user);
-      const res = await fetch(`${API_BASE_URL}/api/videostatus/${user.id}`, {
+      const res = await fetch(`${API_BASE_URL}/videostatus/${user.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -71,16 +96,102 @@ export default function DashboardStats() {
         throw new Error(`Error: ${res.status}`);
       }
       const data = await res.json();
-      getVideos(data);
-      console.log(data);
-      console.log("DATA OF DATA");
-      console.log(typeof data);
+      const video_data = [
+        { name: "Approved", value: data["Approved"] },
+        { name: "Not Approved", value: data["Not Approved"] },
+      ];
+
+      getVideos(video_data);
+      console.log("VIDEO DATA");
+      //console.log(data);
+      console.log(video_data);
+      console.log(videos);
+      //console.log(videos);
     } catch (error) {
       console.error("Failed to  fetch video status", error);
     } finally {
       console.log("In Finally");
     }
   };
+
+  const Video_Status_2 = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        console.error("No token found. Please log in.");
+        return;
+      }
+      const user = getUser();
+      console.log(user);
+      const res = await fetch(`${API_BASE_URL}/api/videostatus_2/${user.id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+      const data = await res.json();
+      const video_data_2 = [
+        { name: "Jan", uploads: data["Jan"] },
+        { name: "Feb", uploads: data["Feb"] },
+        { name: "Mar", uploads: data["Mar"] },
+        { name: "Apr", uploads: data["Apr"] },
+        { name: "May", uploads: data["May"] },
+        { name: "Jun", uploads: data["Jun"] },
+        { name: "Jul", uploads: data["Jul"] },
+        { name: "Aug", uploads: data["Aug"] },
+        { name: "Sep", uploads: data["Sep"] },
+        { name: "Oct", uploads: data["Oct"] },
+        { name: "Nov", uploads: data["Nov"] },
+        { name: "Dec", uploads: data["Dec"] },
+      ];
+
+      getVideos_2(video_data_2);
+      console.log("VIDEO DATA");
+      //console.log(data);
+      console.log(video_data_2);
+      //console.log(videos);
+    } catch (error) {
+      console.error("Failed to  fetch video status", error);
+    } finally {
+      console.log("In Finally");
+    }
+  };
+  const Video_Status_3 = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        console.error("No token found. Please log in.");
+        return;
+      }
+      const user = getUser();
+      console.log(user);
+      const res = await fetch(`${API_BASE_URL}/api/videostatus_3/${user.id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+      const data = await res.json();
+
+      getVideos_3(data);
+      console.log("VIDEO DATA_3");
+      console.log(data);
+      //console.log(videos);
+    } catch (error) {
+      console.error("Failed to  fetch video status", error);
+    } finally {
+      console.log("In Finally");
+    }
+  };
+
   const Doubt_Status = async () => {
     try {
       const token = getToken();
@@ -90,7 +201,7 @@ export default function DashboardStats() {
       }
       const user = getUser();
       console.log(user);
-      const res = await fetch(`${API_BASE_URL}/api/doubtstatus/${user.id}`, {
+      const res = await fetch(`${API_BASE_URL}/doubtstatus/${user.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -101,10 +212,13 @@ export default function DashboardStats() {
         throw new Error(`Error: ${res.status}`);
       }
       const data = await res.json();
-      getDoubts(data);
+      const doubt_data = [
+        { name: "Answered", modules: data["Answered"] },
+        { name: "Not Answered", modules: data["Not Answered"] },
+      ];
+      getDoubts(doubt_data);
+      console.log("DOUBT DATA");
       console.log(data);
-      console.log("DATA OF DATA");
-      console.log(typeof data);
     } catch (error) {
       console.error("Failed to  fetch video status", error);
     } finally {
@@ -114,8 +228,11 @@ export default function DashboardStats() {
   useEffect(() => {
     Video_Status();
     Doubt_Status();
+    Video_Status_2();
+    Video_Status_3();
     console.log("Videos and Doubts are fetched");
     //console.log(typeof modules);
+    console.log(videos);
   }, []);
 
   return (
@@ -127,9 +244,9 @@ export default function DashboardStats() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Content Uploads */}
         <div className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition">
-          <h3 className="text-lg font-semibold mb-2">📁 Content Uploads</h3>
+          <h3 className="text-lg font-semibold mb-2">📁 Content Uploaded</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={contentData}>
+            <LineChart data={videos_2}>
               <Line
                 type="monotone"
                 dataKey="uploads"
@@ -140,34 +257,71 @@ export default function DashboardStats() {
               <Tooltip />
             </LineChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-sm">
-            Total Uploads: <strong>14</strong>
-          </p>
         </div>
 
-        {/* Doubts Resolved */}
-        <div className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition">
-          <h3 className="text-lg font-semibold mb-2">🗨️ Doubts Resolved</h3>
+        {/* Content Views and Likes */}
+        <div style={{ width: "100%" }}>
+          <h4>Content Views</h4>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={doubtsResolvedData}>
-              <XAxis dataKey="name" />
+            <AreaChart
+              width={500}
+              height={200}
+              data={videos_3}
+              syncId="anyId"
+              margin={{
+                top: 10,
+                right: 30,
+                left: 0,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="resolved" fill="#82ca9d" />
-            </BarChart>
+              <Area
+                type="monotone"
+                dataKey="views"
+                stroke="#8884d8"
+                fill="#8884d8"
+              />
+            </AreaChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-sm">
-            Avg Doubts per Day: <strong>5</strong>
-          </p>
+          <p>Content Likes</p>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart
+              width={500}
+              height={200}
+              data={videos_3}
+              syncId="anyId"
+              margin={{
+                top: 10,
+                right: 30,
+                left: 0,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="likes"
+                stroke="#82ca9d"
+                fill="#82ca9d"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
 
-        {/* Quiz Stats */}
+        {/* Content Stats */}
         <div className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition">
-          <h3 className="text-lg font-semibold mb-2">📝 Quiz Stats</h3>
+          <h3 className="text-lg font-semibold mb-2">📝 Content Stats</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
-                data={quizStats}
+                data={videos}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
@@ -176,7 +330,7 @@ export default function DashboardStats() {
                 fill="#8884d8"
                 label
               >
-                {quizStats.map((_, index) => (
+                {videos.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -186,16 +340,20 @@ export default function DashboardStats() {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-sm">Created: 12 | Used: 9</p>
+          <p className="mt-2 text-sm">
+            {videos.length > 0
+              ? `Approved: ${videos[0].value} | Not Approved: ${videos[1].value}`
+              : "Loading..."}
+          </p>
         </div>
 
-        {/* Student Doubts Progress */}
+        {/* Doubt Replied */}
         <div className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition">
           <h3 className="text-lg font-semibold mb-2">📘 Doubts Progress</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
-                data={mentorProgress}
+                data={doubts}
                 dataKey="modules"
                 nameKey="name"
                 cx="50%"
@@ -205,7 +363,7 @@ export default function DashboardStats() {
                 fill="#ffc658"
                 label
               >
-                {mentorProgress.map((_, index) => (
+                {doubts.map((_, index) => (
                   <Cell
                     key={`cell-mod-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -215,7 +373,11 @@ export default function DashboardStats() {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-sm">Answered: 15 | Pending: 5</p>
+          <p className="mt-2 text-sm">
+            {doubts.length > 0
+              ? `Answered: ${doubts[0].modules} | Not Answered: ${doubts[1].modules}`
+              : "Loading..."}
+          </p>
         </div>
       </div>
     </div>

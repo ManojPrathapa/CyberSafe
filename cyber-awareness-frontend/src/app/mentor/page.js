@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { Menu, X, Bell } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import NotificationBell from '@/components/NotificationBell';
 
 import ContentManager from '@/components/Mentor/ContentManager';
 import QuizManager from '@/components/Mentor/QuizManager';
@@ -14,15 +15,7 @@ import SettingsPanel from '@/components/Mentor/SettingsPanel';
 export default function MentorDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedSection, setSelectedSection] = useState('dashboard');
-  const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
-
-  const notifications = [
-    { text: 'Student John submitted Quiz 4', time: '5m ago' },
-    { text: 'New comment on Forum Thread "Cyber Ethics"', time: '18m ago' },
-    { text: 'Module 5 successfully uploaded', time: '1h ago' },
-    { text: 'You have 3 unanswered doubts', time: '2d ago' },
-  ];
 
   const handleLogout = () => {
     router.push('/');
@@ -53,25 +46,7 @@ export default function MentorDashboard() {
         <div className="flex justify-between items-center mb-6 relative">
           <h2 className="text-2xl font-bold px-6 py-2 bg-white shadow rounded-full text-purple-800">HI MENTOR</h2>
           <div className="flex items-center gap-4 relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center focus:outline-none"
-            >
-              <Bell size={20} />
-            </button>
-            {showNotifications && (
-              <div className="absolute top-14 right-14 w-80 bg-white shadow-lg rounded-lg p-4 z-20">
-                <h4 className="text-lg font-semibold text-purple-700 mb-2">Notifications</h4>
-                <ul className="space-y-2 max-h-64 overflow-auto">
-                  {notifications.map((note, index) => (
-                    <li key={index} className="text-sm border-b pb-1 text-gray-700">
-                      <div>{note.text}</div>
-                      <div className="text-xs text-gray-400">{note.time}</div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <NotificationBell />
 
             <button
               onClick={handleLogout}

@@ -5,7 +5,7 @@ import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, ResponsiveContainer
 } from "recharts";
-import { apiHelpers, handleApiError, getUserId } from "../../src/app/utils/apiConfig";
+import { apiHelpers, handleApiError, getUserId, isAuthenticated } from "../../src/app/utils/apiConfig";
 
 export default function ParentDashboard() {
   const [loading, setLoading] = useState(true);
@@ -13,6 +13,7 @@ export default function ParentDashboard() {
   const [quizStats, setQuizStats] = useState([]);
   const [tipsRead, setTipsRead] = useState([]);
   const [childActivity, setChildActivity] = useState(null);
+  const [linkedChildren, setLinkedChildren] = useState([]);
   const [dashboardStats, setDashboardStats] = useState({
     linkedChildren: 0,
     averageScore: 0,
@@ -20,60 +21,8 @@ export default function ParentDashboard() {
     tipsRead: 0
   });
 
-  // Get user IDs from JWT token or use defaults
+  // Get parent ID from JWT token or use default
   const parentId = getUserId() || 1;
-  const studentId = 1; // This should come from parent's linked children - TODO: implement parent-child relationship
-
-  // Fetch quiz performance data
-  const fetchQuizStats = async (studentId) => {
-    try {
-      const attempts = await apiHelpers.get(`/student/${studentId}/attempts`);
-      return attempts;
-    } catch (error) {
-      console.error('Error fetching quiz stats:', error);
-      // Return mock data if API fails
-      return handleApiError(error, [
-        { module: "1", score: 80 },
-        { module: "2", score: 85 },
-        { module: "3", score: 90 },
-        { module: "4", score: 89 }
-      ]);
-    }
-  };
-
-  // Fetch tips viewed by parent
-  const fetchViewedTips = async (parentId) => {
-    try {
-      const viewedTips = await apiHelpers.get(`/tips/viewed/${parentId}`);
-      return viewedTips;
-    } catch (error) {
-      console.error('Error fetching viewed tips:', error);
-      // Return mock data if API fails
-      return handleApiError(error, [
-        { topic: "Passwords", count: 2 },
-        { topic: "Monitoring", count: 3 },
-        { topic: "Controls", count: 1 },
-        { topic: "Social Media", count: 4 }
-      ]);
-    }
-  };
-
-  // Fetch child activity data
-  const fetchChildActivity = async (studentId) => {
-    try {
-      const activity = await apiHelpers.get(`/activity/${studentId}`);
-      return activity;
-    } catch (error) {
-      console.error('Error fetching child activity:', error);
-      // Return mock data if API fails
-      return {
-        last_active: "2 hours ago",
-        login_count: 15,
-        time_spent: "40 mins/day",
-        recent_activities: []
-      };
-    }
-  };
 
   // Load dashboard data
   const loadDashboardData = async () => {
@@ -81,27 +30,25 @@ export default function ParentDashboard() {
     setError(null);
     
     try {
-      // Fetch all data in parallel
-      const [quizData, tipsData, activityData] = await Promise.all([
-        fetchQuizStats(studentId),
-        fetchViewedTips(parentId),
-        fetchChildActivity(studentId)
-      ]);
-
-      setQuizStats(quizData);
-      setTipsRead(tipsData);
-      setChildActivity(activityData);
+      // Single API call to get all dashboard data
+      const dashboardData = await apiHelpers.get(`/dashboard/parent/${parentId}`);
+      
+      // Set all data from the single response
+      setLinkedChildren(dashboardData.linked_children || []);
+      setQuizStats(dashboardData.quiz_stats || []);
+      setTipsRead(dashboardData.tips_stats || []);
+      setChildActivity(dashboardData.most_recent_activity || {});
 
       // Calculate dashboard statistics
-      const averageScore = quizData.length > 0 
-        ? Math.round(quizData.reduce((sum, item) => sum + item.score, 0) / quizData.length)
+      const averageScore = dashboardData.quiz_stats && dashboardData.quiz_stats.length > 0 
+        ? Math.round(dashboardData.quiz_stats.reduce((sum, item) => sum + item.score, 0) / dashboardData.quiz_stats.length)
         : 0;
 
       setDashboardStats({
-        linkedChildren: 1, // This should come from parent-child relationship API
+        linkedChildren: dashboardData.linked_children_count || 0,
         averageScore,
-        lastActive: activityData.last_active || "2 hours ago",
-        tipsRead: tipsData.length || 10
+        lastActive: dashboardData.most_recent_activity?.last_active || "2 hours ago",
+        tipsRead: dashboardData.total_viewed_tips || 0
       });
 
     } catch (error) {
@@ -109,6 +56,7 @@ export default function ParentDashboard() {
       setError('Failed to load dashboard data. Please try again.');
       
       // Set fallback data
+      setLinkedChildren([]);
       setQuizStats([
         { module: "1", score: 80 },
         { module: "2", score: 85 },
@@ -124,7 +72,7 @@ export default function ParentDashboard() {
       ]);
       
       setDashboardStats({
-        linkedChildren: 1,
+        linkedChildren: 0,
         averageScore: 86,
         lastActive: "2 hours ago",
         tipsRead: 10
@@ -136,6 +84,42 @@ export default function ParentDashboard() {
 
   // Load data on component mount
   useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      console.log('DashboardStats: User not authenticated, showing fallback data');
+      setLinkedChildren([]);
+      setQuizStats([
+        { module: "1", score: 80 },
+        { module: "2", score: 85 },
+        { module: "3", score: 90 },
+        { module: "4", score: 89 }
+      ]);
+      
+      setTipsRead([
+        { topic: "Passwords", count: 2 },
+        { topic: "Monitoring", count: 3 },
+        { topic: "Controls", count: 1 },
+        { topic: "Social Media", count: 4 }
+      ]);
+      
+      setDashboardStats({
+        linkedChildren: 0,
+        averageScore: 86,
+        lastActive: "2 hours ago",
+        tipsRead: 10
+      });
+      
+      setChildActivity({
+        last_active: "2 hours ago",
+        login_count: 15,
+        time_spent: "40 mins/day",
+        recent_activities: []
+      });
+      
+      setLoading(false);
+      return;
+    }
+    
     loadDashboardData();
   }, []);
 
@@ -178,7 +162,17 @@ export default function ParentDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <div className="bg-white border border-purple-200 rounded-lg p-4 shadow hover:shadow-md transition">
           <h4 className="text-lg font-semibold mb-1">👨‍👩‍👧‍👦 Linked Children</h4>
-          <p className="text-sm text-gray-700">{dashboardStats.linkedChildren} child account linked</p>
+          <p className="text-sm text-gray-700">
+            {dashboardStats.linkedChildren === 0 
+              ? "No children linked" 
+              : `${dashboardStats.linkedChildren} child${dashboardStats.linkedChildren > 1 ? 'ren' : ''} linked`
+            }
+          </p>
+          {linkedChildren.length > 0 && (
+            <div className="mt-2 text-xs text-gray-500">
+              {linkedChildren.map(child => child.username).join(', ')}
+            </div>
+          )}
         </div>
 
         <div className="bg-white border border-purple-200 rounded-lg p-4 shadow hover:shadow-md transition">
@@ -199,35 +193,47 @@ export default function ParentDashboard() {
 
       {/* Quiz Performance Line Chart */}
       <div className="bg-white border border-purple-200 rounded-lg p-6 shadow hover:shadow-lg transition mb-10">
-        <h3 className="text-lg font-semibold text-purple-700 mb-4">📈 Child's Quiz Performance</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={quizStats}>
-            <XAxis dataKey="module" label={{ value: "Module", position: "insideBottom", dy: 10 }} />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="score"
-              stroke="#82ca9d"
-              strokeWidth={2}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <h3 className="text-lg font-semibold text-purple-700 mb-4">📈 Children's Quiz Performance</h3>
+        {quizStats.length > 0 ? (
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={quizStats}>
+              <XAxis dataKey="module" label={{ value: "Module", position: "insideBottom", dy: 10 }} />
+              <YAxis domain={[0, 100]} />
+              <Tooltip formatter={(value) => [`${value}%`, 'Score']} />
+              <Line
+                type="monotone"
+                dataKey="score"
+                stroke="#82ca9d"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex items-center justify-center h-64">
+            <p className="text-gray-500">No quiz data available</p>
+          </div>
+        )}
       </div>
 
       {/* Tips Read Breakdown */}
       <div className="bg-white border border-purple-200 rounded-lg p-6 shadow hover:shadow-lg transition">
         <h3 className="text-lg font-semibold text-purple-700 mb-4">📘 Tips Read by Topic</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={tipsRead}>
-            <XAxis dataKey="topic" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#8884d8" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        {tipsRead.length > 0 ? (
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={tipsRead}>
+              <XAxis dataKey="topic" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#8884d8" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex items-center justify-center h-64">
+            <p className="text-gray-500">No tips data available</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ from models import (
     get_children_for_parent,
     link_child_to_parent,
     unlink_child_from_parent,
+    get_available_students_for_parent,
 )
 
 def _can_act_on_parent(target_parent_id: int) -> tuple[bool, int, str]:
@@ -88,3 +89,23 @@ class UnlinkChildAPI(Resource):
         except Exception as e:
             print("UnlinkChildAPI POST error:", e)
             return {"error": "Failed to unlink child."}, 500
+
+
+class AvailableStudentsAPI(Resource):
+    @jwt_required()
+    def get(self, parent_id: int):
+        try:
+            allowed, identity, role = _can_act_on_parent(parent_id)
+            if not allowed:
+                return {"error": "Forbidden for this user."}, 403
+
+            students = get_available_students_for_parent(parent_id)  # may raise ValueError
+            return students, 200
+
+        except ValueError as e:
+            # e.g. "User X must be a parent" or "User not found"
+            return {"error": str(e)}, 400
+        except Exception as e:
+            # Log server-side so you can see the real trace
+            print("AvailableStudentsAPI GET error:", e)
+            return {"error": "Failed to fetch available students."}, 500

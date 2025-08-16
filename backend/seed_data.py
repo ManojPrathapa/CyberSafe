@@ -81,14 +81,15 @@ if cursor.fetchone()[0] == 0:
 
     # === VIDEO (with mentor_id & timestamp) ===
     cursor.execute("""
-        INSERT INTO videos (title, description, uploaded_by, mentor_id, module_id, timestamp) 
-        VALUES (?, ?, ?, ?, ?, datetime('now'))
+        INSERT INTO videos (title, description, uploaded_by, mentor_id, module_id, isApproved,timestamp)
+        VALUES (?, ?, ?, ?, ?,?,datetime('now'))
     """, (
         "Password Safety",
         "Why strong passwords matter.",
         mentor_user_id,   # uploaded_by = user_id from users table
         mentor_user_id,   # mentor_id = user_id from mentors table
-        module_id
+        module_id,
+        0
     ))
 
     # Tip

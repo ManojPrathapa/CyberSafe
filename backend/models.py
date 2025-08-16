@@ -57,9 +57,6 @@ def create_user(username, email, password, role):
         if conn:
             conn.close()
 
-import sqlite3
-from db import get_db_connection  # make sure this exists
-
 #Update the password for a user
 def update_user_password(user_id, old_password, new_password):
     conn = get_db_connection()
@@ -511,11 +508,47 @@ def get_admin_ids():
 # ------------------- REPORTS -------------------
 def get_reports_for_student(student_id):
     conn = get_db_connection()
-    rows = conn.execute("""
-        SELECT * FROM reports WHERE student_id = ?
+    
+    # Get quiz attempts as reports with enhanced data
+    reports = conn.execute("""
+        SELECT 
+            sqa.attempt_id as report_id,
+            sqa.student_id,
+            sqa.quiz_id,
+            sqa.score,
+            sqa.timestamp,
+            q.title as quiz_title,
+            m.title as module_title
+        FROM student_quiz_attempts sqa
+        LEFT JOIN quizzes q ON sqa.quiz_id = q.quiz_id
+        LEFT JOIN modules m ON q.module_id = m.module_id
+        WHERE sqa.student_id = ?
+        ORDER BY sqa.timestamp DESC
     """, (student_id,)).fetchall()
+    
+    # Convert to list of dictionaries with enhanced structure
+    result = []
+    for report in reports:
+        report_dict = dict(report)
+        
+        # Calculate duration (estimated based on score complexity)
+        score = report_dict['score']
+        if score >= 0.9:
+            duration = "8 min"
+        elif score >= 0.8:
+            duration = "10 min"
+        elif score >= 0.7:
+            duration = "12 min"
+        else:
+            duration = "15 min"
+        
+        report_dict['duration'] = duration
+        report_dict['score_percentage'] = int(score * 100)
+        
+        result.append(report_dict)
+    
     conn.close()
-    return rows
+    return result
 
 def get_reports_for_mentor(mentor_id):
     conn = get_db_connection()
@@ -545,6 +578,36 @@ def get_viewed_tips_by_parent(parent_id):
 
     return rows
 
+def get_all_tips_with_viewed_status(parent_id):
+    """Get all tips with a flag indicating if they've been viewed by the parent"""
+    conn = get_db_connection()
+    
+    # Get all tips
+    all_tips = conn.execute("""
+        SELECT t.* FROM tips t 
+        WHERE t.isDeleted = 0
+        ORDER BY t.tip_id
+    """, ()).fetchall()
+    
+    # Get viewed tip IDs for this parent
+    viewed_tip_ids = conn.execute("""
+        SELECT DISTINCT tip_id FROM tip_views 
+        WHERE parent_id = ?
+    """, (parent_id,)).fetchall()
+    
+    # Convert to set for faster lookup
+    viewed_ids = {row[0] for row in viewed_tip_ids}
+    
+    # Add viewed flag to each tip
+    result = []
+    for tip in all_tips:
+        tip_dict = dict(tip)
+        tip_dict['is_viewed'] = tip['tip_id'] in viewed_ids
+        result.append(tip_dict)
+    
+    conn.close()
+    return result
+
 def mark_tip_viewed(parent_id, tip_id):
     conn = get_db_connection()
     conn.execute("""
@@ -571,6 +634,23 @@ def file_complaint(filed_by, against, description):
 def get_complaints():
     conn = get_db_connection()
     complaints = conn.execute("SELECT * FROM complaints").fetchall()
+    conn.close()
+    return complaints
+
+
+def get_complaints_by_user(user_id):
+    """Get all complaints filed by a specific user"""
+    conn = get_db_connection()
+    complaints = conn.execute("""
+        SELECT c.*, 
+               u1.username as filed_by_username,
+               u2.username as against_username
+        FROM complaints c
+        LEFT JOIN users u1 ON c.filed_by = u1.id
+        LEFT JOIN users u2 ON c.against = u2.id
+        WHERE c.filed_by = ? AND c.isDeleted = 0
+        ORDER BY c.complaint_id DESC
+    """, (user_id,)).fetchall()
     conn.close()
     return complaints
 
@@ -668,107 +748,7 @@ def create_quiz_with_questions(data):
     return quiz_id
 
 
-'''# ------------------- PROFILE -------------------
-def get_profile_details(user_id):
-    conn = get_db_connection()
-    row = conn.execute("SELECT id, username, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
-    
-    user_role=row["role"]
-    if user_role=="mentor":
-        row_2 = conn.execute("SELECT user_id, expertise, experience_years FROM mentors WHERE user_id = ?", (user_id,)).fetchone()
-        profile_details={
-            "name":row["username"],
-            "email":row["email"],
-            "experience":row_2["experience_years"],
-            "expertise": row_2["expertise"]
-        }
-        conn.close()
-        return profile_details
-    
-    conn.close()
-    return dict(row) if row else {}
 
-def update_profile_details(args):
-    conn = get_db_connection()
-    fields = []
-    values = []
-    for field in ['username', 'email', 'password']:
-        if args.get(field):
-            fields.append(f"{field} = ?")
-            values.append(args.get(field))
-    values.append(args['user_id'])
-    if fields:
-        conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
-        conn.commit()
-    conn.close()'''
-
-# ------------------- PROFILE -------------------
-'''def get_profile_details(user_id):
-    conn = get_db_connection()
-    row = conn.execute("SELECT id, username, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
-    
-    user_role=row["role"]
-    if user_role=="mentor":
-        row_2 = conn.execute("SELECT user_id, expertise, experience_years FROM mentors WHERE user_id = ?", (user_id,)).fetchone()
-        profile_details={
-            "name":row["username"],
-            "email":row["email"],
-            "experience":row_2["experience_years"],
-            "expertise": row_2["expertise"]
-        }
-        conn.close()
-        return profile_details
-    
-    conn.close()
-    return dict(row) if row else {}
-
-def update_profile_details(args):
-    conn = get_db_connection()
-
-    #  Check if user exists
-    cur = conn.execute("SELECT id FROM users WHERE id = ?", (args['user_id'],))
-    user = cur.fetchone()
-    if not user:
-        conn.close()
-        raise ValueError("User not found")
-
-    #  Check email uniqueness
-    if args.get("email"):
-        cur = conn.execute(
-            "SELECT id FROM users WHERE email = ? AND id != ?",
-            (args["email"], args["user_id"])
-        )
-        if cur.fetchone():
-            conn.close()
-            raise ValueError("Email already in use by another account")
-
-    #  Check username uniqueness
-    if args.get("username"):
-        cur = conn.execute(
-            "SELECT id FROM users WHERE username = ? AND id != ?",
-            (args["username"], args["user_id"])
-        )
-        if cur.fetchone():
-            conn.close()
-            raise ValueError("Username already in use by another account")
-
-    #  Prepare update fields
-    fields = []
-    values = []
-    for field in ['username', 'email', 'password']:
-        if args.get(field):
-            fields.append(f"{field} = ?")
-            values.append(args.get(field))
-
-    # Update only if there’s something to update
-    if fields:
-        values.append(args['user_id'])
-        conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
-        conn.commit()
-
-    conn.close()'''
-
-from db import get_db_connection
 
 # ------------------- PROFILE -------------------
 def get_profile_details(user_id):
@@ -858,10 +838,16 @@ def update_profile_details(args):
     #  Prepare update fields
     fields = []
     values = []
-    for field in ['username', 'email', 'password']:
+    for field in ['username', 'email']:
         if args.get(field):
             fields.append(f"{field} = ?")
             values.append(args.get(field))
+    
+    # Handle password separately to hash it
+    if args.get("password"):
+        from werkzeug.security import generate_password_hash
+        fields.append("password = ?")
+        values.append(generate_password_hash(args.get("password")))
 
     # Update only if there’s something to update
     if fields:
@@ -875,13 +861,117 @@ def update_profile_details(args):
 # ------------------- ACTIVITY -------------------
 def get_student_activity(student_id):
     conn = get_db_connection()
-    quizzes = conn.execute("SELECT * FROM student_quiz_attempts WHERE student_id = ?", (student_id,)).fetchall()
-    modules = conn.execute("SELECT * FROM modules WHERE module_id IN (SELECT module_id FROM student_progress WHERE student_id = ?)", (student_id,)).fetchall()
+    
+    # Get quiz attempts
+    quiz_attempts = conn.execute("""
+        SELECT * FROM student_quiz_attempts 
+        WHERE student_id = ? 
+        ORDER BY timestamp DESC
+    """, (student_id,)).fetchall()
+    
+    # Get modules viewed
+    modules_viewed = conn.execute("""
+        SELECT m.* FROM modules m
+        WHERE m.module_id IN (
+            SELECT module_id FROM student_progress WHERE student_id = ?
+        )
+    """, (student_id,)).fetchall()
+    
+    # Calculate comprehensive stats
+    stats = calculate_student_stats(conn, student_id, quiz_attempts, modules_viewed)
+    
     conn.close()
+    
     return {
-        "quiz_attempts": [dict(q) for q in quizzes],
-        "modules_viewed": [dict(m) for m in modules]
+        "quiz_attempts": [dict(q) for q in quiz_attempts],
+        "modules_viewed": [dict(m) for m in modules_viewed],
+        **stats
     }
+
+def calculate_student_stats(conn, student_id, quiz_attempts, modules_viewed):
+    """Calculate comprehensive student activity statistics"""
+    
+    # Get last active time (most recent quiz attempt)
+    last_active = "Never"
+    if quiz_attempts:
+        last_attempt = quiz_attempts[0]
+        last_active = format_time_ago(last_attempt['timestamp'])
+    
+    # Get login count (approximated by number of quiz attempts)
+    login_count = len(quiz_attempts)
+    
+    # Calculate average time spent (estimated based on quiz attempts)
+    time_spent = "0 mins/day"
+    if quiz_attempts:
+        # Estimate 10-15 minutes per quiz attempt
+        avg_time_per_attempt = 12  # minutes
+        total_attempts = len(quiz_attempts)
+        estimated_total_time = total_attempts * avg_time_per_attempt
+        time_spent = f"{estimated_total_time} mins total"
+    
+    # Get last module watched
+    last_module = "No modules completed"
+    if modules_viewed:
+        last_module = f"Module {modules_viewed[0]['module_id']} - {modules_viewed[0]['title']}"
+    
+    # Get recent badge (based on quiz performance)
+    recent_badge = "No badges yet"
+    if quiz_attempts:
+        recent_scores = [attempt['score'] for attempt in quiz_attempts[:3]]  # Last 3 attempts
+        avg_recent_score = sum(recent_scores) / len(recent_scores)
+        
+        if avg_recent_score >= 0.9:
+            recent_badge = "Quiz Master"
+        elif avg_recent_score >= 0.8:
+            recent_badge = "Cyber Champion"
+        elif avg_recent_score >= 0.7:
+            recent_badge = "Safe Learner"
+        else:
+            recent_badge = "Getting Started"
+    
+    # Get last login (most recent activity)
+    last_login = "Never"
+    if quiz_attempts:
+        last_login = format_date(quiz_attempts[0]['timestamp'])
+    
+    return {
+        "last_active": last_active,
+        "login_count": login_count,
+        "time_spent": time_spent,
+        "last_module": last_module,
+        "recent_badge": recent_badge,
+        "last_login": last_login
+    }
+
+def format_time_ago(timestamp_str):
+    """Convert timestamp to 'time ago' format"""
+    try:
+        from datetime import datetime
+        timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+        now = datetime.now()
+        diff = now - timestamp
+        
+        if diff.days > 0:
+            return f"{diff.days} day{'s' if diff.days != 1 else ''} ago"
+        elif diff.seconds > 3600:
+            hours = diff.seconds // 3600
+            return f"{hours} hour{'s' if hours != 1 else ''} ago"
+        elif diff.seconds > 60:
+            minutes = diff.seconds // 60
+            return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+        else:
+            return "Just now"
+    except:
+        return "Recently"
+
+def format_date(timestamp_str):
+    """Convert timestamp to readable date format"""
+    try:
+        from datetime import datetime
+        timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+        return timestamp.strftime('%B %d, %Y')
+    except:
+        return "Unknown"
 
 # ------------------- ADMIN -------------------
 def get_all_users():
@@ -979,11 +1069,7 @@ def post_alert(message):
     return alert_id
 
 
-'''def soft_delete_module(module_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE modules SET isDeleted = 1 WHERE module_id = ?", (module_id,))
-    conn.commit()
-    conn.close()'''
+
 
 def soft_delete_module(module_id):
     conn = get_db_connection()
@@ -1007,11 +1093,7 @@ def get_all_modules():
     conn.close()
     return modules
 
-'''def soft_delete_quiz(quiz_id):
-    conn = get_db_connection()
-    conn.execute("UPDATE quizzes SET isDeleted = 1 WHERE quiz_id = ?", (quiz_id,))
-    conn.commit()
-    conn.close()'''
+
 
 def soft_delete_quiz(quiz_id):
     conn = get_db_connection()
@@ -1096,14 +1178,7 @@ def soft_delete_report(report_id):
     return updated_rows > 0
 
 
-def get_reports_for_student(student_id):
-    conn = get_db_connection()
-    reports = conn.execute(
-        "SELECT * FROM reports WHERE student_id = ? AND isDeleted = 0",
-        (student_id,)
-    ).fetchall()
-    conn.close()
-    return reports
+
 
 
 
@@ -1125,6 +1200,285 @@ def get_all_alerts():
     alerts = conn.execute("SELECT * FROM alerts WHERE isDeleted = 0").fetchall()
     conn.close()
     return alerts
+
+# Theme Preferences Functions
+def get_user_theme(user_id):
+    """Get user's theme preference"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Check if user exists
+    user = cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        raise ValueError(f"User with id {user_id} does not exist.")
+    
+    # Get theme preference, create default if not exists
+    preference = cursor.execute(
+        "SELECT theme FROM user_preferences WHERE user_id = ?", 
+        (user_id,)
+    ).fetchone()
+    
+    if not preference:
+        # Create default preference
+        cursor.execute(
+            "INSERT INTO user_preferences (user_id, theme) VALUES (?, ?)",
+            (user_id, 'system')
+        )
+        conn.commit()
+        theme = 'system'
+    else:
+        theme = preference['theme']
+    
+    conn.close()
+    return theme
+
+
+def set_user_theme(user_id, theme):
+    """Set user's theme preference"""
+    if theme not in ['system', 'light', 'dark']:
+        raise ValueError("Theme must be 'system', 'light', or 'dark'")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Check if user exists
+    user = cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        raise ValueError(f"User with id {user_id} does not exist.")
+    
+    # Update or insert theme preference
+    cursor.execute("""
+        INSERT OR REPLACE INTO user_preferences (user_id, theme, updated_at) 
+        VALUES (?, ?, CURRENT_TIMESTAMP)
+    """, (user_id, theme))
+    
+    conn.commit()
+    conn.close()
+
+
+def get_user_notification_preferences(user_id):
+    """Get user's notification preferences"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Check if user exists
+    user = cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        raise ValueError(f"User with id {user_id} does not exist.")
+    
+    # Get notification preferences, create default if not exists
+    preference = cursor.execute(
+        "SELECT notification_email, notification_push, notification_sms, frequency FROM user_preferences WHERE user_id = ?", 
+        (user_id,)
+    ).fetchone()
+    
+    if not preference:
+        # Create default preference
+        cursor.execute(
+            "INSERT INTO user_preferences (user_id, notification_email, notification_push, notification_sms, frequency) VALUES (?, ?, ?, ?, ?)",
+            (user_id, 1, 1, 0, 'immediate')
+        )
+        conn.commit()
+        email_enabled = 1
+        push_enabled = 1
+        sms_enabled = 0
+        frequency = 'immediate'
+    else:
+        email_enabled = preference['notification_email']
+        push_enabled = preference['notification_push']
+        sms_enabled = preference['notification_sms']
+        frequency = preference['frequency']
+    
+    conn.close()
+    return {
+        'notification_email': bool(email_enabled),
+        'notification_push': bool(push_enabled),
+        'notification_sms': bool(sms_enabled),
+        'frequency': frequency
+    }
+
+
+def set_user_notification_preferences(user_id, email_enabled, push_enabled, sms_enabled=False, frequency='immediate'):
+    """Set user's notification preferences"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Check if user exists
+    user = cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        raise ValueError(f"User with id {user_id} does not exist.")
+    
+    # Validate frequency
+    if frequency not in ['immediate', 'daily', 'weekly']:
+        raise ValueError("Frequency must be 'immediate', 'daily', or 'weekly'")
+    
+    # Update or insert notification preferences
+    cursor.execute("""
+        INSERT OR REPLACE INTO user_preferences 
+        (user_id, notification_email, notification_push, notification_sms, frequency, updated_at) 
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    """, (user_id, 1 if email_enabled else 0, 1 if push_enabled else 0, 1 if sms_enabled else 0, frequency))
+    
+    conn.commit()
+    conn.close()
+
+
+# Parent-Child Management Functions
+def get_children_for_parent(parent_id):
+    """Get all children linked to a parent"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Check if user exists and is a parent
+    user = cursor.execute("""
+        SELECT u.id, u.username, u.email, u.role 
+        FROM users u 
+        JOIN parents p ON u.id = p.user_id 
+        WHERE u.id = ?
+    """, (parent_id,)).fetchone()
+    
+    if not user:
+        raise ValueError(f"User {parent_id} must be a parent.")
+    
+    # Get linked children
+    children = cursor.execute("""
+        SELECT u.id, u.username, u.email, u.role, s.age
+        FROM users u
+        JOIN students s ON u.id = s.user_id
+        JOIN parent_student ps ON s.user_id = ps.student_id
+        WHERE ps.parent_id = ?
+    """, (parent_id,)).fetchall()
+    
+    conn.close()
+    return [dict(child) for child in children]
+
+
+def get_available_students_for_parent(parent_id):
+    """Get all students that can be linked to a parent (not already linked)"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Check if user exists and is a parent
+    user = cursor.execute("""
+        SELECT u.id, u.username, u.email, u.role 
+        FROM users u 
+        JOIN parents p ON u.id = p.user_id 
+        WHERE u.id = ?
+    """, (parent_id,)).fetchone()
+    
+    if not user:
+        raise ValueError(f"User {parent_id} must be a parent.")
+    
+    # Get all students that are not already linked to this parent
+    students = cursor.execute("""
+        SELECT u.id, u.username, u.email, u.role, s.age
+        FROM users u
+        JOIN students s ON u.id = s.user_id
+        WHERE u.role = 'student' 
+        AND u.id NOT IN (
+            SELECT ps.student_id 
+            FROM parent_student ps 
+            WHERE ps.parent_id = ?
+        )
+        ORDER BY u.username
+    """, (parent_id,)).fetchall()
+    
+    conn.close()
+    return [dict(student) for student in students]
+
+
+def link_child_to_parent(parent_id, student_id):
+    """Link a student to a parent"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Check if parent exists
+        parent = cursor.execute("""
+            SELECT u.id FROM users u 
+            JOIN parents p ON u.id = p.user_id 
+            WHERE u.id = ?
+        """, (parent_id,)).fetchone()
+        
+        if not parent:
+            raise ValueError(f"User {parent_id} must be a parent.")
+        
+        # Check if student exists
+        student = cursor.execute("""
+            SELECT u.id FROM users u 
+            JOIN students s ON u.id = s.user_id 
+            WHERE u.id = ?
+        """, (student_id,)).fetchone()
+        
+        if not student:
+            raise ValueError(f"User {student_id} must be a student.")
+        
+        # Check if link already exists
+        existing = cursor.execute("""
+            SELECT parent_id FROM parent_student 
+            WHERE parent_id = ? AND student_id = ?
+        """, (parent_id, student_id)).fetchone()
+        
+        if existing:
+            return False  # Already linked
+        
+        # Create link
+        cursor.execute("""
+            INSERT INTO parent_student (parent_id, student_id) 
+            VALUES (?, ?)
+        """, (parent_id, student_id))
+        
+        conn.commit()
+        return True
+        
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+
+
+def unlink_child_from_parent(parent_id, student_id):
+    """Unlink a student from a parent"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Check if parent exists
+        parent = cursor.execute("""
+            SELECT u.id FROM users u 
+            JOIN parents p ON u.id = p.user_id 
+            WHERE u.id = ?
+        """, (parent_id,)).fetchone()
+        
+        if not parent:
+            raise ValueError(f"User {parent_id} must be a parent.")
+        
+        # Check if student exists
+        student = cursor.execute("""
+            SELECT u.id FROM users u 
+            JOIN students s ON u.id = s.user_id 
+            WHERE u.id = ?
+        """, (student_id,)).fetchone()
+        
+        if not student:
+            raise ValueError(f"User {student_id} must be a student.")
+        
+        # Remove link
+        cursor.execute("""
+            DELETE FROM parent_student 
+            WHERE parent_id = ? AND student_id = ?
+        """, (parent_id, student_id))
+        
+        conn.commit()
+        return cursor.rowcount > 0
+        
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+
 
 #-------------------- STUDENT DASHBOARD -------------------
 def get_student_scores(student_id):
@@ -1204,12 +1558,213 @@ def get_module_progress(student_id):
 #----------------MENTOR DASHBOARD------------------------------#
 def get_mentor_video_status(user_id):
     conn=get_db_connection()
-    mentor_videos=conn.execute("SELECT * FROM videos WHERE is mentor_id= ? AND isDeleted = 0",(user_id,)).fetchall()
+    mentor_videos=conn.execute("SELECT * FROM videos WHERE mentor_id= ? AND isDeleted = 0",(user_id,)).fetchall()
     conn.close()
     return mentor_videos
 
 def get_mentor_doubt_status(user_id):
     conn=get_db_connection()
-    mentor_doubts=conn.execute("SELECT * FROM doubts WHERE is mentor_id= ? AND isDeleted = 0",(user_id,)).fetchall()
+    mentor_doubts=conn.execute("SELECT * FROM doubts WHERE mentor_id= ? AND isDeleted = 0",(user_id,)).fetchall()
     conn.close()
     return mentor_doubts
+def get_parent_children_activity(parent_id):
+    """Get comprehensive activity data for all children linked to a parent"""
+    conn = get_db_connection()
+    
+    # Get all children linked to this parent
+    children = conn.execute("""
+        SELECT s.id as student_id, s.username, s.email
+        FROM users s
+        JOIN parent_student ps ON s.id = ps.student_id
+        WHERE ps.parent_id = ?
+        ORDER BY s.username
+    """, (parent_id,)).fetchall()
+    
+    # Get activity data for each child
+    children_activity = []
+    for child in children:
+        child_id = child['student_id']
+        
+        # Get quiz attempts for this child
+        quiz_attempts = conn.execute("""
+            SELECT * FROM student_quiz_attempts 
+            WHERE student_id = ? 
+            ORDER BY timestamp DESC
+        """, (child_id,)).fetchall()
+        
+        # Get modules viewed by this child
+        modules_viewed = conn.execute("""
+            SELECT m.* FROM modules m
+            WHERE m.module_id IN (
+                SELECT module_id FROM student_progress WHERE student_id = ?
+            )
+        """, (child_id,)).fetchall()
+        
+        # Calculate stats for this child
+        stats = calculate_student_stats(conn, child_id, quiz_attempts, modules_viewed)
+        
+        children_activity.append({
+            "student_id": child_id,
+            "username": child['username'],
+            "email": child['email'],
+            "quiz_attempts": [dict(q) for q in quiz_attempts],
+            "modules_viewed": [dict(m) for m in modules_viewed],
+            **stats
+        })
+    
+    conn.close()
+    return children_activity
+
+def get_parent_dashboard_data(parent_id):
+    """Get comprehensive dashboard data for a parent in a single query"""
+    conn = get_db_connection()
+    
+    # Get all children linked to this parent
+    children = conn.execute("""
+        SELECT s.id as student_id, s.username, s.email
+        FROM users s
+        JOIN parent_student ps ON s.id = ps.student_id
+        WHERE ps.parent_id = ?
+        ORDER BY s.username
+    """, (parent_id,)).fetchall()
+    
+    # Get all quiz attempts for all children in one query
+    if children:
+        child_ids = [child['student_id'] for child in children]
+        placeholders = ','.join(['?' for _ in child_ids])
+        all_attempts = conn.execute(f"""
+            SELECT sqa.*, q.title as quiz_title, m.title as module_title
+            FROM student_quiz_attempts sqa
+            LEFT JOIN quizzes q ON sqa.quiz_id = q.quiz_id
+            LEFT JOIN modules m ON q.module_id = m.module_id
+            WHERE sqa.student_id IN ({placeholders})
+            ORDER BY sqa.timestamp DESC
+        """, child_ids).fetchall()
+    else:
+        all_attempts = []
+    
+    # Get viewed tips for parent
+    viewed_tips = conn.execute("""
+        SELECT t.* FROM tips t
+        JOIN tip_views v ON t.tip_id = v.tip_id
+        WHERE v.parent_id = ?
+    """, (parent_id,)).fetchall()
+    
+    # Get most recent activity from any child
+    most_recent_activity = None
+    if all_attempts:
+        most_recent_attempt = all_attempts[0]
+        most_recent_activity = {
+            "last_active": format_time_ago(most_recent_attempt['timestamp']),
+            "login_count": len(all_attempts),
+            "time_spent": f"{len(all_attempts) * 12} mins total",
+            "last_login": format_date(most_recent_attempt['timestamp'])
+        }
+    
+    # Calculate quiz stats
+    module_scores = {}
+    for attempt in all_attempts:
+        module_id = attempt['quiz_id']
+        if module_id not in module_scores:
+            module_scores[module_id] = []
+        module_scores[module_id].append(attempt['score'])
+    
+    quiz_stats = []
+    for module_id, scores in module_scores.items():
+        avg_score = sum(scores) / len(scores)
+        quiz_stats.append({
+            "module": f"Module {module_id}",
+            "score": round(avg_score * 100)
+        })
+    
+    # Calculate tips stats
+    category_counts = {}
+    for tip in viewed_tips:
+        category = tip['category'] or 'other'
+        category_counts[category] = category_counts.get(category, 0) + 1
+    
+    tips_stats = []
+    for category, count in category_counts.items():
+        tips_stats.append({
+            "topic": category.replace('_', ' ').title(),
+            "count": count
+        })
+    
+    conn.close()
+    
+    return {
+        "linked_children_count": len(children),
+        "linked_children": [dict(child) for child in children],
+        "quiz_stats": quiz_stats,
+        "tips_stats": tips_stats,
+        "most_recent_activity": most_recent_activity,
+        "total_quiz_attempts": len(all_attempts),
+        "total_viewed_tips": len(viewed_tips)
+    }
+
+#--------------MENTOR PROFILE-------------------------------------#
+
+def update_mentor_profile_details(args):
+    conn = get_db_connection()
+
+    #  Check if user exists
+    cur = conn.execute("SELECT id FROM users WHERE id = ?", (args['user_id'],))
+    user = cur.fetchone()
+    if not user:
+        conn.close()
+        raise ValueError("User not found")
+
+    #  Check email uniqueness
+    if args.get("email"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE email = ? AND id != ?",
+            (args["email"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Email already in use by another account")
+
+    #  Check username uniqueness
+    if args.get("username"):
+        cur = conn.execute(
+            "SELECT id FROM users WHERE username = ? AND id != ?",
+            (args["username"], args["user_id"])
+        )
+        if cur.fetchone():
+            conn.close()
+            raise ValueError("Username already in use by another account")
+
+    #  Prepare update fields
+    fields = []
+    values = []
+    for field in ['username', 'email']:
+        if args.get(field):
+            fields.append(f"{field} = ?")
+            values.append(args.get(field))
+    
+
+
+    # Update only if there’s something to update
+    if fields:
+        values.append(args['user_id'])
+        conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", values)
+        conn.commit()
+        
+        
+    #  Prepare additional update fields
+        
+    fields_2 = []
+    values_2 = []
+    for field_2 in ['expertise', 'experience_years']:
+        if args.get(field_2):
+            fields_2.append(f"{field_2} = ?")
+            values_2.append(args.get(field_2))
+
+            
+    # Update only if there’s something to update
+    if fields_2:
+        values_2.append(args['user_id'])
+        conn.execute(f"UPDATE mentors SET {', '.join(fields_2)} WHERE user_id = ?", values_2)
+        conn.commit()
+        
+    conn.close()

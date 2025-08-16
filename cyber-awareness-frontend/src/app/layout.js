@@ -2,6 +2,7 @@
 
 import '../app/globals.css'; // Use relative path instead of "@/styles/..."
 import Footer from '@/components/Footer';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 export const metadata = {
   title: 'Cyber Awareness App',
@@ -12,10 +13,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col font-sans bg-gray-100">
-        <main className="flex-grow w-full">
-          {children}
-        </main>
-        <Footer />
+        <ThemeProvider>
+          <main className="flex-grow w-full">
+            {children}
+          </main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

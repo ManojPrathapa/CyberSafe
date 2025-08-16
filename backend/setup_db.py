@@ -70,10 +70,12 @@ CREATE TABLE IF NOT EXISTS videos (
     views INTEGER DEFAULT 0,
     likes INTEGER DEFAULT 0,
     isDeleted BOOLEAN DEFAULT 0,
-    timestamp TEXT,
+    isApproved BOOLEAN DEFAULT 0,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(uploaded_by) REFERENCES users(id),
     FOREIGN KEY(mentor_id) REFERENCES mentors(user_id),
     FOREIGN KEY(module_id) REFERENCES modules(module_id)
+    
 );
 
                      
@@ -212,6 +214,19 @@ CREATE TABLE IF NOT EXISTS alerts (
     message TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     isDeleted BOOLEAN DEFAULT 0
+);
+
+-- USER PREFERENCES
+CREATE TABLE IF NOT EXISTS user_preferences (
+    user_id INTEGER PRIMARY KEY,
+    theme TEXT DEFAULT 'system',
+    notification_email BOOLEAN DEFAULT 1,
+    notification_push BOOLEAN DEFAULT 1,
+    notification_sms BOOLEAN DEFAULT 0,
+    frequency TEXT DEFAULT 'immediate',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
 );
 """)
 
