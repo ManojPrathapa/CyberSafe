@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { API_BASE_URL } from "@/src/app/utils/apiConfig";
-import { getToken } from "@/src/app/utils/auth";
+import { getToken, getUser } from "@/src/app/utils/auth";
+import QuizManager from "./QuizManager";   // ✅ Import added
 
 export default function ContentManager() {
   const [openModule, setOpenModule] = useState(null);
@@ -102,17 +103,17 @@ export default function ContentManager() {
 
                 {/* Quizzes */}
                 <div>
-                  <h4 className="font-semibold">📝 Quizzes:</h4>
-                  {mod.quizzes && mod.quizzes.length > 0 ? (
-                    <ul className="list-disc list-inside ml-4 text-sm">
-                      {mod.quizzes.map((q) => (
-                        <li key={q.quiz_id}>{q.title}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500 text-sm">No quizzes available</p>
-                  )}
-                </div>
+                <h4 className="font-semibold">📝 Quizzes:</h4>
+                {mod.quizzes && mod.quizzes.length > 0 ? (
+                  <div className="space-y-4">
+                    {mod.quizzes.map((q) => (
+                      <QuizManager key={q.quiz_id} quiz={q} studentId={getUser().id} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm">No quizzes available</p>
+                )}
+              </div>
               </div>
             )}
           </div>
