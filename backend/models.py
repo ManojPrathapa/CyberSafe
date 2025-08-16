@@ -365,11 +365,55 @@ def reply_to_doubt(doubt_id, answer):
     conn.commit()
     conn.close()
 
-import datetime
-from db import get_db_connection
+def get_mentor_for_module(module_id):
+    """
+    Returns mentor info for a module.
+    If module.mentor_id is present, returns that mentor (joined with users table).
+    Otherwise returns first approved mentor as fallback (or None if none).
+    """
+    conn = get_db_connection()
+    # Try module's assigned mentor
+    mentor = conn.execute("""
+        SELECT m.user_id AS mentor_id,
+               u.username,
+               u.email,
+               m.expertise,
+               m.experience_years,
+               m.isApproved
+        FROM modules mod
+        LEFT JOIN mentors m ON mod.mentor_id = m.user_id
+        LEFT JOIN users u ON m.user_id = u.id
+        WHERE mod.module_id = ? AND mod.isDeleted = 0
+    """, (module_id,)).fetchone()
+
+    if mentor and mentor["mentor_id"]:
+        conn.close()
+        return mentor
+
+    # Fallback: pick first approved mentor
+    fallback = conn.execute("""
+        SELECT m.user_id AS mentor_id,
+               u.username,
+               u.email,
+               m.expertise,
+               m.experience_years,
+               m.isApproved
+        FROM mentors m
+        JOIN users u ON m.user_id = u.id
+        WHERE m.isApproved = 1 AND u.isDeleted = 0
+        LIMIT 1
+    """).fetchone()
+
+    conn.close()
+    return fallback
+
 
 
 # ------------------- VIDEOS -------------------
+
+
+import datetime
+from db import get_db_connection
 
 def create_video(title, description, uploaded_by, mentor_id, module_id,video_url):
     conn = get_db_connection()

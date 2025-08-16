@@ -38,6 +38,8 @@ from resources.preferences import ThemePrefsAPI, NotificationPrefsAPI
 from resources.parents import ParentChildrenAPI, LinkChildAPI, UnlinkChildAPI, AvailableStudentsAPI
 from resources.studentDashboard import StudentDashboardAPI
 from resources.videos import Mentor_VideoListAPI,VideoListAPI
+from resources.modules_and_mentors import ModuleMentorAPI
+
 
 app = Flask(__name__)
 
@@ -86,7 +88,8 @@ api.add_resource(DeleteQuizAPI, '/api/quiz/delete/<int:quiz_id>')
 api.add_resource(MentorDoubtAPI, '/api/doubts/<int:mentor_id>')
 api.add_resource(ReplyToDoubtAPI, '/api/doubt/reply')
 api.add_resource(DeleteDoubtAPI, '/api/doubt/delete/<int:doubt_id>')
-#api.add_resource(StudentDoubtsAPI, "/api/student/doubts", "/api/student/doubts/<int:doubt_id>")
+api.add_resource(ModuleMentorAPI, '/api/modules/<int:module_id>/mentor')
+api.add_resource(StudentDoubtsAPI, "/api/student/doubts", "/api/student/doubts/<int:doubt_id>")
 
 
 

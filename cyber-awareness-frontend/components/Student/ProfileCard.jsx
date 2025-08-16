@@ -24,7 +24,7 @@ export default function ProfileCard() {
           throw new Error("User not logged in");
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/profile/${user.id}`, {
+        const res = await fetch(`${API_BASE_URL}/profile/${user.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -58,7 +58,7 @@ export default function ProfileCard() {
         throw new Error("User not logged in");
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/profile/edit`, {
+      const res = await fetch(`${API_BASE_URL}/profile/edit`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
