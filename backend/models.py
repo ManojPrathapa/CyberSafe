@@ -1906,7 +1906,17 @@ def get_mentor_videos(user_id):
     print(type(mentor_videos))   
     mentor_video_list=[]
     for video in mentor_videos:
-        modified_video_url="http://127.0.0.1:5050/backend"+str(video["video_url"])
+        modified_video_url= f"http://127.0.0.1:5050{video['video_url']}"
+        if video["isApproved"]==0:
+            likes=0
+            views=0
+            status="Approval Pending"
+        if video["isApproved"]==1:
+            likes=video["likes"]
+            views=video["views"]
+            status="Approved"
+            
+        #modified_video_url="http://127.0.0.1:5050/"+str(video["video_url"])
         data={
         "video_id":video["video_id"],
         "title":video["title"],
@@ -1914,11 +1924,11 @@ def get_mentor_videos(user_id):
         "uploaded_by":video["uploaded_by"],
         "mentor_id":video["mentor_id"],
         "module_id":video["module_id"],
-        "views":video["views"],
-        "likes":video["likes"],
+        "views":views,
+        "likes":likes,
         "video_url":modified_video_url,
         "isDeleted":video["isDeleted"],
-        "isApproved":video["isApproved"],
+        "isApproved":status,
         "timestamp":video["timestamp"]
         }
         mentor_video_list.append(data)
@@ -1926,3 +1936,24 @@ def get_mentor_videos(user_id):
         
     conn.close()
     return mentor_video_list
+
+def get_mentor_tips(user_id):
+    conn = get_db_connection()
+    print("get_mentor_tips")
+    mentor_tips = conn.execute("SELECT * FROM tips WHERE mentor_id=? AND isDeleted = 0",(user_id,)).fetchall()
+    print(mentor_tips)
+    conn.close()
+    return mentor_tips
+
+def upload_mentor_tips(title,content,mentor_id,category,source_url):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+
+    cursor.execute("""
+        INSERT INTO tips (title,content,mentor_id,category,source_url)
+        VALUES (?, ?, ?, ?, ?)
+    """, (title,content,mentor_id,category,source_url))
+
+    conn.commit()
+    conn.close()
