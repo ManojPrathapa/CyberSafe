@@ -20,6 +20,7 @@ export default function ContentManager() {
   //const [Resource_Link, setResourceLink] = useState("");
   const [modules, getModules] = useState([]);
   const [videoFile, setVideoFile] = useState(null);
+  const [module_number, setmodule_number] = useState([]);
   //  const [videourl, getvideourl] = useState(null);
 
   //const modules = [
@@ -60,6 +61,37 @@ export default function ContentManager() {
       console.log("VIDEO DATA");
       console.log(data);
       getModules(data);
+
+      console.log(data);
+      console.log(typeof data);
+    } catch (error) {
+      console.error("Failed to  fetch modules", error);
+    } finally {
+      console.log("In Finally");
+    }
+  };
+
+  const fetch_module_number = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        console.error("No token found. Please log in.");
+        return;
+      }
+      const user = getUser();
+      console.log(user);
+      const res = await fetch(`${API_BASE_URL}/api/modules`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+      const data = await res.json();
+      setmodule_number(data);
 
       console.log(data);
       console.log(typeof data);
@@ -130,6 +162,7 @@ export default function ContentManager() {
 
   useEffect(() => {
     Fetch_Modules();
+    fetch_module_number();
     console.log("Fetch Modules is executed");
     console.log(typeof modules);
   }, []);
@@ -147,8 +180,9 @@ export default function ContentManager() {
             className="w-full flex justify-between items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-t"
           >
             <span className="text-lg font-semibold">
-              <h4>Module Title: {mod.title}</h4>
-              <p>Module Description: {mod.description}</p>
+              <h4>Video Title: {mod.title}</h4>
+              <p>Video Description: {mod.description}</p>
+              <p>Module ID: {mod.module_id}</p>
             </span>
             <ChevronDown
               className={`transform transition ${
@@ -173,32 +207,12 @@ export default function ContentManager() {
                   <p></p>
                   <p></p>
                 </div>
+                <br></br>
+                <p></p>
                 <h4 className="font-semibold">STATUS: {mod.isApproved}</h4>
                 <p></p>
-                {mod.isApproved !== "Approval Pending" && (
-                  <>
-                    <h3 className="font-semibold">LIKES: {mod.likes} 👍</h3>
-                    <h3 className="font-semibold">VIEWS: {mod.views} views </h3>
-                    <p></p>
-                  </>
-                )}
                 <p></p>
                 <ul className="list-disc list-inside ml-4 text-sm"></ul>
-              </div>
-
-              <div className="flex gap-3 mt-4">
-                <button
-                  onClick={() => setShowTextInput(!showTextInput)}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
-                >
-                  ➕ Add Content
-                </button>
-                <button
-                  onClick={() => setShowFileUpload(!showFileUpload)}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"
-                >
-                  ⬆️ Upload Content
-                </button>
               </div>
 
               {showTextInput && (
@@ -238,12 +252,11 @@ export default function ContentManager() {
             className="w-full border px-3 py-1 rounded"
           >
             <option value="">Select Module</option>
-            <option value="1">Module 1</option>
-            <option value="2">Module 2</option>
-            <option value="3">Module 3</option>
-            <option value="4">Module 4</option>
-            <option value="5">Module 5</option>
-            <option value="6">Module 6</option>
+            {module_number.map((mod) => (
+              <option key={mod.module_id} value={mod.module_id}>
+                {mod.title}
+              </option>
+            ))}
           </select>
 
           <p></p>

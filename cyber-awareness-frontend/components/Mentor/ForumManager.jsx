@@ -21,7 +21,7 @@ export default function ForumManager() {
       }
       const user = getUser();
       console.log(user);
-      const res = await fetch(`${API_BASE_URL}/doubts/${user.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/doubts/${user.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default function ForumManager() {
       }
 
       // Send reply to backend
-      const res = await fetch(`${API_BASE_URL}/doubt/reply`, {
+      const res = await fetch(`${API_BASE_URL}/api/doubt/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +98,6 @@ export default function ForumManager() {
         )
       );
 
-      // Clear reply box for that doubt
       setReplies((prev) => ({ ...prev, [Doubt_Id]: "" }));
     } catch (error) {
       console.error("Error sending reply:", error);
@@ -143,7 +142,7 @@ export default function ForumManager() {
           >
             <div className="mb-2 text-sm text-gray-800">
               <MessageSquare className="inline w-4 h-4 mr-1 text-blue-500" />{" "}
-              <strong>Student:</strong> {doubt.question}
+              <strong>Student{doubt.student_id}</strong> {doubt.question}
               <span className="ml-4 text-xs text-gray-500">
                 {doubt.timestamp}
               </span>
@@ -177,7 +176,6 @@ export default function ForumManager() {
                 <Trash2 size={14} /> Delete
               </button>
             </div>
-            {/* Replies */}
             {doubt.length > 0 && (
               <div className="mt-4 border-t pt-2 space-y-2">
                 {doubt.responses.map((r, idx) => (
@@ -193,7 +191,6 @@ export default function ForumManager() {
                 ))}
               </div>
             )}
-            *{/* Reply Box */}
             {replies[doubt.doubt_id] !== undefined && (
               <div className="mt-3 flex gap-2">
                 <input

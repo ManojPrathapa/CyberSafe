@@ -186,21 +186,23 @@ class ReplyToDoubtAPI(Resource):
         data = request.get_json()
         doubt_id = data.get("doubt_id")
         answer = data.get("answer")
-        student_id = data.get("student_id")  # required for notification
+        #student_id = data.get("student_id") 
 
-        if not doubt_id or not answer or not student_id:
-            return {"message": "Missing required fields (doubt_id, answer, student_id)"}, 400
+        #if not doubt_id or not answer or not student_id:
+        #    return {"message": "Missing required fields (doubt_id, answer, student_id)"}, 400
+        
+        if not doubt_id or not answer:
+            return {"message": "Missing required fields (doubt_id, answer)"}, 400
 
-        # Save mentor reply
         reply_to_doubt(doubt_id, answer)
 
-        # Trigger notification: Mentor -> Student
-        send_notification(
-            event_type="doubt_mentor",
-            related_id=doubt_id,
-            student_id=student_id,
-            message="Your doubt has been answered by mentor"
-        )
+
+        #send_notification(
+        #    event_type="doubt_mentor",
+        #    related_id=doubt_id,
+        #    student_id=student_id,
+        #    message="Your doubt has been answered by mentor"
+        #)
 
         return {"message": "Reply submitted successfully"}, 200
 
