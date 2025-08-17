@@ -33,8 +33,8 @@ export default function SupportHome() {
 
         <nav className={`${mobileMenuOpen ? "block" : "hidden"} lg:block`}>
           <div className="flex flex-col gap-4">
-            <button onClick={() => setSelectedSection("alert")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">ALERT</button>
-            <button onClick={() => setSelectedSection("chat")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">CHAT </button>
+            {/* <button onClick={() => setSelectedSection("alert")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">ALERT</button>
+            <button onClick={() => setSelectedSection("chat")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">CHAT </button> */}
             <button onClick={() => setSelectedSection("complaints")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">COMPLAINTS</button>
           </div>
         </nav>

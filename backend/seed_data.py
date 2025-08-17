@@ -18,10 +18,11 @@ cursor.execute("SELECT COUNT(*) FROM users")
 if cursor.fetchone()[0] == 0:
     # USERS
     users = [
-        ("student1", "student1@example.com", generate_password_hash("pass1234"), "student"),
+        ("student1", "student1@example.com", generate_password_hash("pass123"), "student"),
         ("parent1", "parent1@example.com", generate_password_hash("pass123"), "parent"),
         ("mentor1", "mentor1@example.com", generate_password_hash("pass123"), "mentor"),
-        ("admin1", "admin1@example.com", generate_password_hash("adminpass"), "admin"),
+        ("admin1", "admin1@example.com", generate_password_hash("pass123"), "admin"),
+        ("support1", "support@example.com", generate_password_hash("pass123"), "support")
     ]
     cursor.executemany(
         "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)", 
