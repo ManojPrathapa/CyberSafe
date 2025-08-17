@@ -13,7 +13,7 @@ export default function ParentHome() {
   // Fetch tips from backend using API helpers
   const fetchTopics = async () => {
     try {
-      const tipsData = await apiHelpers.get('/tips');
+      const tipsData = await apiHelpers.get('/api/tips');
       return tipsData;
     } catch (error) {
       console.error('Error fetching topics:', error);

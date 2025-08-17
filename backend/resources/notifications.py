@@ -2,6 +2,20 @@ from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
 from models import get_notifications
 
+from models import get_notifications, mark_notification_read
+
+
+class NotificationReadAPI(Resource):
+    def put(self, notification_id):
+        mark_notification_read(notification_id)
+        return {"message": "Notification marked as read"}, 200
+    
+from models import get_notifications, mark_notification_read
+
+class NotificationsAPI(Resource):
+    def get(self, user_id):
+        return get_notifications(user_id), 200
+
 
 class NotificationAPI(Resource):
     @jwt_required()  # Only authentication required, no role check

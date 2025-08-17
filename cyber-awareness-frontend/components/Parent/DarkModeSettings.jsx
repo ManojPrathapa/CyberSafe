@@ -82,7 +82,7 @@ export default function DarkModeSettings() {
       setLoading(true);
       setMsg(null);
       try {
-        const data = await apiHelpers.get(`/prefs/theme/${userId}`);
+        const data = await apiHelpers.get(`/api/prefs/theme/${userId}`);
         if (data?.theme) {
           setTheme(data.theme);
           if (typeof window !== "undefined") {

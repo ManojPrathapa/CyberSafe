@@ -25,7 +25,7 @@ export default function ParentProfile() {
   // Fetch profile data using API helpers
   const fetchProfile = async (userId) => {
     try {
-      const profileData = await apiHelpers.get(`/profile/${userId}`);
+      const profileData = await apiHelpers.get(`/api/profile/${userId}`);
       return profileData;
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -53,7 +53,7 @@ export default function ParentProfile() {
   // Fetch linked children using the real endpoint
   const fetchLinkedChildren = async () => {
     try {
-      const children = await apiHelpers.get(`/parents/children/${userId}`);
+      const children = await apiHelpers.get(`/api/parents/children/${userId}`);
       return children || [];
     } catch (error) {
       console.error('Error fetching linked children:', error);

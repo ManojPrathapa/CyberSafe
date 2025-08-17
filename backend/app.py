@@ -40,6 +40,13 @@ from resources.studentDashboard import StudentDashboardAPI
 from resources.videos import Mentor_VideoListAPI,VideoListAPI
 from resources.modules_and_mentors import ModuleMentorAPI
 
+from resources.prefs import UserPreferencesAPI
+from resources.notifications import NotificationsAPI, NotificationReadAPI
+from resources.tips import TipsAPI, TipsWithStatusAPI
+from resources.parents import ParentChildrenAPI
+from resources.profile import ProfileAPI
+from resources.dashboard import ParentDashboardAPI
+from resources.activity import ParentChildrenActivityAPI
 
 app = Flask(__name__)
 
@@ -147,8 +154,10 @@ api.add_resource(UnlinkChildAPI, '/api/parents/unlink')
 api.add_resource(AvailableStudentsAPI, '/api/parents/available-students/<int:parent_id>')
 
 # Activity
-api.add_resource(StudentActivityAPI, '/api/activity/<int:student_id>')
-api.add_resource(ParentChildrenActivityAPI, '/api/activity/parent-children/<int:parent_id>')
+# Register activity routes
+api.add_resource(StudentActivityAPI, "/activity/student/<int:student_id>")
+api.add_resource(ParentChildrenActivityAPI, "/activity/parent-children/<int:parent_id>")
+
 api.add_resource(ParentDashboardAPI, '/api/dashboard/parent/<int:parent_id>')
 
 # Student Dashboard
@@ -174,6 +183,18 @@ api.add_resource(VideoListAPI,'/api/modules/videos/upload')
 api.add_resource(MentorTipListAPI, '/api/tips/<int:user_id>')
 api.add_resource(MentorUploadTipsAPI, '/api/tips/upload')
 
+
+
+# Register routes
+api.add_resource(UserPreferencesAPI, "/prefs/theme/<int:user_id>")
+api.add_resource(NotificationsAPI, "/notifications/<int:user_id>")
+api.add_resource(NotificationReadAPI, "/notifications/read/<int:notification_id>")
+api.add_resource(TipsAPI, "/tips")
+api.add_resource(TipsWithStatusAPI, "/tips/with-viewed-status/<int:parent_id>")
+#api.add_resource(ParentChildrenAPI, "/parents/children/<int:parent_id>")
+#api.add_resource(ProfileAPI, "/profile/<int:user_id>")
+#api.add_resource(ParentDashboardAPI, "/dashboard/parent/<int:parent_id>")
+#api.add_resource(ParentChildrenActivityAPI, "/activity/parent-children/<int:parent_id>")
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)

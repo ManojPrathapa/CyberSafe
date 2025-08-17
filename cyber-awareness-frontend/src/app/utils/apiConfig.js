@@ -1,6 +1,6 @@
 // API Configuration and Authentication Utilities
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:5050/api';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:5050';
 
 // Get JWT token from localStorage
 export const getAuthToken = () => {

@@ -31,7 +31,8 @@ export default function ParentDashboard() {
     
     try {
       // Single API call to get all dashboard data
-      const dashboardData = await apiHelpers.get(`/dashboard/parent/${parentId}`);
+      const dashboardData = await apiHelpers.get(`/api/dashboard/parent/${parentId}`);
+
       
       // Set all data from the single response
       setLinkedChildren(dashboardData.linked_children || []);

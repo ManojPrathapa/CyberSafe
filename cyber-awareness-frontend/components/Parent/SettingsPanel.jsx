@@ -57,7 +57,7 @@ export default function SettingsPanel() {
   // Fetch linked children
   const fetchLinkedChildren = async () => {
     try {
-      const children = await apiHelpers.get(`/parents/children/${userId}`);
+      const children = await apiHelpers.get(`/api/parents/children/${userId}`);
       return children || [];
     } catch (error) {
       console.error('Error fetching linked children:', error);
