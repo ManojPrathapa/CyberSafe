@@ -2109,3 +2109,57 @@ def get_total_viewed_tips(parent_id):
     """, (parent_id,), fetchone=True)
     return row["total_views"] if row else 0
 
+# models.py
+from db import get_db_connection
+
+def get_linked_children(parent_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, username FROM users WHERE parent_id = ?", (parent_id,))
+    children = [{"id": row["id"], "username": row["username"]} for row in cur.fetchall()]
+    conn.close()
+    return children
+
+def get_quiz_stats(parent_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT q.module_id AS module, AVG(a.score) AS score
+        FROM student_quiz_attempts a
+        JOIN quizzes q ON a.quiz_id = q.id
+        JOIN users s ON a.student_id = s.id
+        WHERE s.parent_id = ?
+        GROUP BY q.module_id
+        ORDER BY q.module_id
+    """, (parent_id,))
+    quiz_stats = [{"module": str(row["module"]), "score": round(row["score"])} for row in cur.fetchall()]
+    conn.close()
+    return quiz_stats
+
+def get_tips_stats(parent_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT t.topic, COUNT(v.id) AS count
+        FROM tip_views v
+        JOIN tips t ON v.tip_id = t.id
+        JOIN users s ON v.student_id = s.id
+        WHERE s.parent_id = ?
+        GROUP BY t.topic
+    """, (parent_id,))
+    tips_stats = [{"topic": row["topic"], "count": row["count"]} for row in cur.fetchall()]
+    conn.close()
+    return tips_stats
+
+def get_recent_activity(parent_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT s.username, MAX(a.timestamp) AS last_active
+        FROM activity_logs a
+        JOIN users s ON a.student_id = s.id
+        WHERE s.parent_id = ?
+    """, (parent_id,))
+    row = cur.fetchone()
+    conn.close()
+    return {"username": row["username"] if row else None, "last_active": row["last_active"] if row else None}

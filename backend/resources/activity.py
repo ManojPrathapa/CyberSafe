@@ -3,17 +3,17 @@ from flask_jwt_extended import jwt_required
 from models import get_student_activity, get_parent_children_activity, get_parent_dashboard_data
 
 class StudentActivityAPI(Resource):
-    @jwt_required()  # <-- Require a valid JWT to access
+    @jwt_required()  
     def get(self, student_id):
         try:
             return get_student_activity(student_id), 200
         
         except ValueError as ve:
-            # Student does not exist
+            
             return {"error": str(ve)}, 400
         
         except Exception as e:
-            # Unexpected server error
+            
             return {"error": str(e)}, 500
 
 class ParentChildrenActivityAPI(Resource):
