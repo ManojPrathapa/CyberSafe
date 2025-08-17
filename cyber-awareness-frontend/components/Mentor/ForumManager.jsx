@@ -87,8 +87,7 @@ export default function ForumManager() {
         throw new Error(`Failed to send reply: ${res.status}`);
       }
 
-      const savedReply = await res.json(); 
-
+      const savedReply = await res.json();
 
       setDoubts((prev) =>
         prev.map((d) =>
@@ -98,10 +97,6 @@ export default function ForumManager() {
         )
       );
 
-<<<<<<< HEAD
-=======
-  
->>>>>>> fcd89cfe6af17e32089eddfb02b534046632c501
       setReplies((prev) => ({ ...prev, [Doubt_Id]: "" }));
     } catch (error) {
       console.error("Error sending reply:", error);
