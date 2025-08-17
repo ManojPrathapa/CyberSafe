@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 
-def create_user(username, email, password, role):
+def create_user(username, email, password, role,isActive):
     conn = None
     try:
         conn = get_db_connection()
@@ -23,8 +23,8 @@ def create_user(username, email, password, role):
         # Insert into users table
         cursor.execute("""
             INSERT INTO users (username, email, password, role, isActive)
-            VALUES (?, ?, ?, ?, 1)
-        """, (username, email, password, role))
+            VALUES (?, ?, ?, ?, ?)
+        """, (username, email, password, role,isActive))
 
         # Get the ID of the newly inserted user
         user_id = cursor.lastrowid
@@ -117,7 +117,8 @@ def get_user_by_username(username):
                 'username': row['username'],
                 'email': row['email'],
                 'password': row['password'],
-                'role': row['role']
+                'role': row['role'],
+                'isActive': row['isActive'] 
             }
         return None
     except Exception as e:

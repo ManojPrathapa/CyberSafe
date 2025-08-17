@@ -31,7 +31,10 @@ class RegisterAPI(Resource):
         hashed_password = generate_password_hash(args['password'])
 
         try:
-            create_user(args['username'], args['email'], hashed_password, args['role'])
+            if args['role'] == 'mentor':
+                create_user(args['username'], args['email'], hashed_password, args['role'], isActive=0)
+            else:
+                create_user(args['username'], args['email'], hashed_password, args['role'], isActive=1)
             return {'message': 'User registered successfully'}, 201
         except sqlite3.IntegrityError as e:
             if 'UNIQUE constraint failed: users.email' in str(e):
@@ -53,7 +56,8 @@ class LoginAPI(Resource):
             access_token = create_access_token(
                 identity=str(user['id']),
                 additional_claims={"username": user['username'],
-                                   "role": user['role'] }
+                                   "role": user['role'],
+                                   "isActive":user['isActive']}   
             )
 
             return {
@@ -62,7 +66,8 @@ class LoginAPI(Resource):
                 'user': {
                     'id': user['id'],
                     'username': user['username'],
-                    'role': user['role']
+                    'role': user['role'],
+                    'isActive': user['isActive']
                 }
             }
         return {'error': 'Invalid credentials'}, 401
