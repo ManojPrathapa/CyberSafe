@@ -1,7 +1,6 @@
 from flask import request
-from models import get_quiz_with_questions, evaluate_quiz, save_quiz_attempt, create_quiz_with_questions
+from models import get_quiz_with_questions, evaluate_quiz, save_quiz_attempt, soft_delete_quiz, create_quiz_with_questions, get_quizzes_for_module
 from flask_restful import Resource
-from models import soft_delete_quiz  
 
 from flask_restful import Resource
 from models import soft_delete_quiz
@@ -57,3 +56,9 @@ class QuizCreateAPI(Resource):
         except Exception as e:
             print(" Exception while creating quiz:", str(e))
             return {"error": "Failed to create quiz", "details": str(e)}, 500
+
+class ModuleQuizzesAPI(Resource):
+    def get(self, module_id):
+        quizzes = get_quizzes_for_module(module_id)
+        # return empty list if none found (200 OK)
+        return quizzes, 200

@@ -253,18 +253,79 @@ def get_quiz_with_questions(user_id):
     #    "questions": result
     #}
 
+# --- New: get quizzes for a module (student-facing; hides is_correct) ---
+def get_quizzes_for_module(module_id):
+    """
+    Return a list of quizzes for a given module_id.
+    Each quiz contains quiz_id, quiz_title, module_id and questions_list.
+    Options returned do NOT include is_correct (student-facing).
+    """
+    conn = get_db_connection()
+
+    quizzes = conn.execute("""
+        SELECT * FROM quizzes WHERE module_id = ? AND isDeleted = 0
+    """, (module_id,)).fetchall()
+
+    quizzes_list = []
+
+    for quiz in quizzes:
+        # Get questions (excluding deleted)
+        questions = conn.execute("""
+            SELECT * FROM questions WHERE quiz_id = ? AND isDeleted = 0
+        """, (quiz["quiz_id"],)).fetchall()
+
+        questions_list = []
+        for q in questions:
+            options = conn.execute("""
+                SELECT option_id, text FROM options WHERE question_id = ? AND isDeleted = 0
+            """, (q['question_id'],)).fetchall()
+
+            # Use indexing on sqlite3.Row (no .get())
+            explanation = q["explanation"] if "explanation" in q.keys() and q["explanation"] is not None else ""
+            question_text = q["text"] if "text" in q.keys() and q["text"] is not None else ""
+
+            questions_list.append({
+                "question_id": q["question_id"],
+                "text": question_text,
+                "explanation": explanation,
+                "options": [{"option_id": o["option_id"], "text": o["text"]} for o in options]
+            })
+
+        quiz_title = quiz["title"] if "title" in quiz.keys() and quiz["title"] is not None else ""
+        quizzes_list.append({
+            "quiz_id": quiz["quiz_id"],
+            "quiz_title": quiz_title,
+            "module_id": quiz["module_id"],
+            "questions_list": questions_list
+        })
+
+    conn.close()
+    return quizzes_list
 
 
 def evaluate_quiz(quiz_id, answers_dict):
+    """
+    answers_dict: mapping question_id -> chosen_option_id
+    (keys may be strings if coming from JSON; convert to int)
+    Returns: {"score": score, "total": total}
+    """
     conn = get_db_connection()
     score = 0.0
     total = 0
 
-    for qid, chosen_oid in answers_dict.items():
+    for qid_str, chosen_oid in answers_dict.items():
+        try:
+            qid = int(qid_str)
+            chosen_oid_int = int(chosen_oid)
+        except (ValueError, TypeError):
+            # skip malformed entries
+            continue
+
         correct = conn.execute("""
             SELECT is_correct FROM options WHERE question_id = ? AND option_id = ?
-        """, (qid, chosen_oid)).fetchone()
-        if correct and correct['is_correct']:
+        """, (qid, chosen_oid_int)).fetchone()
+
+        if correct and correct["is_correct"]:
             score += 1
         total += 1
 
@@ -276,7 +337,7 @@ def save_quiz_attempt(student_id, quiz_id, answers_dict, score):
     cursor = conn.cursor()
 
     answers_json = json.dumps(answers_dict)
-    timestamp = datetime.now().isoformat()
+    timestamp = datetime.datetime.now().isoformat()
 
     cursor.execute("""
         INSERT INTO student_quiz_attempts (student_id, quiz_id, answers, score, timestamp)

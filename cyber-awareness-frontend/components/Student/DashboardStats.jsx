@@ -82,27 +82,6 @@ export default function StudentDashboard() {
           </p>
         </div>
 
-        {/* Time Spent */}
-        <div className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition">
-          <h3 className="text-lg font-semibold mb-2">⏰ Time Spent</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={timeData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="mins" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
-          <p className="mt-2 text-sm">
-            Avg Time per Day: <strong>
-              {timeData.length
-                ? `${(
-                    timeData.reduce((sum, t) => sum + t.mins, 0) / timeData.length
-                  ).toFixed(0)} min`
-                : "N/A"}
-            </strong>
-          </p>
-        </div>
 
         {/* Doubts */}
         <div className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition">

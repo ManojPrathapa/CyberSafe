@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { API_BASE_URL } from "@/src/app/utils/apiConfig";
 import { getToken, getUser } from "@/src/app/utils/auth";
-import QuizManager from "./QuizManager";   // ✅ Import added
+import QuizManager from "./QuizManager";
 
 export default function ContentManager() {
   const [openModule, setOpenModule] = useState(null);
@@ -12,7 +12,7 @@ export default function ContentManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch modules with content
+  // fetch once
   useEffect(() => {
     const fetchModules = async () => {
       try {
@@ -20,7 +20,7 @@ export default function ContentManager() {
         const token = getToken();
         const res = await fetch(`${API_BASE_URL}/modules_with_content`, {
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -29,9 +29,9 @@ export default function ContentManager() {
         }
 
         const data = await res.json();
-        setModules(data);
+        setModules(data || []);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || String(err));
       } finally {
         setLoading(false);
       }
@@ -39,6 +39,8 @@ export default function ContentManager() {
 
     fetchModules();
   }, []);
+
+  const student = getUser() || {}; // compute once
 
   if (loading) {
     return <p className="text-gray-500">Loading modules...</p>;
@@ -58,66 +60,72 @@ export default function ContentManager() {
       {modules.length === 0 ? (
         <p className="text-gray-500">No modules found.</p>
       ) : (
-        modules.map((mod, index) => (
-          <div key={mod.module_id || index} className="mb-4 border rounded shadow-sm">
-            <button
-              onClick={() =>
-                setOpenModule(openModule === index ? null : index)
-              }
-              className="w-full flex justify-between items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-t"
-            >
-              <span className="text-lg font-semibold">{mod.title}</span>
-              <ChevronDown
-                className={`transform transition ${
-                  openModule === index ? "rotate-180" : "rotate-0"
-                }`}
-              />
-            </button>
+        modules.map((mod, index) => {
+          // prefer stable id as key; fallback to index only if module_id missing
+          const moduleKey = mod.module_id ?? `module-${index}`;
 
-            {openModule === index && (
-              <div className="p-4 space-y-6 bg-blue-50 border-t">
-                {/* Videos */}
-                <div>
-                  <h4 className="font-semibold">🎥 Videos:</h4>
-                  {mod.videos && mod.videos.length > 0 ? (
-                    <ul className="space-y-4 ml-2 text-sm">
-                      {mod.videos.map((v) => (
-                        <li key={v.video_id} className="space-y-2">
-                          <p className="font-medium">{v.title}</p>
-                          {v.video_url ? (
-                            <video
-                              src={v.video_url}
-                              controls
-                              className="w-full max-w-lg rounded shadow"
-                            />
-                          ) : (
-                            <p className="text-gray-500">No video file available</p>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500 text-sm">No videos available</p>
-                  )}
-                </div>
+          return (
+            <div key={moduleKey} className="mb-4 border rounded shadow-sm">
+              <button
+                onClick={() => setOpenModule(openModule === moduleKey ? null : moduleKey)}
+                className="w-full flex justify-between items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-t"
+              >
+                <span className="text-lg font-semibold">{mod.title}</span>
+                <ChevronDown
+                  className={`transform transition ${openModule === moduleKey ? "rotate-180" : "rotate-0"}`}
+                />
+              </button>
 
-                {/* Quizzes */}
-                <div>
-                <h4 className="font-semibold">📝 Quizzes:</h4>
-                {mod.quizzes && mod.quizzes.length > 0 ? (
-                  <div className="space-y-4">
-                    {mod.quizzes.map((q) => (
-                      <QuizManager key={q.quiz_id} quiz={q} studentId={getUser().id} />
-                    ))}
+              {openModule === moduleKey && (
+                <div className="p-4 space-y-6 bg-blue-50 border-t">
+                  {/* Videos */}
+                  <div>
+                    <h4 className="font-semibold">🎥 Videos:</h4>
+                    {Array.isArray(mod.videos) && mod.videos.length > 0 ? (
+                      <ul className="space-y-4 ml-2 text-sm">
+                        {mod.videos.map((v, vIdx) => (
+                          <li key={v.video_id ?? `video-${moduleKey}-${vIdx}`} className="space-y-2">
+                            <p className="font-medium">{v.title}</p>
+                            {v.video_url ? (
+                              <video
+                                src={`http://127.0.0.1:5050/${v.video_url}`}
+                                controls
+                                className="w-full max-w-lg rounded shadow"
+                              />
+                            ) : (
+                              <p className="text-gray-500">No video file available</p>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500 text-sm">No videos available</p>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-gray-500 text-sm">No quizzes available</p>
-                )}
-              </div>
-              </div>
-            )}
-          </div>
-        ))
+
+                  {/* Quizzes */}
+                  <div>
+                    <h4 className="font-semibold">📝 Quizzes:</h4>
+
+                    {/* Preferred: render ONE QuizManager per module */}
+                    {Array.isArray(mod.quizzes) && mod.quizzes.length > 0 ? (
+                      <div className="space-y-4">
+                        {/* Pass moduleId and studentId; give QuizManager a stable key */}
+                        <QuizManager
+                          key={`quiz-manager-${moduleKey}`}
+                          moduleId={mod.module_id}
+                          studentId={student.id}
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">No quizzes available</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })
       )}
     </div>
   );

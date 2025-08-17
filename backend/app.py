@@ -14,7 +14,7 @@ load_dotenv()
 
 from resources.auth import RegisterAPI, LoginAPI, UpdatePasswordAPI
 from resources.modules import ModuleListAPI, UploadModuleAPI, DeleteModuleAPI, ModuleWithContentAPI
-from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI
+from resources.quiz import QuizAPI, QuizSubmitAPI, QuizCreateAPI, DeleteQuizAPI, ModuleQuizzesAPI
 from resources.doubts import MentorDoubtAPI, ReplyToDoubtAPI, DeleteDoubtAPI #,AskDoubtAPI
 from resources.notifications import NotificationAPI
 from resources.mentor_dashboard import VideoStatusAPI,DoubtStatusAPI,VideoStatusAPI_2,VideoStatusAPI_3
@@ -83,6 +83,7 @@ api.add_resource(QuizAPI, '/api/quiz/<int:user_id>')
 api.add_resource(QuizSubmitAPI, '/api/quiz/submit')
 api.add_resource(QuizCreateAPI, '/api/quiz/create')
 api.add_resource(DeleteQuizAPI, '/api/quiz/delete/<int:quiz_id>')
+api.add_resource(ModuleQuizzesAPI, '/api/modules/<int:module_id>/quizzes')
 
 # Doubts
 api.add_resource(MentorDoubtAPI, '/api/doubts/<int:mentor_id>')
