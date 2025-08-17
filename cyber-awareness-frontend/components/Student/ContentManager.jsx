@@ -18,7 +18,7 @@ export default function ContentManager() {
       try {
         setLoading(true);
         const token = getToken();
-        const res = await fetch(`${API_BASE_URL}/modules_with_content`, {
+        const res = await fetch(`${API_BASE_URL}/api/modules_with_content`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

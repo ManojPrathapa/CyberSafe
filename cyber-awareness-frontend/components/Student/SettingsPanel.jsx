@@ -25,7 +25,7 @@ export default function SettingsPanel() {
   const fetchComplaints = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/complaints`, {
+      const res = await fetch(`${API_BASE_URL}/api/complaints`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -56,7 +56,7 @@ export default function SettingsPanel() {
   const handleFileComplaint = async () => {
     if (!complaint.trim()) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/complaints/file`, {
+      const res = await fetch(`${API_BASE_URL}/api/complaints/file`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -81,7 +81,7 @@ export default function SettingsPanel() {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this complaint?")) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/complaints/delete/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/complaints/delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -97,12 +97,12 @@ export default function SettingsPanel() {
   const handleEdit = async (id) => {
     if (!editText.trim()) return;
     try {
-      await fetch(`${API_BASE_URL}/complaints/delete/${id}`, {
+      await fetch(`${API_BASE_URL}/api/complaints/delete/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      await fetch(`${API_BASE_URL}/complaints/file`, {
+      await fetch(`${API_BASE_URL}/api/complaints/file`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -125,7 +125,7 @@ export default function SettingsPanel() {
   const handlePasswordUpdate = async () => {
     setPasswordMessage("");
     try {
-      const res = await fetch(`${API_BASE_URL}/users/update-password`, {
+      const res = await fetch(`${API_BASE_URL}/api/users/update-password`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

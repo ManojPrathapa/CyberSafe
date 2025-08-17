@@ -28,7 +28,7 @@ export default function StudentDashboard() {
           return;
         }
 
-        const res = await fetch(`${API_BASE_URL}/dashboard/${user.id}`, {
+        const res = await fetch(`${API_BASE_URL}/api//dashboard/${user.id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

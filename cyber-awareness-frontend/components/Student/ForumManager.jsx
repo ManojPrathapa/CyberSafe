@@ -33,7 +33,7 @@ export default function ForumManager() {
     const fetchModules = async () => {
       try {
         setMetaLoading(true);
-        const res = await fetch(`${API_BASE_URL}/modules`, {
+        const res = await fetch(`${API_BASE_URL}/api/modules`, {
           headers: authHeaders(false),
         });
         if (!res.ok) throw new Error("Failed to load modules");
@@ -59,7 +59,7 @@ export default function ForumManager() {
   const fetchDoubts = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/student/doubts`, {
+      const res = await fetch(`${API_BASE_URL}/api/student/doubts`, {
         headers: authHeaders(false),
       });
       if (!res.ok) throw new Error("Failed to fetch doubts");
@@ -85,7 +85,7 @@ export default function ForumManager() {
     try {
       setError(null);
       setSelectedMentor(null);
-      const res = await fetch(`${API_BASE_URL}/modules/${moduleId}/mentor`, {
+      const res = await fetch(`${API_BASE_URL}/api/modules/${moduleId}/mentor`, {
         headers: authHeaders(false),
       });
       if (!res.ok) {
@@ -121,7 +121,7 @@ export default function ForumManager() {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/student/doubts`, {
+      const res = await fetch(`${API_BASE_URL}/api/student/doubts`, {
         method: "POST",
         headers: authHeaders(true),
         body: JSON.stringify({
@@ -145,7 +145,7 @@ export default function ForumManager() {
     setError(null);
     if (!confirm("Delete this doubt?")) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/student/doubts/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/student/doubts/${id}`, {
         method: "DELETE",
         headers: authHeaders(false),
       });
@@ -174,7 +174,7 @@ export default function ForumManager() {
     if (!editModule) return setError("Please choose a module");
 
     try {
-      const res = await fetch(`${API_BASE_URL}/student/doubts/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/student/doubts/${id}`, {
         method: "PUT",
         headers: authHeaders(true),
         body: JSON.stringify({

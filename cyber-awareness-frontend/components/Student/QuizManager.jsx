@@ -16,7 +16,7 @@ export default function QuizManager({ moduleId }) {
       try {
         const token = getToken();
         const response = await fetch(
-          `${API_BASE_URL}/modules/${moduleId}/quizzes`,
+          `${API_BASE_URL}/api/modules/${moduleId}/quizzes`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -64,7 +64,7 @@ export default function QuizManager({ moduleId }) {
         answers: answers, // { question_id: option_id }
       };
 
-      const response = await fetch(`${API_BASE_URL}/quiz/submit`, {
+      const response = await fetch(`${API_BASE_URL}/api/quiz/submit`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
