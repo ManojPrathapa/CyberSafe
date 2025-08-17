@@ -597,7 +597,6 @@ def increment_video_likes(video_id):
 
 
 # ------------------- NOTIFICATIONS -------------------
-# ------------------- NOTIFICATIONS -------------------
 def create_notification(user_id, notif_type, message, related_id=None):
     conn = get_db_connection()
     conn.execute("""
@@ -718,6 +717,16 @@ def get_reports_for_mentor(mentor_id):
     """, (mentor_id,)).fetchall()
     conn.close()
     return rows
+
+def get_pending_videos():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM videos WHERE isApproved = 0")
+    videos = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return videos
+
 
 # ------------------- TIPS -------------------
 def get_all_tips():

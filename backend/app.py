@@ -37,7 +37,8 @@ from resources.activity import StudentActivityAPI, ParentChildrenActivityAPI, Pa
 from resources.preferences import ThemePrefsAPI, NotificationPrefsAPI
 from resources.parents import ParentChildrenAPI, LinkChildAPI, UnlinkChildAPI, AvailableStudentsAPI
 from resources.studentDashboard import StudentDashboardAPI
-from resources.videos import Mentor_VideoListAPI,VideoListAPI
+from resources.videos import Mentor_VideoListAPI,VideoListAPI,PendingVideosAPI, ApproveVideoAPI
+
 from resources.modules_and_mentors import ModuleMentorAPI
 
 from resources.prefs import UserPreferencesAPI
@@ -169,7 +170,8 @@ api.add_resource(VideoStatusAPI_2,'/api/videostatus_2/<int:user_id>')
 api.add_resource(VideoStatusAPI_3,'/api/videostatus_3/<int:user_id>')
 #api.add_resource(QuizStatusAPI,'/api/quizstatus/<int:user_id'>)
 api.add_resource(DoubtStatusAPI,'/api/doubtstatus/<int:user_id>')
-
+api.add_resource(PendingVideosAPI, '/api/admin/videos/pending')
+api.add_resource(ApproveVideoAPI, '/api/admin/videos/approve/<int:video_id>')
 
 
 # MENTOR VIDEO MODULES

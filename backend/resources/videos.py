@@ -66,10 +66,20 @@ class VideoListAPI(Resource):
         print("Files:", request.files)
         return {"message": "Video uploaded successfully"}, 201
 
+class PendingVideosAPI(Resource):
+    @jwt_required()
+    @role_required('admin')
+    def get(self):
+        """Get all videos waiting for approval"""
+        from models import get_pending_videos
+        return get_pending_videos(), 200
+
+
 class ApproveVideoAPI(Resource):
     @jwt_required()
     @role_required('admin')
     def post(self, video_id):
+        """Approve a video by ID"""
         updated = approve_video(video_id)  
         if updated:
             return {"message": f"Video {video_id} approved successfully"}, 200
