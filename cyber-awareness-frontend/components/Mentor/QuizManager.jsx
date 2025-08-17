@@ -9,7 +9,7 @@ import { getToken } from "@/src/app/utils/auth";
 import { getUser } from "@/src/app/utils/auth";
 
 export default function QuizManager() {
-  const [module, setModule] = useState("Module 1"); // Replace with module ID if needed
+  const [module, setModule] = useState("Module 1"); 
   const [quizzes, setQuizzes] = useState([]);
   const [newQuiz, setNewQuiz] = useState({ title: "", questions: [] });
   const [showQuizForm, setShowQuizForm] = useState(false);
@@ -62,14 +62,13 @@ export default function QuizManager() {
     const token = getToken();
     const user = getUser();
 
-    // Prepare data for backend
     const payload = {
       title: newQuiz.title,
       mentor_id: user.id,
-      module_id: module, // If backend expects a number, convert it
+      module_id: module, 
       questions: newQuiz.questions.map((q) => ({
         text: q.question,
-        explanation: q.explanation, // Add explanation support later if needed
+        explanation: q.explanation, 
         options: q.options.map((opt, i) => ({
           text: opt,
           is_correct: i === q.correct,
@@ -96,13 +95,13 @@ export default function QuizManager() {
       }
 
       const result = await res.json();
-      alert("✅ Quiz saved successfully!");
+      alert(" Quiz saved successfully!");
       setQuizzes([...quizzes, { ...newQuiz, module }]);
       setNewQuiz({ title: "", questions: [] });
       setShowQuizForm(false);
     } catch (error) {
       console.error("Save error:", error);
-      alert("❌ Failed to save quiz. Check console for details.");
+      alert("Failed to save quiz. Check console for details.");
     }
   };
 
@@ -184,7 +183,7 @@ export default function QuizManager() {
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm mb-4"
         onClick={() => setShowQuizForm(true)}
       >
-        ➕ Create New Quiz
+         Create New Quiz
       </button>
       {showQuizForm && (
         <div className="bg-gray-50 border p-4 rounded shadow space-y-4">

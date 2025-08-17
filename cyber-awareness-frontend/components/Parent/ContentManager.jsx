@@ -17,7 +17,7 @@ export default function ParentTips() {
   // Fetch tips with viewed status from backend using API helpers
   const fetchTipsWithViewedStatus = async () => {
     try {
-      const tipsData = await apiHelpers.get(`/tips/with-viewed-status/${parentId}`);
+      const tipsData = await apiHelpers.get(`/api/tips/with-viewed-status/${parentId}`);
       return tipsData;
     } catch (error) {
       console.error('Error fetching tips with viewed status:', error);

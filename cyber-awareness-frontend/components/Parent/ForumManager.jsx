@@ -21,7 +21,7 @@ export default function ForumManager() {
   // Fetch doubts/forum posts using API helpers
   const fetchDoubts = async (mentorId) => {
     try {
-      const doubts = await apiHelpers.get(`/doubts/${mentorId}`);
+      const doubts = await apiHelpers.get(`/api/doubts/${mentorId}`);
       return doubts;
     } catch (error) {
       console.error('Error fetching doubts:', error);

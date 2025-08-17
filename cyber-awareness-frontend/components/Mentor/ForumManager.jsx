@@ -87,9 +87,9 @@ export default function ForumManager() {
         throw new Error(`Failed to send reply: ${res.status}`);
       }
 
-      const savedReply = await res.json(); // Expect backend to return saved reply object
+      const savedReply = await res.json(); 
 
-      // Update frontend state immediately
+
       setDoubts((prev) =>
         prev.map((d) =>
           d.doubt_id === Doubt_Id
@@ -98,6 +98,10 @@ export default function ForumManager() {
         )
       );
 
+<<<<<<< HEAD
+=======
+  
+>>>>>>> fcd89cfe6af17e32089eddfb02b534046632c501
       setReplies((prev) => ({ ...prev, [Doubt_Id]: "" }));
     } catch (error) {
       console.error("Error sending reply:", error);

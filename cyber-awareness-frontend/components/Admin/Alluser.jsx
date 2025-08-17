@@ -9,56 +9,53 @@ export default function AllUsers() {
   const [loading, setLoading] = useState(true);
 
   // Fetch all users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const token = getToken();
-        if (!token) {
-          console.error("No token found. Please log in.");
-          return;
-        }
-
-        const res = await fetch(`${API_BASE_URL}/admin/users`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error(`Error: ${res.status}`);
-        }
-
-        const data = await res.json();
-
-        // Group users by role
-        const grouped = data.reduce((acc, user) => {
-          if (!acc[user.role]) acc[user.role] = [];
-          acc[user.role].push(user);
-          return acc;
-        }, {});
-
-        setUsers(grouped);
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
-      } finally {
-        setLoading(false);
+  const fetchUsers = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        console.error("No token found. Please log in.");
+        return;
       }
-    };
 
+      const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
+      const data = await res.json();
+
+      // Group users by role
+      const grouped = data.reduce((acc, user) => {
+        if (!acc[user.role]) acc[user.role] = [];
+        acc[user.role].push(user);
+        return acc;
+      }, {});
+
+      setUsers(grouped);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Action buttons
-  const handleWarn = (id) => {
-    alert(`Warn user ID: ${id}`);
-  };
-
-  const handleBlock = async (id) => {
+  // Block or Unblock user
+  const handleToggleBlock = async (id, isActive) => {
     try {
       const token = getToken();
-              const res = await fetch(`${API_BASE_URL}/admin/block`, {
+      const endpoint = isActive
+        ? `${API_BASE_URL}/api/admin/block`
+        : `${API_BASE_URL}/api/admin/unblock`;
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,15 +64,23 @@ export default function AllUsers() {
         body: JSON.stringify({ user_id: id }),
       });
 
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
       const data = await res.json();
       alert(data.message);
-    } catch (error) {
-      console.error("Error blocking user:", error);
-    }
-  };
 
-  const handleDelete = (id) => {
-    alert(`Delete user ID: ${id}`);
+      // Update local state immediately
+      setUsers((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((role) => {
+          updated[role] = updated[role].map((u) =>
+            u.id === id ? { ...u, isActive: isActive ? 0 : 1 } : u
+          );
+        });
+        return updated;
+      });
+    } catch (error) {
+      console.error("Error updating block/unblock:", error);
+    }
   };
 
   if (loading) {
@@ -95,7 +100,7 @@ export default function AllUsers() {
               {role}s
             </h4>
 
-            {/* Desktop Table View */}
+            {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full border border-gray-200 rounded">
                 <thead>
@@ -103,7 +108,7 @@ export default function AllUsers() {
                     <th className="p-2 text-left">ID</th>
                     <th className="p-2 text-left">Username</th>
                     <th className="p-2 text-left">Email</th>
-                    <th className="p-2 text-left">Actions</th>
+                    <th className="p-2 text-left">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -112,24 +117,18 @@ export default function AllUsers() {
                       <td className="p-2">{user.id}</td>
                       <td className="p-2">{user.username}</td>
                       <td className="p-2">{user.email}</td>
-                      <td className="p-2 space-x-2">
+                      <td className="p-2">
                         <button
-                          onClick={() => handleWarn(user.id)}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                          onClick={() =>
+                            handleToggleBlock(user.id, user.isActive)
+                          }
+                          className={`${
+                            user.isActive
+                              ? "bg-red-500 hover:bg-red-600"
+                              : "bg-green-500 hover:bg-green-600"
+                          } text-white px-3 py-1 rounded`}
                         >
-                          Warn
-                        </button>
-                        <button
-                          onClick={() => handleBlock(user.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        >
-                          Block
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user.id)}
-                          className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                        >
-                          Delete
+                          {user.isActive ? "Block" : "Unblock"}
                         </button>
                       </td>
                     </tr>
@@ -138,7 +137,7 @@ export default function AllUsers() {
               </table>
             </div>
 
-            {/* Mobile Card View */}
+            {/* Mobile Cards */}
             <div className="md:hidden space-y-4">
               {roleUsers.map((user) => (
                 <div
@@ -155,26 +154,16 @@ export default function AllUsers() {
                     <span className="font-bold">Email:</span> {user.email}
                   </p>
 
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <button
-                      onClick={() => handleWarn(user.id)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
-                    >
-                      Warn
-                    </button>
-                    <button
-                      onClick={() => handleBlock(user.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                    >
-                      Block
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.id)}
-                      className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleToggleBlock(user.id, user.isActive)}
+                    className={`${
+                      user.isActive
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-green-500 hover:bg-green-600"
+                    } text-white px-3 py-1 rounded text-sm mt-2`}
+                  >
+                    {user.isActive ? "Block" : "Unblock"}
+                  </button>
                 </div>
               ))}
             </div>

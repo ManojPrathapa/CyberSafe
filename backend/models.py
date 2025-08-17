@@ -9,6 +9,20 @@ import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+import traceback
+
+def safe_execute(query, params=(), fetchone=False):
+    """Safely execute a query and handle DB errors with logging."""
+    try:
+        conn = get_db_connection()
+        cur = conn.execute(query, params)
+        result = cur.fetchone() if fetchone else cur.fetchall()
+        conn.close()
+        return result
+    except Exception as e:
+        print("DB ERROR:", e)
+        traceback.print_exc()
+        return None if fetchone else []
 
 
 def create_user(username, email, password, role,isActive):
@@ -497,6 +511,22 @@ def get_all_videos():
     conn.close()
     return videos
 
+def approve_video(video_id: int):
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        query = "UPDATE videos SET isApproved = 1 WHERE id = %s"
+        cursor.execute(query, (video_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print("Error approving video:", e)
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+
 def get_video_by_id(video_id):
     conn = get_db_connection()
     video = conn.execute("""
@@ -567,7 +597,6 @@ def increment_video_likes(video_id):
 
 
 # ------------------- NOTIFICATIONS -------------------
-
 def create_notification(user_id, notif_type, message, related_id=None):
     conn = get_db_connection()
     conn.execute("""
@@ -585,7 +614,7 @@ def get_notifications(user_id):
         ORDER BY timestamp DESC
     """, (user_id,)).fetchall()
     conn.close()
-    return notifs
+    return [dict(n) for n in notifs]
 
 def mark_notification_read(notif_id):
     conn = get_db_connection()
@@ -689,12 +718,22 @@ def get_reports_for_mentor(mentor_id):
     conn.close()
     return rows
 
+def get_pending_videos():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM videos WHERE isApproved = 0")
+    videos = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return videos
+
+
 # ------------------- TIPS -------------------
 def get_all_tips():
     conn = get_db_connection()
-    tips = conn.execute("SELECT * FROM tips").fetchall()
+    tips = conn.execute("SELECT * FROM tips WHERE isDeleted = 0").fetchall()
     conn.close()
-    return tips
+    return [dict(t) for t in tips]
 
 def get_viewed_tips_by_parent(parent_id):
     conn = get_db_connection()
@@ -704,32 +743,25 @@ def get_viewed_tips_by_parent(parent_id):
         WHERE v.parent_id = ?
     """, (parent_id,)).fetchall()
     conn.close()
-
-        # Return empty list instead of raising error if no viewed tips found
-
-    return rows
+    return [dict(r) for r in rows]
 
 def get_all_tips_with_viewed_status(parent_id):
     """Get all tips with a flag indicating if they've been viewed by the parent"""
     conn = get_db_connection()
     
-    # Get all tips
     all_tips = conn.execute("""
         SELECT t.* FROM tips t 
         WHERE t.isDeleted = 0
         ORDER BY t.tip_id
-    """, ()).fetchall()
+    """).fetchall()
     
-    # Get viewed tip IDs for this parent
     viewed_tip_ids = conn.execute("""
         SELECT DISTINCT tip_id FROM tip_views 
         WHERE parent_id = ?
     """, (parent_id,)).fetchall()
     
-    # Convert to set for faster lookup
-    viewed_ids = {row[0] for row in viewed_tip_ids}
-    
-    # Add viewed flag to each tip
+    viewed_ids = {row["tip_id"] for row in viewed_tip_ids}
+        
     result = []
     for tip in all_tips:
         tip_dict = dict(tip)
@@ -747,6 +779,19 @@ def mark_tip_viewed(parent_id, tip_id):
     """, (parent_id, tip_id))
     conn.commit()
     conn.close()
+
+def get_tips_with_status(parent_id):
+    conn = get_db_connection()
+    query = """
+        SELECT t.*, CASE WHEN tv.id IS NOT NULL THEN 1 ELSE 0 END as viewed
+        FROM tips t
+        LEFT JOIN tip_views tv ON t.tip_id = tv.tip_id AND tv.parent_id=?
+        WHERE t.isDeleted=0
+    """
+    cur = conn.execute(query, (parent_id,))
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]    
 
 # ------------------- COMPLAINTS -------------------
 def file_complaint(filed_by, against, description):
@@ -1958,3 +2003,188 @@ def upload_mentor_tips(title,content,mentor_id,category,source_url):
 
     conn.commit()
     conn.close()
+
+
+# ---------------- USER PREFERENCES ---------------- #
+def get_user_preferences(user_id):
+    conn = get_db_connection()
+    cur = conn.execute("SELECT * FROM user_preferences WHERE user_id=?", (user_id,))
+    row = cur.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def update_user_preferences(user_id, prefs):
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE user_preferences
+        SET theme=?, notification_email=?, notification_push=?,
+            notification_sms=?, frequency=?, updated_at=CURRENT_TIMESTAMP
+        WHERE user_id=?
+    """, (
+        prefs.get("theme"),
+        prefs.get("notification_email"),
+        prefs.get("notification_push"),
+        prefs.get("notification_sms"),
+        prefs.get("frequency"),
+        user_id
+    ))
+    conn.commit()
+    conn.close()
+
+# ---------------- PARENTS & CHILDREN ---------------- #
+def get_children_by_parent(parent_id):
+    conn = get_db_connection()
+    query = """
+        SELECT s.* FROM students s
+        JOIN parents p ON p.user_id=?
+    """
+    cur = conn.execute(query, (parent_id,))
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+# ---------------- PROFILE ---------------- #
+def get_user_profile(user_id):
+    conn = get_db_connection()
+    cur = conn.execute("""
+        SELECT u.id, u.username, u.email, u.role,
+               up.theme, up.notification_email, up.notification_push, up.notification_sms, up.frequency
+        FROM users u
+        LEFT JOIN user_preferences up ON u.id = up.user_id
+        WHERE u.id=?
+    """, (user_id,))
+    row = cur.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+# ---------------- DASHBOARD (Parent) ---------------- #
+def get_parent_dashboard(parent_id):
+    conn = get_db_connection()
+    data = {}
+
+    # children
+    cur = conn.execute("SELECT * FROM students")
+    data["children"] = [dict(r) for r in cur.fetchall()]
+
+    # notifications
+    cur = conn.execute("SELECT * FROM notifications WHERE user_id=?", (parent_id,))
+    data["notifications"] = [dict(r) for r in cur.fetchall()]
+
+    # tips viewed
+    cur = conn.execute("SELECT COUNT(*) as viewed_count FROM tip_views WHERE parent_id=?", (parent_id,))
+    data["tips_viewed"] = cur.fetchone()["viewed_count"]
+
+    conn.close()
+    return data
+
+# ======================
+# Dashboard helper functions
+# ======================
+
+def get_linked_children(parent_id):
+    rows = safe_execute(
+        "SELECT id, username, email FROM users WHERE parent_id = ?",
+        (parent_id,)
+    )
+    return rows
+
+
+def get_quiz_stats_for_parent(parent_id):
+    rows = safe_execute("""
+        SELECT q.id as quiz_id, q.title, COUNT(a.id) as attempts
+        FROM quizzes q
+        JOIN student_quiz_attempts a ON q.id = a.quiz_id
+        JOIN users u ON a.student_id = u.id
+        WHERE u.parent_id = ?
+        GROUP BY q.id, q.title
+    """, (parent_id,))
+    return rows
+
+
+def get_tips_stats_for_parent(parent_id):
+    rows = safe_execute("""
+        SELECT t.id as tip_id, t.title, COUNT(v.id) as views
+        FROM tips t
+        LEFT JOIN tip_views v ON t.id = v.tip_id
+        JOIN users u ON v.student_id = u.id
+        WHERE u.parent_id = ?
+        GROUP BY t.id, t.title
+    """, (parent_id,))
+    return rows
+
+
+def get_recent_activity_for_parent(parent_id):
+    row = safe_execute("""
+        SELECT a.activity_type, a.description, a.timestamp
+        FROM activity a
+        JOIN users u ON a.student_id = u.id
+        WHERE u.parent_id = ?
+        ORDER BY a.timestamp DESC
+        LIMIT 1
+    """, (parent_id,), fetchone=True)
+    return dict(row) if row else {"message": "No recent activity"}
+
+
+def get_total_viewed_tips(parent_id):
+    row = safe_execute("""
+        SELECT COUNT(v.id) as total_views
+        FROM tip_views v
+        JOIN users u ON v.student_id = u.id
+        WHERE u.parent_id = ?
+    """, (parent_id,), fetchone=True)
+    return row["total_views"] if row else 0
+
+# models.py
+from db import get_db_connection
+
+def get_linked_children(parent_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, username FROM users WHERE parent_id = ?", (parent_id,))
+    children = [{"id": row["id"], "username": row["username"]} for row in cur.fetchall()]
+    conn.close()
+    return children
+
+def get_quiz_stats(parent_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT q.module_id AS module, AVG(a.score) AS score
+        FROM student_quiz_attempts a
+        JOIN quizzes q ON a.quiz_id = q.id
+        JOIN users s ON a.student_id = s.id
+        WHERE s.parent_id = ?
+        GROUP BY q.module_id
+        ORDER BY q.module_id
+    """, (parent_id,))
+    quiz_stats = [{"module": str(row["module"]), "score": round(row["score"])} for row in cur.fetchall()]
+    conn.close()
+    return quiz_stats
+
+def get_tips_stats(parent_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT t.topic, COUNT(v.id) AS count
+        FROM tip_views v
+        JOIN tips t ON v.tip_id = t.id
+        JOIN users s ON v.student_id = s.id
+        WHERE s.parent_id = ?
+        GROUP BY t.topic
+    """, (parent_id,))
+    tips_stats = [{"topic": row["topic"], "count": row["count"]} for row in cur.fetchall()]
+    conn.close()
+    return tips_stats
+
+def get_recent_activity(parent_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT s.username, MAX(a.timestamp) AS last_active
+        FROM activity_logs a
+        JOIN users s ON a.student_id = s.id
+        WHERE s.parent_id = ?
+    """, (parent_id,))
+    row = cur.fetchone()
+    conn.close()
+    return {"username": row["username"] if row else None, "last_active": row["last_active"] if row else None}

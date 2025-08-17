@@ -1,5 +1,16 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
+from flask_restful import Resource
+from models import get_all_tips, get_tips_with_status
+
+class TipsAPI(Resource):
+    def get(self):
+        return get_all_tips(), 200
+
+class TipsWithStatusAPI(Resource):
+    def get(self, parent_id):
+        return get_tips_with_status(parent_id), 200
+
 
 from models import (
     get_all_tips,

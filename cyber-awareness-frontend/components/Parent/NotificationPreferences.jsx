@@ -45,7 +45,7 @@ export default function NotificationPreferences() {
       setLoading(true);
       setMsg(null);
       try {
-        const data = await apiHelpers.get(`/notifications/prefs/${userId}`);
+        const data = await apiHelpers.get(`/api/notifications/prefs/${userId}`);
         // Defaults if backend returns none
         setEmailEnabled(Boolean(data?.email_enabled ?? true));
         setPushEnabled(Boolean(data?.push_enabled ?? true));
