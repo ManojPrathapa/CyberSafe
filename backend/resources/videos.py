@@ -3,10 +3,11 @@ import datetime
 from flask import request
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
+from utils.auth_utils import role_required
 from models import (
     create_video, get_all_videos, get_video_by_id,
     update_video, block_video, unblock_video, delete_video,
-    increment_video_views, increment_video_likes,get_mentor_videos
+    increment_video_views, increment_video_likes,get_mentor_videos,approve_video
 )
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "static", "videos")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True) 
@@ -65,6 +66,14 @@ class VideoListAPI(Resource):
         print("Files:", request.files)
         return {"message": "Video uploaded successfully"}, 201
 
+class ApproveVideoAPI(Resource):
+    @jwt_required()
+    @role_required('admin')
+    def post(self, video_id):
+        updated = approve_video(video_id)  
+        if updated:
+            return {"message": f"Video {video_id} approved successfully"}, 200
+        return {"error": "Video not found"}, 404
 
 class VideoAPI(Resource):
     @jwt_required()

@@ -8,6 +8,8 @@ import AllUsers from "@/components/Admin/Alluser";
 import TrainerApproval from "@/components/Admin/TrainerApproval";
 import ContentApproval from "@/components/Admin/ContentApproval";
 import AdminNotifications from "@/components/Admin/adminNotification";
+import ModuleCreation from "@/components/Admin/ModuleCreation";
+
 
 
 
@@ -37,8 +39,9 @@ export default function SupportHome() {
         <nav className={`${mobileMenuOpen ? "block" : "hidden"} lg:block`}>
           <div className="flex flex-col gap-4">
             <button onClick={() => setSelectedSection("users")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">ALL USERS</button>
-            <button onClick={() => setSelectedSection("trainer")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">TRAINER APPROVAL</button>
+            {/* <button onClick={() => setSelectedSection("trainer")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">TRAINER APPROVAL</button> */}
             <button onClick={() => setSelectedSection("content")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">CONTENT APPROVAL</button>
+            <button onClick={() => setSelectedSection("modules")} className="bg-blue-500 hover:bg-indigo-200 rounded-lg px-4 py-3 text-left font-semibold">MODULE CREATION</button>
           </div>
         </nav>
       </aside>
@@ -66,22 +69,33 @@ export default function SupportHome() {
         </div>
 
        
-          {selectedSection === "home" && (
-             <div className="bg-white border border-gray-200 p-6 rounded-xl shadow max-w-5xl">
-            <ul className="list-disc pl-6 space-y-4 text-base leading-relaxed">
-              <li><strong>Record Keeping and Data Management:</strong> Organizing, maintaining, and updating records, files, and databases.</li>
-              <li><strong>Communication and Coordination:</strong> Facilitating effective communication within the organization, coordinating meetings and events, and liaising with external stakeholders.</li>
-              <li><strong>Support for Other Departments:</strong> Providing assistance to other teams, such as HR, finance, and IT, with tasks like recruitment, invoicing, and budget management.</li>
-              <li><strong>Ensuring Compliance:</strong> Adhering to company policies, procedures, and regulatory requirements.</li>
-              <li><strong>Resource Management:</strong> Managing office supplies, equipment, and other resources to ensure they are readily available and maintained.</li>
-              <li><strong>Scheduling and Planning:</strong> Managing schedules, booking appointments, and coordinating travel arrangements.</li>
-            </ul>
-             </div>
-          )}
+              {selectedSection === "home" && (
+        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow max-w-5xl">
+          <ul className="list-disc pl-6 space-y-4 text-base leading-relaxed">
+            <li>
+              <strong>User Management:</strong> View, block/unblock, and manage registered users across all roles.
+            </li>
+            <li>
+              <strong>Content Moderation:</strong> Monitor and approve content uploaded by mentors to ensure quality and compliance.
+            </li>
+            <li>
+              <strong>Module & Topic Creation:</strong> Create learning modules and topics for mentors to upload structured content.
+            </li>
+            <li>
+              <strong>Platform Oversight:</strong> Ensure that all activities on the platform follow policies, guidelines, and standards.
+            </li>
+            <li>
+              <strong>Analytics & Reports:</strong> Access dashboards to track user growth, mentor contributions, and content performance.
+            </li>
+          </ul>
+        </div>
+      )}
+
 
         {selectedSection === "users" && <AllUsers />}
-        {selectedSection === "trainer" && <TrainerApproval />}
+        {/* {selectedSection === "trainer" && <TrainerApproval />} */}
         {selectedSection === "content" && <ContentApproval />}
+        {selectedSection === "modules" && <ModuleCreation />}
         {selectedSection === "notification" && (
           <AdminNotifications notifications={notifications} />
         )}

@@ -42,14 +42,24 @@ export default function ContentApproval() {
 
   // Approve Content
   const handleApprove = async (id) => {
-    alert(`Approve content ID: ${id}`);
-    // You can POST to your backend approval endpoint here
-  };
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE_URL}/admin/contents/approve/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  // Reject Content
-  const handleReject = async (id) => {
-    alert(`Reject content ID: ${id}`);
-    // You can POST to your backend rejection endpoint here
+      if (!res.ok) throw new Error(`Error approving content: ${res.status}`);
+
+      // ✅ Remove approved content from UI without reload
+      setContents((prev) => prev.filter((c) => c.id !== id));
+    } catch (error) {
+      console.error(error);
+      alert("Failed to approve content");
+    }
   };
 
   if (loading) {
@@ -61,7 +71,7 @@ export default function ContentApproval() {
       <h3 className="text-xl font-bold mb-4">Pending Content Approvals</h3>
 
       {contents.length === 0 ? (
-        <p>No pending contents.</p>
+        <p>No pending contents 🎉</p>
       ) : (
         <>
           {/* Desktop Table View */}
@@ -72,6 +82,7 @@ export default function ContentApproval() {
                   <th className="p-2 text-left">ID</th>
                   <th className="p-2 text-left">Title</th>
                   <th className="p-2 text-left">Uploader</th>
+                  <th className="p-2 text-left">Module</th>
                   <th className="p-2 text-left">Actions</th>
                 </tr>
               </thead>
@@ -80,19 +91,14 @@ export default function ContentApproval() {
                   <tr key={content.id} className="border-t">
                     <td className="p-2">{content.id}</td>
                     <td className="p-2">{content.title}</td>
-                    <td className="p-2">{content.uploader}</td>
+                    <td className="p-2">{content.uploaded_by}</td>
+                    <td className="p-2">{content.module_id}</td>
                     <td className="p-2 space-x-2">
                       <button
                         onClick={() => handleApprove(content.id)}
                         className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                       >
                         Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(content.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        Reject
                       </button>
                     </td>
                   </tr>
@@ -115,7 +121,11 @@ export default function ContentApproval() {
                   <span className="font-bold">Title:</span> {content.title}
                 </p>
                 <p className="text-sm">
-                  <span className="font-bold">Uploader:</span> {content.uploader}
+                  <span className="font-bold">Uploader:</span>{" "}
+                  {content.uploaded_by}
+                </p>
+                <p className="text-sm">
+                  <span className="font-bold">Module:</span> {content.module_id}
                 </p>
 
                 <div className="flex flex-wrap gap-2 mt-2">
@@ -124,12 +134,6 @@ export default function ContentApproval() {
                     className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
                   >
                     Approve
-                  </button>
-                  <button
-                    onClick={() => handleReject(content.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                  >
-                    Reject
                   </button>
                 </div>
               </div>

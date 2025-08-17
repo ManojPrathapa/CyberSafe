@@ -511,6 +511,22 @@ def get_all_videos():
     conn.close()
     return videos
 
+def approve_video(video_id: int):
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        query = "UPDATE videos SET isApproved = 1 WHERE id = %s"
+        cursor.execute(query, (video_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print("Error approving video:", e)
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+
 def get_video_by_id(video_id):
     conn = get_db_connection()
     video = conn.execute("""
