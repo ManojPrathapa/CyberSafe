@@ -1,20 +1,6 @@
----
-
-````markdown
 # 🚀 CyberSafe: Cybersecurity Awareness Platform  
-
 CyberSafe is a **full-stack web application** built to **educate children, parents, and mentors** about safe online practices. With interactive modules, detailed dashboards, and intuitive interfaces, CyberSafe empowers families to **navigate the digital world with confidence**.
 
-<div align="center">
-  
-![GitHub last commit](https://img.shields.io/github/last-commit/ManojPrathapa/CyberSafe?color=blue&style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues/ManojPrathapa/CyberSafe?style=flat-square)
-![GitHub license](https://img.shields.io/github/license/ManojPrathapa/CyberSafe?style=flat-square)
-![GitHub Repo stars](https://img.shields.io/github/stars/ManojPrathapa/CyberSafe?style=flat-square)
-
-</div>
-
----
 
 ## 📚 Table of Contents  
 - [✨ Features](#-features)  
@@ -160,9 +146,6 @@ python app.py  # or python manage.py runserver (if using Django)
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome and appreciated! 💡
 
 ### 🧩 Steps to Contribute:
 
