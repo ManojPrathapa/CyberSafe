@@ -1,22 +1,29 @@
-```markdown
+---
+
+````markdown
 # 🚀 CyberSafe: Cybersecurity Awareness Platform  
 
-CyberSafe is a full-stack web application designed to **educate children, parents, and mentors about online safety**.  
-Through interactive modules, progress tracking, and dedicated dashboards, CyberSafe empowers families to navigate the digital world securely.  
+CyberSafe is a **full-stack web application** built to **educate children, parents, and mentors** about safe online practices. With interactive modules, detailed dashboards, and intuitive interfaces, CyberSafe empowers families to **navigate the digital world with confidence**.
 
+<div align="center">
+  
 ![GitHub last commit](https://img.shields.io/github/last-commit/ManojPrathapa/CyberSafe?color=blue&style=flat-square)
 ![GitHub issues](https://img.shields.io/github/issues/ManojPrathapa/CyberSafe?style=flat-square)
-![License](https://img.shields.io/github/license/ManojPrathapa/CyberSafe?style=flat-square)
+![GitHub license](https://img.shields.io/github/license/ManojPrathapa/CyberSafe?style=flat-square)
+![GitHub Repo stars](https://img.shields.io/github/stars/ManojPrathapa/CyberSafe?style=flat-square)
+
+</div>
 
 ---
 
-## 📖 Table of Contents  
+## 📚 Table of Contents  
 - [✨ Features](#-features)  
 - [🛠️ Tech Stack](#️-tech-stack)  
 - [📂 Project Structure](#-project-structure)  
 - [⚡ Getting Started](#-getting-started)  
-  - [Frontend Setup](#frontend-setup)  
-  - [Backend Setup](#backend-setup)  
+  - [✅ Prerequisites](#-prerequisites)  
+  - [🎨 Frontend Setup](#-frontend-setup)  
+  - [🖥️ Backend Setup](#-backend-setup)  
 - [▶️ Usage](#️-usage)  
 - [📸 Screenshots](#-screenshots)  
 - [🤝 Contributing](#-contributing)  
@@ -27,164 +34,181 @@ Through interactive modules, progress tracking, and dedicated dashboards, CyberS
 
 ## ✨ Features  
 
-- 🎓 **Child Learning Modules** – Interactive, age-appropriate lessons on cyber safety.  
-- 🧑‍🏫 **Mentor Dashboard** – Upload and manage educational content.  
-- 👨‍👩‍👧 **Parent Dashboard** – Track child’s progress and monitor learning outcomes.  
-- 📊 **Data Visualization** – Progress reports and insights using charts.  
-- 📱 **Responsive Design** – Works seamlessly across devices.  
-- ⚡ **Modern Web Stack** – Fast, scalable, and easy to maintain.  
+- 🎓 **Child Learning Modules** — Interactive, age-specific lessons for children.  
+- 🧑‍🏫 **Mentor Dashboard** — Tools for mentors to upload and manage educational content.  
+- 👨‍👩‍👧 **Parent Dashboard** — Monitor child progress and learning history.  
+- 📊 **Data Visualization** — Insightful charts and progress tracking.  
+- 📱 **Responsive Design** — Seamlessly adapts across devices.  
+- ⚙️ **Modular Architecture** — Scalable and easy to maintain.
 
 ---
 
 ## 🛠️ Tech Stack  
 
-**Frontend:**  
+**Frontend**  
 - [Next.js](https://nextjs.org/) (App Router)  
 - [React 18](https://react.dev/)  
 - [Tailwind CSS](https://tailwindcss.com/)  
-- [Recharts](https://recharts.org/) (for charts/visualizations)  
+- [Recharts](https://recharts.org/) (for charts)
 
-**Backend:**  
-- Python (Flask/Django – depending on implementation in `/backend`)  
-- REST APIs  
+**Backend**  
+- Python (Flask or Django)  
+- RESTful API design  
 
-**Other Tools:**  
+**Other Tools**  
 - Git & GitHub  
-- CSV/Excel data integration  
+- CSV/Excel integration  
+- Responsive Design Tools  
 
 ---
 
 ## 📂 Project Structure  
 
-```
 ```bash
 CyberSafe/
-├── backend/                      # Backend services (APIs, auth, data handling)
-├── cyber-awareness-frontend/     # Next.js frontend
-│   ├── app/                      # Application routes
+├── backend/                      # Backend (Flask/Django APIs, auth, data logic)
+├── cyber-awareness-frontend/    # Next.js frontend app
+│   ├── app/
 │   │   ├── child/                # Child dashboard
 │   │   ├── parent/               # Parent dashboard
 │   │   ├── mentor/               # Mentor dashboard
 │   │   ├── admin/                # Admin panel
-│   │   └── page.js               # Landing page
-│   ├── components/               # Reusable UI components
-│   │   ├── Navbar.jsx
-│   │   └── Footer.jsx
-│   ├── public/                   # Static assets
+│   │   └── page.js               # Landing/Home page
+│   ├── components/              # Reusable components (Navbar, Footer, etc.)
+│   ├── public/                  # Static assets
 │   ├── package.json
 │   └── tailwind.config.js
-├── requirements.txt              # Python dependencies
+├── requirements.txt              # Backend dependencies
 ├── LICENSE
 ├── README.md
 └── .gitignore
-```
 ````
 
 ---
 
-## ⚡ Getting Started  
+## ⚡ Getting Started
 
-### ✅ Prerequisites  
-- [Node.js](https://nodejs.org/) v18+  
-- [npm](https://www.npmjs.com/) v9+  
-- [Python](https://www.python.org/) (for backend)  
+### ✅ Prerequisites
+
+Make sure the following are installed on your machine:
+
+* [Node.js](https://nodejs.org/) v18+
+* [npm](https://www.npmjs.com/) v9+
+* [Python](https://www.python.org/) (for backend)
+* Git
 
 ---
 
-### 🎨 Frontend Setup  
+### 🎨 Frontend Setup
 
 ```bash
-# Navigate to frontend
-cd cyber-awareness-frontend
+# Clone the repository
+git clone https://github.com/ManojPrathapa/CyberSafe.git
+
+# Navigate to frontend directory
+cd CyberSafe/cyber-awareness-frontend
 
 # Install dependencies
 npm install
 
-# Optional: install recharts if not included
+# Install Recharts (if not already included)
 npm install recharts
 
-# Run development server
+# Start the development server
 npm run dev
-````
+```
 
-Frontend will be available at: **[http://localhost:3000](http://localhost:3000)**
+🌐 Visit `http://localhost:3000` to access the frontend.
 
 ---
 
 ### 🖥️ Backend Setup
 
 ```bash
-# Navigate to backend
-cd backend
+# Navigate to the backend directory
+cd CyberSafe/backend
 
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Run backend server (update with actual run command)
-python app.py
+# Start the backend server
+python app.py  # or python manage.py runserver (if using Django)
 ```
 
-Backend will be available at: **[http://localhost:5000](http://localhost:5000)** (example, update if different).
+🔌 Backend will be available at: `http://localhost:5000` *(update if different)*
 
 ---
 
 ## ▶️ Usage
 
-* **Child Login** → Access learning modules.
-* **Parent Login** → Track child’s progress & reports.
-* **Mentor Login** → Upload learning materials.
-* **Admin Login** → Manage users and content.
+* 👶 **Child Login** – Access fun and interactive learning modules.
+* 👨‍👩‍👧 **Parent Login** – Track child’s learning, view analytics, and monitor safety metrics.
+* 🧑‍🏫 **Mentor Login** – Upload and manage learning materials.
+* 🛠️ **Admin Panel** – Manage users, modules, and content.
 
 ---
 
 ## 📸 Screenshots
 
-> *(Add screenshots here to showcase UI – login pages, dashboards, charts, etc.)*
+> *Give users a visual preview of your app!*
 
-Example:
+| Child Dashboard                                     | Parent Report                                   |
+| --------------------------------------------------- | ----------------------------------------------- |
+| ![Child Dashboard](screenshots/child-dashboard.png) | ![Parent Report](screenshots/parent-report.png) |
 
-```markdown
-![Child Dashboard](screenshots/child-dashboard.png)
-![Parent Progress Report](screenshots/parent-report.png)
-```
+> Add more screenshots in the `/screenshots` directory to showcase the platform.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! 🚀
+Contributions are welcome and appreciated! 💡
 
-1. Fork the repo
-2. Create a feature branch:
+### 🧩 Steps to Contribute:
 
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Commit your changes:
+1. **Fork** this repository
+2. **Clone** your forked repo
+3. Create a new branch
 
    ```bash
-   git commit -m "Add new feature"
+   git checkout -b feature/your-feature-name
    ```
-4. Push and create a Pull Request
+4. Commit your changes
+
+   ```bash
+   git commit -m "✨ Added new feature"
+   ```
+5. Push to your fork
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+6. Create a **Pull Request** and describe your changes
+
+> Please follow the project's code style and naming conventions.
 
 ---
 
 ## 📜 License
 
 This project is licensed under the **MIT License**.
-See the [LICENSE](LICENSE) file for more details.
+See the [LICENSE](./LICENSE) file for details.
 
 ---
 
 ## 👨‍💻 Author
 
 **Manoj Prathapa**
-🔗 [GitHub Profile](https://github.com/ManojPrathapa)
-
-Special thanks to the **team members** who contributed to this project. 🙌
+🔗 [GitHub](https://github.com/ManojPrathapa)
+🌟 *Special thanks to the amazing team and contributors who helped bring CyberSafe to life!*
 
 ---
 
-⭐ If you found this project useful, consider giving it a **star** on GitHub! ⭐
+<div align="center">
 
+⭐️ *If you find this project helpful, give it a star on GitHub!* ⭐️
+
+</div>
 ```
+
+---
