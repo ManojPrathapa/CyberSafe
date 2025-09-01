@@ -57,7 +57,7 @@ Through interactive modules, progress tracking, and dedicated dashboards, CyberS
 ## 📂 Project Structure  
 
 ```
-
+```bash
 CyberSafe/
 ├── backend/                      # Backend services (APIs, auth, data handling)
 ├── cyber-awareness-frontend/     # Next.js frontend
@@ -77,7 +77,7 @@ CyberSafe/
 ├── LICENSE
 ├── README.md
 └── .gitignore
-
+```
 ````
 
 ---
@@ -187,16 +187,4 @@ Special thanks to the **team members** who contributed to this project. 🙌
 
 ⭐ If you found this project useful, consider giving it a **star** on GitHub! ⭐
 
-```
-
----
-
-This version is **ready to paste** into your repo and looks very polished:  
-- ✅ Clear structure  
-- ✅ Badges for professionalism  
-- ✅ Features & tech stack highlighted  
-- ✅ Screenshots section (you can add images later)  
-- ✅ Installation & usage steps cleanly written  
-
-Do you want me to also **design custom badges and a banner logo** (like "CyberSafe" with a lock/cybersecurity theme) so the README stands out even more visually?
 ```
