@@ -18,14 +18,42 @@ CyberSafe is a **full-stack web application** built to **educate children, paren
 
 ---
 
-## ✨ Features  
+## ✨ Key Features  
 
-- 🎓 **Child Learning Modules** — Interactive, age-specific lessons for children.  
-- 🧑‍🏫 **Mentor Dashboard** — Tools for mentors to upload and manage educational content.  
-- 👨‍👩‍👧 **Parent Dashboard** — Monitor child progress and learning history.  
-- 📊 **Data Visualization** — Insightful charts and progress tracking.  
-- 📱 **Responsive Design** — Seamlessly adapts across devices.  
-- ⚙️ **Modular Architecture** — Scalable and easy to maintain.
+- 🎓 **Interactive Child Learning Modules**  
+  A rich library of engaging, age-tailored lessons designed to instill cyber safety awareness in children.  
+  Includes storytelling, scenario-based learning, and gamified quizzes that make complex cybersecurity concepts easy and fun to grasp.  
+
+- 🧑‍🏫 **Comprehensive Mentor Dashboard**  
+  Provides mentors with tools to upload, organize, and manage cybersecurity learning materials.  
+  Features include structured content management, assignment of tasks to learners, and easy tracking of module completion rates.  
+
+- 👨‍👩‍👧 **Insightful Parent Dashboard**  
+  Parents can actively monitor their child’s learning journey with access to real-time progress reports, activity history, and detailed performance analytics.  
+  Offers personalized recommendations for guiding children in safe digital practices.  
+
+- 📊 **Smart Data Visualization & Analytics**  
+  Displays performance and engagement through intuitive graphs, charts, and dashboards.  
+  Transforms raw learning data into actionable insights that help parents and mentors identify strengths, weaknesses, and improvement opportunities.  
+
+- 📱 **Seamless Responsive Design**  
+  Built with a mobile-first approach, ensuring an optimized user experience across desktops, tablets, and smartphones.  
+  Enables learning and monitoring on the go, without compromising accessibility or usability.  
+
+- ⚙️ **Scalable Modular Architecture**  
+  Designed with clean, modular components that make it easy to extend features, fix bugs, and scale the platform as user demand grows.  
+  Ensures long-term maintainability, faster development cycles, and seamless integration with future enhancements.  
+
+- 🔒 **Cybersecurity-Focused Content**  
+  All learning materials are curated to address real-world cyber threats such as phishing, safe browsing, password hygiene, and digital well-being.  
+  Content is regularly updated to keep pace with evolving cybersecurity risks and best practices.  
+
+- 🌐 **Multi-Role Access Control**  
+  Role-based access for children, parents, mentors, and admins ensures a secure and personalized experience for every type of user.  
+  Each role has tailored features designed to meet their unique needs.  
+
+- 🚀 **Future-Ready Platform**  
+  Built with modern frameworks like **Next.js** and **React**, the platform supports rapid feature development, easy deployment, and integration with third-party tools (e.g., analytics, authentication, cloud hosting).  
 
 ---
 
@@ -121,28 +149,78 @@ pip install -r requirements.txt
 python app.py  # or python manage.py runserver (if using Django)
 ```
 
-🔌 Backend will be available at: `http://localhost:5000` *(update if different)*
 
 ---
 
-## ▶️ Usage
+## ▶️ Usage  
 
-* 👶 **Child Login** – Access fun and interactive learning modules.
-* 👨‍👩‍👧 **Parent Login** – Track child’s learning, view analytics, and monitor safety metrics.
-* 🧑‍🏫 **Mentor Login** – Upload and manage learning materials.
-* 🛠️ **Admin Panel** – Manage users, modules, and content.
+CyberSafe provides dedicated experiences for each type of user, ensuring tailored functionality and security.  
+
+- 👶 **Child Login**  
+  Grants children access to **fun, interactive, and age-appropriate learning modules** designed to teach cyber safety in an engaging way.  
+  Includes quizzes, stories, and gamified activities to make learning memorable.  
+
+- 👨‍👩‍👧 **Parent Login**  
+  Empowers parents to **track their child’s progress, view analytics, and monitor online safety habits**.  
+  Provides actionable insights, personalized recommendations, and historical data to guide children towards responsible digital behavior.  
+
+- 🧑‍🏫 **Mentor Login**  
+  Offers mentors a **centralized dashboard to upload, organize, and manage educational materials**.  
+  Enables mentors to assign learning tasks, review completion rates, and measure overall impact on students’ digital literacy.  
+
+- 🛠️ **Admin Panel**  
+  Provides administrators with **full control over the platform**, including user management, module creation, and content moderation.  
+  Ensures smooth operation, scalability, and data integrity across all user roles.  
+
+---
+## 📸 Screenshots  
+
+Below are sample views of the **CyberSafe Platform**, organized by user role.  
 
 ---
 
-## 📸 Screenshots
+### 👶 Child Interface  
 
-> *Give users a visual preview of your app!*
+| Dashboard                                   | Content Module Page                             |
+| ------------------------------------------- | ----------------------------------------------- |
+| ![Child Dashboard](screenshots/child-dashboard.png) | ![Content Module](screenshots/content-module.png) |
 
-| Child Dashboard                                     | Parent Report                                   |
-| --------------------------------------------------- | ----------------------------------------------- |
-| ![Child Dashboard](screenshots/child-dashboard.png) | ![Parent Report](screenshots/parent-report.png) |
+| Quizzes Page                                |
+| ------------------------------------------- |
+| ![Quizzes](screenshots/child-quizzes.png)   |
 
-> Add more screenshots in the `/screenshots` directory to showcase the platform.
+---
+
+### 👨‍👩‍👧 Parent Interface  
+
+| Parent Dashboard                            | Activity Tracker Page                           |
+| ------------------------------------------- | ----------------------------------------------- |
+| ![Parent Dashboard](screenshots/parent-dashboard.png) | ![Activity Tracker](screenshots/parent-activity-tracker.png) |
+
+---
+
+### 🧑‍🏫 Mentor / Trainer Interface  
+
+| Mentor Dashboard                            | Quiz Creation Page                              |
+| ------------------------------------------- | ----------------------------------------------- |
+| ![Mentor Dashboard](screenshots/mentor-dashboard.png) | ![Quiz Creation](screenshots/mentor-quiz-creation.png) |
+
+| Forum Page                                  | Video/Module Upload Page                        |
+| ------------------------------------------- | ----------------------------------------------- |
+| ![Forum](screenshots/mentor-forum.png)      | ![Video Upload](screenshots/mentor-video-upload.png) |
+
+---
+
+### 🛠️ Admin Interface  
+
+| User Tracker Page                           | Content Approval Page                           |
+| ------------------------------------------- | ----------------------------------------------- |
+| ![User Tracker](screenshots/admin-user-tracker.png) | ![Content Approval](screenshots/admin-content-approval.png) |
+
+---
+
+> 📂 Place all screenshots in the `/screenshots` directory with filenames matching the references above.  
+> For example: `screenshots/child-dashboard.png`, `screenshots/mentor-forum.png`, etc.  
 
 ---
 
