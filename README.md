@@ -179,15 +179,21 @@ Below are sample views of the **CyberSafe Platform**, organized by user role.
 
 ---
 
+## 📸 Screenshots  
+
+Below are sample views of the **CyberSafe Platform**, organized by user role.  
+
+---
+
 ### 👶 Child Interface  
 
 | Dashboard                                   | Content Module Page                             |
 | ------------------------------------------- | ----------------------------------------------- |
-| ![Child Dashboard](screenshots/child-dashboard.png) | ![Content Module](screenshots/content-module.png) |
+| ![Child Dashboard](/screenshots/child-dashboard.png) | ![Content Module](/screenshots/content-module.png) |
 
 | Quizzes Page                                |
 | ------------------------------------------- |
-| ![Quizzes](screenshots/child-quizzes.png)   |
+| ![Child Quizzes](/screenshots/child-quizes.png) |
 
 ---
 
@@ -195,7 +201,7 @@ Below are sample views of the **CyberSafe Platform**, organized by user role.
 
 | Parent Dashboard                            | Activity Tracker Page                           |
 | ------------------------------------------- | ----------------------------------------------- |
-| ![Parent Dashboard](screenshots/parent-dashboard.png) | ![Activity Tracker](screenshots/parent-activity-tracker.png) |
+| ![Parent Dashboard](/screenshots/parent-dashboard.png) | ![Activity Tracker](/screenshots/parent-activity%20tracker.png) |
 
 ---
 
@@ -203,26 +209,24 @@ Below are sample views of the **CyberSafe Platform**, organized by user role.
 
 | Mentor Dashboard                            | Quiz Creation Page                              |
 | ------------------------------------------- | ----------------------------------------------- |
-| ![Mentor Dashboard](screenshots/mentor-dashboard.png) | ![Quiz Creation](screenshots/mentor-quiz-creation.png) |
+| ![Mentor Dashboard](/screenshots/mentor-dashboard.png) | ![Quiz Creation](/screenshots/mentor-quiz%20creation.png) |
 
 | Forum Page                                  | Video/Module Upload Page                        |
 | ------------------------------------------- | ----------------------------------------------- |
-| ![Forum](screenshots/mentor-forum.png)      | ![Video Upload](screenshots/mentor-video-upload.png) |
+| ![Mentor Forum](/screenshots/mentor-forum.png) | ![Video Upload](/screenshots/mentor-video-upload.png) |
 
 ---
 
 ### 🛠️ Admin Interface  
 
-| User Tracker Page                           | Content Approval Page                           |
+| Admin Dashboard                             | Content Approval Page                           |
 | ------------------------------------------- | ----------------------------------------------- |
-| ![User Tracker](screenshots/admin-user-tracker.png) | ![Content Approval](screenshots/admin-content-approval.png) |
+| ![Admin Dashboard](/screenshots/admin-dashboard.png) | ![Content Approval](/screenshots/admin-content-approval.png) |
 
 ---
 
-> 📂 Place all screenshots in the `/screenshots` directory with filenames matching the references above.  
-> For example: `screenshots/child-dashboard.png`, `screenshots/mentor-forum.png`, etc.  
+> 📂 All screenshots are stored in the `/screenshots` directory.  
 
----
 
 
 ### 🧩 Steps to Contribute:
@@ -270,4 +274,3 @@ See the [LICENSE](./LICENSE) file for details.
 ⭐️ *If you find this project helpful, give it a star on GitHub!* ⭐️
 
 </div>
-```
